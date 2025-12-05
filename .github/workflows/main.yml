@@ -66,4 +66,30 @@ jobs:
         echo "Timestamp: $(date)"
         echo "Status: All systems operational"
         echo "Next scheduled run: Daily at 2 AM UTC"
-        echo "====================================
+        echo "===================================="
+
+            
+    - name: Generate README Badge
+      run: |
+        echo "Generating workflow status badge..."
+        echo "![Workflow Status](https://github.com/${{ github.repository }}/actions/workflows/main.yml/badge.svg)" > BADGE.md
+        echo "Badge generated successfully"
+    
+    - name: Repository Statistics
+      run: |
+        echo "=== GEOBRAIN Repository Statistics ==="
+        echo "Total commits: $(git rev-list --count HEAD)"
+        echo "Contributors: $(git log --format='%aN' | sort -u | wc -l)"
+        echo "Latest commit: $(git log -1 --pretty=%B)"
+        echo "Branch: $(git branch --show-current)"
+        echo "======================================"
+    
+    - name: Workflow Summary
+      run: |
+        echo "### Automation Summary" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "- Repository: ${{ github.repository }}" >> $GITHUB_STEP_SUMMARY
+        echo "- Workflow: GEOBRAIN Automation & Sync" >> $GITHUB_STEP_SUMMARY
+        echo "- Status: ✅ Completed Successfully" >> $GITHUB_STEP_SUMMARY
+        echo "- Timestamp: $(date)" >> $GITHUB_STEP_SUMMARY
+        echo "- Next Run: Daily at 2 AM UTC" >> $GITHUB_STEP_SUMMARY
