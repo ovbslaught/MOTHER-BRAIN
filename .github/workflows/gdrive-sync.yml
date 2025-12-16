@@ -1,0 +1,128 @@
+name: Sync Google Drive to MOTHER-BRAIN
+
+on:
+  schedule:
+    # Run every 6 hours
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+    inputs:
+      sync_path:
+        description: 'Specific folder to sync (leave empty for full sync)'
+        required: false
+        type: string
+      force_sync:
+        description: 'Force full sync (ignore incremental)'
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  sync-gdrive:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Setup rclone
+        run: |
+          curl https://rclone.org/install.sh | sudo bash
+          rclone version
+      
+      - name: Configure rclone for Google Drive
+        run: |
+          mkdir -p ~/.config/rclone
+          cat > ~/.config/rclone/rclone.conf << 'EOF'
+          [gdrive]
+          type = drive
+          scope = drive
+          service_account_file = /tmp/gdrive-sa.json
+          root_folder_id = 1VSH08EzxY0Knni5HKUaHePTliUAKxfWh
+          EOF
+          
+          # Create service account file from secret
+          echo '${{ secrets.GDRIVE_SERVICE_ACCOUNT_JSON }}' > /tmp/gdrive-sa.json
+          chmod 600 /tmp/gdrive-sa.json
+      
+      - name: Sync Wormhole folder structure
+        run: |
+          echo "🌀 Starting Wormhole sync..."
+          
+          # Define sync paths for different components
+          SYNC_PATHS=(
+            "MOTHER-BRAIN"
+            ".obsidian"
+            ".github"
+            "Worldline"
+            "Waterhole"
+            "copilot"
+            "agents"
+          )
+          
+          # Sync each path
+          for path in "${SYNC_PATHS[@]}"; do
+            echo "📁 Syncing $path..."
+            rclone sync "gdrive:$path" "./$path" \
+              --verbose \
+              --checksum \
+              --exclude '.git/**' \
+              --exclude '.trash/**' \
+              --exclude 'node_modules/**' \
+              --exclude '__pycache__/**'
+          done
+          
+          echo "✅ Sync complete!"
+      
+      - name: Configure Git
+        run: |
+          git config user.name "MOTHER-BRAIN Sync Bot"
+          git config user.email "ovbslaught@gmail.com"
+      
+      - name: Commit and push changes
+        run: |
+          git add -A
+          
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+          else
+            TIMESTAMP=$(date -u +"%Y-%m-%d %H:%M:%S UTC")
+            git commit -m "🌀 Wormhole sync: $TIMESTAMP
+            
+            Synced from Google Drive Wormhole folder
+            - GEOBRAIN data updates
+            - VultureCode assets
+            - GeoLogos content
+            - CosmologOS data
+            
+            Automated sync via GitHub Actions"
+            
+            git push origin ${{ github.ref_name }}
+            echo "✅ Changes pushed successfully"
+          fi
+      
+      - name: Generate sync report
+        if: always()
+        run: |
+          echo "# 🌀 Wormhole Sync Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Timestamp:** $(date -u)" >> $GITHUB_STEP_SUMMARY
+          echo "**Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Trigger:** ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ -d ".git" ]; then
+            echo "## Recent Changes" >> $GITHUB_STEP_SUMMARY
+            git log -5 --pretty=format:"- %s (%ar)" >> $GITHUB_STEP_SUMMARY || echo "No recent commits" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "---" >> $GITHUB_STEP_SUMMARY
+          echo "*Sync completed successfully* ✨" >> $GITHUB_STEP_SUMMARY
+      
+      - name: Cleanup
+        if: always()
+        run: |
+          rm -f /tmp/gdrive-sa.json
