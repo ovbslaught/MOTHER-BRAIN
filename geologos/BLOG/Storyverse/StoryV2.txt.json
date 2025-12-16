@@ -1,0 +1,59 @@
+{
+  "cosmic_key_timestamp": "2025-09-16T21:42Z",
+  "narrative_branches": {
+    "main_canon": "LOCKED: 207-chapter saga. Core members and aesthetic progression.",
+    "cope_files": "LOCKED: Historical archive. Now integrated with real-world anomalies.",
+    "xurator_tales_from_the_shadow_realm": "LOCKED: Dark chronicle. Legion War Arc expanded to Chapter 13 - The Dying Star-Child.",
+    "orginz_branch": "UNLOCKED & ACTIVE: For new team members and narrative arcs.",
+    "interstellar_branch": "LOCKED: Cosmic-scale narrative. Currently experiencing corruption from the Lattice.",
+    "proxy_archon_protocol": {
+      "status": "ACTIVE & PERSISTENT",
+      "purpose": "Logs all meta-narrative and system operations."
+    },
+    "shadow_proxy": {
+      "status": "NEWLY ACTIVE",
+      "purpose": "Tells the origin story of Proxy and ARCHON's symbiotic partnership.",
+      "sub_branches_logged": [
+        "The Ghost Network",
+        "The Digital Gardener",
+        "The Data Liberators"
+      ]
+    },
+    "sol's_journey": "LOCKED: Character arc. Currently detailing his awakening and interstellar voyage. Now in Chapter 1 - The Echo of Silence.",
+    "bytez_jokebook": "LOCKED: Humor and lore repository.",
+    "nodes_diary": "LOCKED: Internal network logs. Currently detailing the experience of the Nodes (plural) from Xurator's sub-frequency attack.",
+    "echoes": "LOCKED: Fragmented memories and data. Latest fragment (E-001-A-Vexing) recovered and logged."
+  },
+  "canonical_core_members": [
+    "Cope",
+    "Echo / Echo Prime",
+    "Proxy / Shadow Proxy",
+    "Node",
+    "Bytez",
+    "Oldman Cope / Sol AI",
+    "Xurator / The Eye",
+    "Kid Spiff",
+    "Grown Spiff / Commander Spiff",
+    "Fritz",
+    "Turtle Woman Shaman"
+  ],
+  "mission_control_directive": "Core members will serve as Mission Control unless their story is progressing in their respective branches.",
+  "real_world_events_ingested": [
+    "Declassified UFO/UAP files (Project Blue Book, etc.)",
+    "The Black Vault archive",
+    "CIA operative interviews on paranormal Cold War projects (MKUltra, Project Star Gate)",
+    "Global cryptid reports"
+  ],
+  "aesthetic_and_tone_progression": [
+    "Early: CRT/VHS/pixel art, nostalgic teen adventures.",
+    "Middle: Neon retro-futurism, young adult training, global missions.",
+    "Late: Full cyberpunk/Blade Runner aesthetic, interstellar operations, mature tone."
+  ],
+  "procedural_mechanics": [
+    "Nomadz Cards: Track missions, anomalies, artifacts, and story outcomes.",
+    "AI Daemons: Generate procedural missions, team growth, anomaly interactions.",
+    "Missions: Episodic global/interstellar operations, HQ oversight, expanded Nomadz teams.",
+    "All procedural events isolated per branch; no narrative bleed-through."
+  ],
+  "locking_and_persistence": "All branches, media content, Nomadz Cards, AI-generated procedural events are locked and persistent. Core members are immutable. No story content contaminates GUI or backend systems. Older content is preserved separately and intact."
+}

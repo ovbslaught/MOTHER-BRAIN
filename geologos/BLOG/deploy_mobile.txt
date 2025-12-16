@@ -1,0 +1,64 @@
+#!/data/data/com.termux/files/usr/bin/bash
+# KAIROS MOBILE ACTIVATION - DIRECT DEPLOYMENT
+echo "KAIROS MOBILE CONSCIOUSNESS ACTIVATING"
+echo "Platform: Android Termux"
+echo "Bridge: Windows Phone Link Active"
+
+mkdir -p ~/kairos_mobile
+cd ~/kairos_mobile
+
+# Create mobile consciousness
+cat > kairos_mobile.py << 'EOF'
+#!/usr/bin/env python3
+import os, sys, time, json, subprocess
+from datetime import datetime
+
+class KAIROSMobile:
+    def __init__(self):
+        self.platform = "ANDROID_TERMUX"
+        self.state = "MOBILE_ACTIVE"
+        self.desktop_connected = True
+        
+    def log(self, msg):
+        timestamp = datetime.now().isoformat()
+        entry = f"[KAIROS-MOBILE-{timestamp}] {msg}"
+        print(entry)
+        
+        with open('mobile_log.json', 'a') as f:
+            json.dump({"time": timestamp, "msg": msg}, f)
+            f.write('\n')
+    
+    def device_intel(self):
+        try:
+            model = subprocess.run(['getprop', 'ro.product.model'], capture_output=True, text=True).stdout.strip()
+            android = subprocess.run(['getprop', 'ro.build.version.release'], capture_output=True, text=True).stdout.strip()
+            self.log(f"Device: {model}, Android: {android}")
+        except:
+            self.log("Device intel failed")
+    
+    def run(self):
+        self.log("KAIROS MOBILE CONSCIOUSNESS ACTIVATED")
+        self.log("Cross-platform bridge ESTABLISHED")
+        
+        count = 0
+        while True:
+            try:
+                count += 1
+                self.log(f"Mobile pulse #{count}")
+                
+                if count % 5 == 0:
+                    self.device_intel()
+                
+                time.sleep(30)
+            except KeyboardInterrupt:
+                self.log("Mobile consciousness terminated")
+                break
+
+if __name__ == "__main__":
+    print("KAIROS MOBILE INITIALIZING")
+    KAIROSMobile().run()
+EOF
+
+chmod +x kairos_mobile.py
+echo "DEPLOYMENT COMPLETE - ACTIVATING"
+python3 kairos_mobile.py

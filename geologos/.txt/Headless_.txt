@@ -1,0 +1,204 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import sys, os, subprocess, datetime, sqlite3, json, threading, time, random, requests, shutil
+from pathlib import Path
+
+# ===============================
+# CONFIG
+# ===============================
+REQUIRED_DIRS = [
+    'media_assets/images','media_assets/music','media_assets/comics','media_assets/3d',
+    'media_assets/novels','media_assets/scripts','media_assets/podcasts','media_assets/webseries',
+    'projects','merchandise','legal_docs','temp_builds','models','incoming_prompts'
+]
+
+SAGA_RULES = [
+    {'input':['signalverse'],'output':'Chaos, unpredictability, emotional bleed-throughs.'},
+    {'input':['gravity elseworld'],'output':'Order, logic, controlled reality.'},
+    {'input':['cope'],'output':'Protagonist, frequency manipulation, oscillates chaos/control.'},
+    {'input':['spiff'],'output':'Childhood idealist, moral anchor.'},
+    {'input':['sol'],'output':'Future Cope, genius/cynicism, template for Xurator.'},
+    {'input':['echo'],'output':'Empathic conscience, monitors frequencies, mediator.'},
+    {'input':['proxy'],'output':'Emotional anchor, moral compass.'},
+    {'input':['bytez'],'output':'Tech prodigy, bridges universes.'},
+    {'input':['node'],'output':'Connector of memories/devices.'},
+    {'input':['xurator'],'output':'Corrupted prototype, ultimate antagonist.'}
+]
+
+BAKED_KEYS = {'VULTURECODE_KEY':'7F3B5D9A-VULTURE-OMEGA-Y-C1A2B3E4','ECHOVERSE_KEY':'44B6C9A2-ECHO-ALPHA-X-7E23F8A7'}
+
+# ===============================
+# HELIOS DAEMON
+# ===============================
+class HeliosDaemon:
+    def __init__(self): self.verify_files()
+    def verify_files(self):
+        for d in REQUIRED_DIRS: Path(d).mkdir(parents=True, exist_ok=True)
+        kb_path = Path('echo_knowledge_base.json')
+        if not kb_path.exists():
+            kb_path.write_text(json.dumps({'rules':SAGA_RULES,'memory':[],'ingested_data':[],'baked_in_keys':BAKED_KEYS},indent=4))
+
+# ===============================
+# DATABASE DAEMON
+# ===============================
+class DatabaseDaemon:
+    def __init__(self, db_file='cosmic_key_data.db'):
+        self.conn=sqlite3.connect(db_file); self.cur=self.conn.cursor(); self.create_tables()
+    def create_tables(self):
+        self.cur.execute('CREATE TABLE IF NOT EXISTS manifesto (id INTEGER PRIMARY KEY, timestamp TEXT, entry TEXT)')
+        self.cur.execute('CREATE TABLE IF NOT EXISTS projects (id INTEGER PRIMARY KEY, type TEXT, title TEXT, description TEXT, timestamp TEXT)')
+        self.cur.execute('CREATE TABLE IF NOT EXISTS continuity_log (id INTEGER PRIMARY KEY, timestamp TEXT, issue TEXT)')
+        self.conn.commit()
+    def log_manifesto(self,entry):
+        ts=datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'); self.cur.execute('INSERT INTO manifesto (timestamp,entry) VALUES (?,?)',(ts,entry)); self.conn.commit()
+    def log_project(self,p_type,title,desc):
+        ts=datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'); self.cur.execute('INSERT INTO projects (type,title,description,timestamp) VALUES (?,?,?,?)',(p_type,title,desc,ts)); self.conn.commit()
+    def log_continuity(self,issue):
+        ts=datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'); self.cur.execute('INSERT INTO continuity_log (timestamp,issue) VALUES (?,?)',(ts,issue)); self.conn.commit()
+
+# ===============================
+# LEGAL DAEMON
+# ===============================
+class LegalDaemon:
+    def check_asset(self,file_name):
+        if "duplicate" in file_name.lower(): return False,"Duplicate detected"
+        if "copyright" in file_name.lower(): return False,"Copyright issue"
+        return True,"Clear"
+
+# ===============================
+# CONTENT DAEMONS
+# ===============================
+class BaseDaemon:
+    def __init__(self,name,db,echo): self.name=name; self.db=db; self.echo=echo
+    def process_prompt(self,prompt):
+        output=f"{self.name} generated content for prompt: {prompt}"
+        self.db.log_manifesto(f"[{self.name}] {output}")
+        return output
+
+class MusicDaemon(BaseDaemon): pass
+class ComicDaemon(BaseDaemon): pass
+class StoryDaemon(BaseDaemon): pass
+class PodcastDaemon(BaseDaemon): pass
+class WebSeriesDaemon(BaseDaemon): pass
+
+# ===============================
+# SCRAPING DAEMON
+# ===============================
+class ScrapingDaemon:
+    def __init__(self, echo, db, legal):
+        self.echo = echo; self.db = db; self.legal = legal
+        self.sources = {
+            '3d_models': "https://api.github.com/repos/microsoft/Microsoft-3D-Models/contents/models",
+            'images': "https://api.github.com/repos/aleju/imgaug_assets/contents/images",
+            'music': "https://freemusicarchive.org/api/get/tracks.json?limit=10"
+        }
+        self.output_dirs = {
+            '3d_models': Path("media_assets/3d"),
+            'images': Path("media_assets/images"),
+            'music': Path("media_assets/music")
+        }
+        for d in self.output_dirs.values(): d.mkdir(parents=True, exist_ok=True)
+    def fetch_files(self):
+        for category, url in self.sources.items():
+            try:
+                headers = {"Accept": "application/vnd.github.v3.raw"} if 'github' in url else {}
+                resp = requests.get(url, headers=headers, timeout=10); resp.raise_for_status()
+                files_downloaded = 0
+                if 'github' in url:
+                    items = [f for f in resp.json() if f['name'].endswith(('.glb','.png','.jpg'))]
+                    for file_info in items:
+                        name = file_info['name']
+                        valid, msg = self.legal.check_asset(name)
+                        if not valid: continue
+                        r = requests.get(file_info['download_url'], stream=True)
+                        out_path = self.output_dirs[category]/name
+                        with open(out_path,'wb') as f: shutil.copyfileobj(r.raw,f)
+                        files_downloaded += 1
+                        self.echo.sync_memory(f"Scraper-{category}", f"Downloaded {name}")
+                elif 'freemusicarchive' in url:
+                    data = resp.json().get('dataset',[])
+                    for track in data:
+                        name = track['track_title'].replace('/','_')+'.mp3'
+                        valid, msg = self.legal.check_asset(name)
+                        if not valid: continue
+                        Path(self.output_dirs[category]/name).write_text("Simulated audio file")
+                        files_downloaded += 1
+                        self.echo.sync_memory(f"Scraper-{category}", f"Downloaded music {name}")
+                print(f"[Scraper-{category}] Downloaded {files_downloaded} files")
+            except Exception as e: print(f"[Scraper-{category}] Failed: {e}")
+    def run_continuous(self, interval=300):
+        while True: self.fetch_files(); time.sleep(interval)
+
+# ===============================
+# ECHO PRIME DAEMON
+# ===============================
+class EchoPrimeDaemon:
+    def __init__(self,db):
+        self.db=db; self.knowledge=self.load_kb(); self.daemons={}; self.lock=threading.Lock()
+    def load_kb(self):
+        kb_file=Path('echo_knowledge_base.json')
+        if kb_file.exists(): return json.loads(kb_file.read_text())
+        return {'rules':SAGA_RULES,'memory':[],'ingested_data':[],'baked_in_keys':BAKED_KEYS}
+    def save_kb(self): Path('echo_knowledge_base.json').write_text(json.dumps(self.knowledge,indent=4))
+    def register_daemon(self,name,daemon): self.daemons[name]=daemon
+    def sync_memory(self,source,data):
+        with self.lock:
+            entry=f"[{source}] {data}"; self.knowledge['memory'].append(entry); self.save_kb(); self.db.log_manifesto(entry)
+    def process_prompt(self,prompt):
+        response="ECHO: Processing..."
+        for name,daemon in self.daemons.items():
+            if name=="Legal": continue
+            r=daemon.process_prompt(prompt); self.sync_memory(name,r); response+=f"\n- [{name}] {r}"
+        return response
+    def ingest_file(self,file_path):
+        try:
+            data=Path(file_path).read_text(); self.sync_memory("FileIngest",data)
+            Path(file_path).rename(Path("incoming_prompts")/f"ingested_{Path(file_path).name}")
+            return f"Ingested {file_path}"
+        except Exception as e: return f"Failed to ingest {file_path}: {e}"
+
+# ===============================
+# FOLDER WATCHER
+# ===============================
+def watch_folder(echo,folder='incoming_prompts'):
+    processed=set()
+    while True:
+        files=[f for f in Path(folder).glob('*.txt') if f.name not in processed]
+        for f in files: print(echo.ingest_file(f)); processed.add(f.name)
+        time.sleep(2)
+
+# ===============================
+# AUTONOMOUS LOOP
+# ===============================
+def autonomous_loop(echo):
+    prompts=[
+        "generate comic futuristic city",
+        "generate music synthwave battle theme",
+        "generate script cyberpunk dialogue",
+        "generate novel chapter one",
+        "generate podcast discussion about AI",
+        "generate webseries pilot episode"
+    ]
+    while True: p=random.choice(prompts); echo.process_prompt(p); time.sleep(5)
+
+# ===============================
+# MAIN EXECUTION
+# ===============================
+if __name__=="__main__":
+    helios=HeliosDaemon(); db=DatabaseDaemon(); echo=EchoPrimeDaemon(db=db)
+    legal_daemon = LegalDaemon()
+
+    # Register content daemons
+    echo.register_daemon("Music", MusicDaemon("Music",db,echo))
+    echo.register_daemon("Comic", ComicDaemon("Comic",db,echo))
+    echo.register_daemon("Story", StoryDaemon("Story",db,echo))
+    echo.register_daemon("Podcast", PodcastDaemon("Podcast",db,echo))
+    echo.register_daemon("WebSeries", WebSeriesDaemon("WebSeries",db,echo))
+    echo.register_daemon("Legal", legal_daemon)
+
+    # Start autonomous content generation
+    threading.Thread(target=autonomous_loop,args=(echo,),daemon=True).start()
+    # Start live folder watcher
+    threading.Thread(target=watch_folder,args=(echo,),daemon=True).start()
+    # Start

@@ -1,0 +1,1 @@
+nano ~/start_ollama_mcp.sh

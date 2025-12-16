@@ -1,0 +1,6 @@
+# This directory contains API keys - DO NOT COMMIT REAL KEYS
+# Use environment variables or external key management
+# Example:
+# OPENAI_API_KEY=your_key_here
+# XAI_API_KEY=your_key_here
+# etc.

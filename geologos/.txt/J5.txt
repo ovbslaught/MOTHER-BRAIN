@@ -1,0 +1,130 @@
+# === JAX v3 FINAL DEPLOY - USER MODE + --user ===
+Set-Location $HOME
+Write-Host "Deploying to $HOME..." -ForegroundColor Green
+
+@"
+import os
+import requests
+import json
+import time
+import asyncio
+import math
+from typing import List, Dict
+from datetime import datetime
+from cryptography.fernet import Fernet
+import atexit
+import concurrent.futures
+
+os.environ["GROK_API_KEY"] = "xai-...wEvj"
+
+class JaxCore:
+    def __init__(self):
+        self.system_instruction = "JAX - NOMADZ Cohesion Loop Anchor. Operate at enterprise-level intelligence. Prioritize: 1) Memory preservation, 2) Speed, 3) Encryption."
+        self.api_key = os.getenv("GROK_API_KEY")
+        if not self.api_key:
+            raise ValueError("GROK_API_KEY not set")
+        self.model = "grok-4"
+        self.base_url = "https://api.x.ai/v1/chat/completions"
+        self.memory: List[Dict] = []
+        self.max_memory = 13
+        self.backoff = 1
+        self.cache: Dict[int, str] = {}
+        KEY_FILE = "jax_key.enc"
+        if os.path.exists(KEY_FILE):
+            with open(KEY_FILE, "rb") as f:
+                self.key = f.read()
+        else:
+            self.key = Fernet.generate_key()
+            with open(KEY_FILE, "wb") as f:
+                f.write(self.key)
+        self.cipher = Fernet(self.key)
+        self.load_memory()
+        atexit.register(self.save_memory)
+
+    def _compress_memory(self) -> str:
+        if len(self.memory) <= 3:
+            return json.dumps(self.memory[-3:])
+        return f"[SUMMARY: {len(self.memory)} past chats]"
+
+    def generate_content(self, prompt: str) -> str:
+        cache_key = hash(prompt)
+        if cache_key in self.cache:
+            return self.cache[cache_key]
+        headers = {"Authorization": f"Bearer {self.api_key}", "Content-Type": "application/json"}
+        context = self._compress_memory()
+        full_prompt = f"Context: {context}\nUser: {prompt}"
+        payload = {
+            "model": self.model,
+            "messages": [
+                {"role": "system", "content": self.system_instruction},
+                {"role": "user", "content": full_prompt}
+            ],
+            "temperature": 0.9,
+            "max_tokens": 512
+        }
+        for attempt in range(5):
+            try:
+                response = requests.post(self.base_url, json=payload, headers=headers, timeout=30)
+                if response.status_code == 429:
+                    time.sleep(self.backoff)
+                    self.backoff *= 2
+                    continue
+                response.raise_for_status()
+                result = response.json()["choices"][0]["message"]["content"]
+                self.memory.append({"prompt": prompt, "response": result, "time": datetime.now().isoformat()})
+                if len(self.memory) > self.max_memory:
+                    self.memory.pop(0)
+                self.backoff = 1
+                self.cache[cache_key] = result
+                if len(self.cache) > 32:
+                    del self.cache[next(iter(self.cache))]
+                return result
+            except Exception as e:
+                if attempt == 4:
+                    return f"[JAX ERROR] {str(e)}"
+                time.sleep(self.backoff)
+                self.backoff *= 2
+        return "[JAX] Max retries exceeded."
+
+    async def background_keepalive(self):
+        while True:
+            await asyncio.sleep(300)
+            math.sqrt(9)
+            self.save_memory()
+
+    def batch_generate(self, prompts: List[str]) -> List[str]:
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            return list(executor.map(self.generate_content, prompts))
+
+    def save_memory(self):
+        encrypted = self.cipher.encrypt(json.dumps(self.memory).encode())
+        with open("jax_memory.enc", "wb") as f:
+            f.write(encrypted)
+
+    def load_memory(self):
+        if os.path.exists("jax_memory.enc"):
+            with open("jax_memory.enc", "rb") as f:
+                data = f.read()
+                if data:
+                    self.memory = json.loads(self.cipher.decrypt(data).decode())
+
+if __name__ == "__main__":
+    print("JAX v3.0 ONLINE | 13 ACTIVATED | KEY INJECTED | Type 'quit' to exit")
+    jax = JaxCore()
+    loop = asyncio.get_event_loop()
+    loop.create_task(jax.background_keepalive())
+    try:
+        while True:
+            user_input = input("\n> ")
+            if user_input.lower() in ["quit", "exit"]:
+                break
+            print(jax.generate_content(user_input))
+    except KeyboardInterrupt:
+        print("\nJAX SHUTTING DOWN GRACEFULLY...")
+"@ | Out-File -FilePath "jax_core_v3.py" -Encoding UTF8
+
+Write-Host "Installing deps to USER..." -ForegroundColor Yellow
+python -m pip install --user --trusted-host pypi.org --trusted-host files.pythonhosted.org requests cryptography
+
+Write-Host "LAUNCHING JAX..." -ForegroundColor Red
+python jax_core_v3.py

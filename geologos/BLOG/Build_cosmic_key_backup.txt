@@ -1,0 +1,89 @@
+CosmicKey/
+│
+├── launch.bat                 # Master BAT launcher (HELlOS MCP entrypoint)
+├── setup_installer.iss        # Inno Setup script for Windows installer
+├── cosmic_key.py              # Core Python orchestrator
+├── helios_mcp/
+│   ├── __init__.py
+│   ├── daemons.py             # Self-healing / self-thinking background agents
+│   ├── gui.py                 # PyQt5 GUI loader for CosmicKey
+│   ├── assets_manager.py      # Loads open-source assets (music, images, comics)
+│   ├── backup.py              # Local + Cosmic backup sync
+│   └── autopilot.py           # Script writing daemons + orchestration
+│
+├── cosmic_key_mobile/
+│   ├── build.gradle           # Android build settings
+│   ├── AndroidManifest.xml
+│   ├── main.py                # Kivy-based wrapper for APK build
+│   └── requirements.txt
+│
+├── cosmic_key_switch/
+│   ├── Makefile               # DevkitPro NRO build
+│   ├── main.cpp               # SDL2 GUI wrapper for Switch
+│   └── assets/
+│
+├── docs/
+│   ├── cosmic_key_overview.md
+│   ├── legal_notes.md
+│   └── kickstarter_campaign.md
+│
+└── assets/
+    ├── music/
+    ├── comics/
+    ├── podcasts/
+    └── web_series/
+
+.. 
+
+@echo off
+title Cosmic Key - HELIOS MCP Edition
+color 0A
+echo [*] Launching Cosmic Key HELIOS MCP...
+echo [*] Self-healing orchestration engaged.
+python cosmic_key.py
+pause
+
+
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+""" Cosmic Key - HELIOS MCP Edition
+Fully integrated production platform (GUI, daemons, backup, AI generators).
+"""
+
+import sys, os, subprocess, time
+from helios_mcp import gui, daemons, autopilot, backup
+
+def main():
+    print("[HELIOS MCP] Boot sequence online...")
+    daemons.start_all()
+    gui.launch()
+    autopilot.enable()
+    backup.run()
+
+if __name__ == "__main__":
+    main()
+
+
+import threading, time
+
+def start_all():
+    print("[Daemon] Engaging autonomous generators...")
+    threading.Thread(target=self_heal, daemon=True).start()
+
+def self_heal():
+    while True:
+        print("[Daemon] Running self-diagnostics and healing...")
+        time.sleep(60)
+
+
+[Setup]
+AppName=Cosmic Key HELIOS MCP
+AppVersion=1.0
+DefaultDirName={pf}\CosmicKey
+OutputBaseFilename=CosmicKeyInstaller
+
+[Files]
+Source: "cosmic_key.py"; DestDir: "{app}"
+Source: "helios_mcp\*"; DestDir: "{app}\helios_mcp"; Flags: recursesubdirs
+Source: "assets\*"; DestDir: "{app}\assets"; Flags: recursesubdirs

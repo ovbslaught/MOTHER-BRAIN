@@ -1,0 +1,133 @@
+{
+  "name": "Nomad MotherBrain Self-Wiki System",
+  "nodes": [
+    {
+      "parameters": {
+        "interval": "5m"
+      },
+      "id": "e184d842-6f6c-49d8-bd58-e08493babda4",
+      "name": "File Watcher",
+      "type": "n8n-nodes-base.interval",
+      "typeVersion": 1,
+      "position": [
+        -800,
+        32
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "667bef42-6650-4f3a-83a3-fc79188295e9",
+      "name": "Scan Folder",
+      "type": "n8n-nodes-base.readBinaryFiles",
+      "typeVersion": 1,
+      "position": [
+        -608,
+        32
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "item.errors = [];\ntry {\n  if (item.mimeType.includes('python') || item.name.match(/\\.py$/)) {\n    // Attempt syntax check (example only; expand for batch/ps/sh later)\n    const { execSync } = require('child_process');\n    execSync(`python -m py_compile ${item.path}`);\n    item.status = 'OK';\n  } else {\n    item.status = 'Unchecked';\n  }\n} catch (e) {\n  item.status = 'Error';\n  item.errors.push(e.message);\n}\nreturn item;"
+      },
+      "id": "d844cb94-fa76-416c-ad6f-2fcf54737508",
+      "name": "Lint/Validate Code",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        -416,
+        32
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "{{ $json[\"status\"] }}",
+              "value2": "Error"
+            }
+          ]
+        }
+      },
+      "id": "2ef6d48e-f1aa-4834-b1a7-a689b2cbb986",
+      "name": "Has Errors?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        -208,
+        32
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "return {\n  error: item.errors,\n  file: item.name,\n  timestamp: new Date()\n};"
+      },
+      "id": "c921329c-8da6-4f74-b322-e64b44adad93",
+      "name": "Log Error",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "// Log valid or fixed scripts for future wiki\nreturn {\n  file: item.name,\n  status: item.status,\n  timestamp: new Date(),\n  notes: item.errors && item.errors.length > 0 ? item.errors.join('; ') : 'No errors',\n  path: item.path\n};"
+      },
+      "id": "b71d7a2f-64fe-49b9-ba87-bfe0448b982f",
+      "name": "Log Success/Wiki",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        0,
+        64
+      ]
+    },
+    {
+      "parameters": {
+        "fileName": "/your/path/nomad_wiki.json",
+        "options": {}
+      },
+      "id": "34b5556b-a516-4f9f-9e8d-bc70f952f4b4",
+      "name": "Append to Wiki",
+      "type": "n8n-nodes-base.writeBinaryFile",
+      "typeVersion": 1,
+      "position": [
+        208,
+        64
+      ]
+    },
+    {
+      "parameters": {
+        "functionCode": "// For mesh, radio, or backup, you could attach sync/export here.\nreturn item;"
+      },
+      "id": "3a7d8fa9-67e6-43a1-97b3-2f6d6f3f64e0",
+      "name": "Mesh/Radio Sync",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [
+        400,
+        64
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {},
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "saveExecutionProgress": true,
+    "callerPolicy": "workflowsFromSameOwner",
+    "executionTimeout": -1,
+    "availableInMCP": false,
+    "errorWorkflow": "VmmwFCSk97ZVipzZ",
+    "timeSavedPerExecution": 5
+  },
+  "versionId": "b6acef59-1825-4561-99b2-34b8b2ad3f65",
+  "meta": {
+    "instanceId": "c39b404ed28975584d60f35cabbf55c088f44cb568f8a0ed02799baf48bd1a2d"
+  },
+  "id": "VmmwFCSk97ZVipzZ",
+  "tags": []
+}

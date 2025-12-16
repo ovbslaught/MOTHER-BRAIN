@@ -1,0 +1,44 @@
+import logging, subprocess, time, json
+from mesh_handler import MeshHandler
+
+class AnimationAgent:
+    def __init__(self, conf):
+        self.conf = conf
+        self.logger = self.setup_logger('animation_agent')
+        self.mesh = MeshHandler(conf)
+        self.asset_dir = conf.get('asset_dir', 'assets/')
+
+    def setup_logger(self, name):
+        logger = logging.getLogger(name)
+        logger.setLevel(logging.INFO)
+        fh = logging.FileHandler(f'{name}.log')
+        fh.setFormatter(logging.Formatter('[%(asctime)s] %(levelname)s: %(message)s'))
+        logger.addHandler(fh)
+        return logger
+
+    def process_animation(self, script_path, platform='youtube'):
+        try:
+            # Example workflow with Blender CLI—replace with Godot, Opentoonz, Synfig, etc.
+            output = f"{self.asset_dir}/output.mp4"
+            subprocess.run([
+                'blender', '-b', script_path, '-o', output, '-a'
+            ], check=True)
+            self.logger.info(f"Animation exported {output}")
+            if platform == 'youtube':
+                self.mesh.broadcast({'type':'upload_ready', 'output':output, 'platform':platform})
+            return output
+        except Exception as e:
+            self.logger.error(f"Animation process fail: {e}")
+            return None
+
+    def loop(self):
+        self.logger.info("AnimationAgent running")
+        while True:
+            task = self.mesh.listen_for_task()
+            if task and task.get('type') == 'animate':
+                self.process_animation(task['script_path'], task.get('platform', 'youtube'))
+            time.sleep(2)
+
+if __name__ == "__main__":
+    conf = {"name":"animation_agent", "asset_dir":"assets"}
+    AnimationAgent(conf).loop()

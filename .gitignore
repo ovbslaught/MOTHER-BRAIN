@@ -1,0 +1,60 @@
+# API Keys and Secrets
+*.key
+*.pem
+*api*key*
+*grok*api*
+*openai*
+*xai*
+*anthropic*
+*claude*
+*gemini*
+*elevenlabs*
+
+# Environment Variables
+.env
+.env.local
+.env.*.local
+
+# Build outputs
+bin/
+obj/
+*.dll
+*.exe
+*.pdb
+
+# Temporary files
+*.tmp
+*.temp
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+logs/
+
+# Node modules (if any)
+node_modules/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Backup files
+*.bak
+*.backup

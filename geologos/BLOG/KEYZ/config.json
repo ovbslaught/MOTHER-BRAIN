@@ -1,0 +1,14 @@
+json
+{
+  "mcpServers": {
+    "beads": {
+      "command": "uv",
+      "args": [
+        "--directory",
+        "/path/to/beads-mcp",
+        "run",
+        "beads-mcp"
+      ]
+    }
+  }
+}

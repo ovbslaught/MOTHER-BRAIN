@@ -1,0 +1,213 @@
+#!/bin/bash
+
+set -e
+
+echo "Installing Storyverse Universe Builder..."
+
+# Install Ollama if not present
+if ! command -v ollama &> /dev/null; then
+    curl -fsSL https://ollama.com/install.sh | sh
+fi
+
+# Pull AI models
+ollama pull mistral:7b-instruct
+ollama pull llama3.1:8b
+
+# Create Python virtual environment
+python3 -m venv venv
+source venv/bin/activate
+
+# Install Python dependencies
+pip install ollama pyyaml watchdog google-generativeai mcp
+
+# Install Node.js if not present (for optional TypeScript server)
+if ! command -v node &> /dev/null; then
+    echo "Node.js not found. Installing via apt (Linux) or brew (macOS)..."
+    if [[ "$OSTYPE" == "linux-gnu"* ]]; then
+        sudo apt update && sudo apt install -y nodejs npm
+    elif [[ "$OSTYPE" == "darwin"* ]]; then
+        brew install node
+    else
+        echo "Please install Node.js manually for your OS."
+        exit 1
+    fi
+fi
+
+# Install TypeScript dependencies
+npm init -y
+npm install typescript @types/node @modelcontextprotocol/sdk gray-matter glob
+npx tsc --init
+
+# Create directory structure
+mkdir -p vault/Characters/{protagonists,antagonists,supporting}
+mkdir -p vault/Locations/{regions,cities,landmarks}
+mkdir -p vault/Timeline/{historical,current,future}
+mkdir -p vault/Plotlines/{main_arcs,subplots,quest_chains}
+mkdir -p vault/WorldBuilding/{magic_systems,technology,cultures,factions,Items}
+mkdir -p vault/Sessions
+mkdir -p vault/_metadata
+touch vault/_metadata/universe_state.json
+touch vault/_metadata/timeline_index.json
+touch vault/_metadata/entity_graph.json
+mkdir -p vault/_templates
+mkdir -p vault/_unsorted
+
+# Create templates (example for character; add others similarly)
+cat << EOF > vault/_templates/character.md
+---
+type: character
+name: ""
+archetype: ""
+faction: ""
+status: ""
+location: ""
+stats:
+  strength: 10
+  intelligence: 10
+  charisma: 10
+  dexterity: 10
+  constitution: 10
+  wisdom: 10
+relationships: []
+traits: []
+inventory: []
+quests: []
+level: 1
+health: 100
+max_health: 100
+ai_generated: false
+created: 
+last_updated: 
+---
+# Character Description
+EOF
+
+# Similar for location.md, quest.md, item.md, faction.md (implement as per schemas)
+
+# Create Godot project structure
+mkdir -p godot_project/{autoload,scenes,data}
+touch godot_project/project.godot
+cat << EOF > godot_project/project.godot
+[application]
+
+config/name="Storyverse"
+run/main_scene="res://scenes/UniverseDemo.tscn"
+config/features=PackedStringArray("4.0")
+
+[autoload]
+
+UniverseDataLoader="*res://autoload/UniverseDataLoader.gd"
+EOF
+
+# Create config.yaml
+cat << EOF > config.yaml
+vault:
+  path: ./vault
+  auto_sort: true
+  watch_for_changes: true
+
+godot:
+  project_path: ./godot_project
+  auto_export: true
+  export_on_generate: false
+
+ollama:
+  models:
+    story: "mistral:7b-instruct"
+    life: "llama3.1:8b"
+    analysis: "llama3.1:8b"
+    expansion: "mistral:7b-instruct"
+  temperature:
+    story: 0.8
+    life: 0.5
+    analysis: 0.3
+    expansion: 0.75
+  context_window:
+    default: 8192
+    large: 131072
+
+gemini:
+  enabled: false
+  model: "gemini-pro"
+  temperature: 0.9
+  use_for_brainstorming: true
+
+sorting:
+  enabled: true
+  process_existing: false
+  conflict_resolution: "rename"
+
+mcp_servers:
+  - name: obsidian-vault
+    enabled: true
+    port: 5001
+  - name: procedural-generation
+    enabled: true
+    port: 5002
+  - name: file-sorter
+    enabled: true
+    watch_mode: true
+
+export:
+  format: "json"
+  include_metadata: true
+  compress: false
+EOF
+
+# Create .env
+cat << EOF > .env
+OBSIDIAN_VAULT_PATH=$(pwd)/vault
+GODOT_PROJECT_PATH=$(pwd)/godot_project
+GEMINI_API_KEY=
+OLLAMA_HOST=http://localhost:11434
+EOF
+
+# Create requirements.txt
+cat << EOF > requirements.txt
+ollama>=0.1.0
+pyyaml>=6.0
+watchdog>=3.0
+google-generativeai>=0.3.0
+mcp
+EOF
+
+# Create package.json (already done via npm init)
+# Create tsconfig.json (already done via tsc --init)
+
+# Create launcher scripts
+cat << EOF > start_universe_engine.sh
+#!/bin/bash
+source venv/bin/activate
+python universe_engine.py
+EOF
+
+cat << EOF > start_file_sorter.sh
+#!/bin/bash
+source venv/bin/activate
+python file_auto_sorter.py
+EOF
+
+cat << EOF > start_all.sh
+#!/bin/bash
+start_file_sorter.sh &
+node obsidian_mcp_server.js &
+python procedural_gen_mcp.py &
+start_universe_engine.sh
+EOF
+
+chmod +x *.sh
+
+# Create documentation (stub for brevity; expand as needed)
+cat << EOF > README.md
+# Storyverse Universe Builder
+See the technical report for full documentation.
+EOF
+
+cat << EOF > QUICKSTART.md
+# Quick Start
+1. cd storyverse
+2. ./start_all.sh
+3. Interact with the CLI.
+EOF
+
+echo "Installation complete! Run ./start_all.sh to launch."

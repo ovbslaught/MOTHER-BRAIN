@@ -1,0 +1,8 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2019Project("{{64FFBE60-C56A-4F53-85EF-829D7A32391C}}") = "COSMIC_KEY", "COSMIC_KEY.csproj", "{64FFBE60-C56A-4F53-85EF-829D7A32391C}"
+EndProject
+Project("{{64FFBE60-C56A-4F53-85EF-829D7A32391E}}") = "COSMIC_KEYEventsVB", "COSMIC_KEYEventsVB.vbproj", "{64FFBE60-C56A-4F53-85EF-829D7A32391E}"
+	ProjectSection(ProjectDependencies) = postProject
+		{64FFBE60-C56A-4F53-85EF-829D7A32391C} = {64FFBE60-C56A-4F53-85EF-829D7A32391C}
+	EndProjectSection
+EndProject

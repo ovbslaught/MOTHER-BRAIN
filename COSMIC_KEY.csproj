@@ -1,0 +1,548 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="Current" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">16.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+    <TargetFrameworkProfile />
+    <Use64BitIISExpress />
+    <UseGlobalApplicationHostFile />
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+  </PropertyGroup>
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>
+    </ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{64FFBE60-C56A-4F53-85EF-829D7A32391C}</ProjectGuid>
+    <ProjectTypeGuids>{E53F8FEA-EAE0-44A6-8774-FFD645390401};{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>runnerDotNet</RootNamespace>
+    <AssemblyName>runnerDotNet</AssemblyName>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <MvcBuildViews>false</MvcBuildViews>
+    <UseIISExpress>true</UseIISExpress>
+    <IISExpressSSLPort />
+    <IISExpressAnonymousAuthentication />
+    <IISExpressWindowsAuthentication />
+    <IISExpressUseClassicPipelineMode />
+    <SccProjectName>
+    </SccProjectName>
+    <SccLocalPath>
+    </SccLocalPath>
+    <SccAuxPath>
+    </SccAuxPath>
+    <SccProvider>
+    </SccProvider>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+	<DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data.Entity" />
+    <Reference Include="System.Web.Mvc, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
+    <Reference Include="System.Web.Razor, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
+    <Reference Include="System.Web.WebPages, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
+    <Reference Include="System.Web.Helpers, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Web.DynamicData" />
+    <Reference Include="System.Web.Entity" />
+    <Reference Include="System.Web.ApplicationServices" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.ComponentModel.Composition" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Web.Abstractions" />
+    <Reference Include="System.Web.Routing" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Web.Services" />
+    <Reference Include="System.EnterpriseServices" />
+    <Reference Include="System.DirectoryServices" />
+    <Reference Include="System.DirectoryServices.ActiveDirectory" />
+    <Reference Include="System.DirectoryServices.Protocols" />
+    <Reference Include="System.Security" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="adodb">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\adodb.dll</HintPath>
+    </Reference>
+    <Reference Include="BCrypt.Net">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\BCrypt.Net.dll</HintPath>
+    </Reference>
+    <Reference Include="cdosys">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\cdosys.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\EntityFramework.SqlServer.dll</HintPath>
+    </Reference>
+    <Reference Include="EPPlus">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\EPPlus.dll</HintPath>
+    </Reference>
+    <Reference Include="ImageProcessor">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\ImageProcessor.dll</HintPath>
+    </Reference>
+    <Reference Include="ImageProcessor.Plugins.WebP">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\ImageProcessor.Plugins.WebP.dll</HintPath>
+    </Reference>
+    <Reference Include="Interop.ADODB">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\Interop.ADODB.dll</HintPath>
+    </Reference>
+    <Reference Include="Interop.CDO">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\Interop.CDO.dll</HintPath>
+    </Reference>
+    <Reference Include="JWT">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\JWT.dll</HintPath>
+    </Reference>
+    <Reference Include="LumenWorks.Framework.IO">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\LumenWorks.Framework.IO.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Web.Infrastructure">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\Microsoft.Web.Infrastructure.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Buffers">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\System.Buffers.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Memory">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\System.Memory.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Http">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\System.Net.Http.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Http.Extensions">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\System.Net.Http.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Http.Formatting">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\System.Net.Http.Formatting.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Http.Primitives">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\System.Net.Http.Primitives.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Http.WebRequest">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\System.Net.Http.WebRequest.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.CompilerServices.Unsafe">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\System.Runtime.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Threading.Tasks.Extensions">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\System.Threading.Tasks.Extensions.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ValueTuple">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\System.ValueTuple.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Helpers">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\System.Web.Helpers.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Mvc">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\System.Web.Mvc.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Razor">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\System.Web.Razor.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.WebPages.Deployment">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\System.Web.WebPages.Deployment.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.WebPages">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\System.Web.WebPages.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.WebPages.Razor">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\System.Web.WebPages.Razor.dll</HintPath>
+    </Reference>
+    <Reference Include="Twilio">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\Twilio.dll</HintPath>
+    </Reference>
+    <Reference Include="SQLite.Interop">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\SQLite.Interop.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Data.SQLite">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\System.Data.SQLite.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Data.SQLite.EF6">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\System.Data.SQLite.EF6.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Data.SQLite.Linq">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\System.Data.SQLite.Linq.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Global.asax.cs">
+      <DependentUpon>Global.asax</DependentUpon>
+    </Compile>
+    <Compile Include="include\lang\English.cs" />
+    <Compile Include="settings\menu_main.cs" />
+    <Compile Include="include\pages\_global_menu.cs" />
+    <Compile Include="settings\table__global.cs" />
+    <Compile Include="usercode\events__global.cs" />
+    <Compile Include="menu.cs" />
+    <Compile Include="classes\addpage.cs" />
+    <Compile Include="classes\add_calendar.cs" />
+    <Compile Include="classes\add_gantt.cs" />
+    <Compile Include="classes\advancedsearchcontrol.cs" />
+    <Compile Include="classes\audit.cs" />
+    <Compile Include="classes\button.cs" />
+    <Compile Include="classes\calendarpage.cs" />
+    <Compile Include="classes\changepwdpage.cs" />
+    <Compile Include="classes\chartpage.cs" />
+    <Compile Include="classes\chartpage_master.cs" />
+    <Compile Include="classes\charts.cs" />
+    <Compile Include="classes\cipherer.cs" />
+    <Compile Include="classes\ciphereraes.cs" />
+    <Compile Include="classes\context.cs" />
+    <Compile Include="classes\controls\CheckboxField.cs" />
+    <Compile Include="classes\controls\Control.cs" />
+    <Compile Include="classes\controls\DatabaseFileField.cs" />
+    <Compile Include="classes\controls\DateField.cs" />
+    <Compile Include="classes\controls\DateTimeControl.cs" />
+    <Compile Include="classes\controls\EditControlsContainer.cs" />
+    <Compile Include="classes\controls\FileField.cs" />
+    <Compile Include="classes\controls\FileFieldSingle.cs" />
+    <Compile Include="classes\controls\FilterBoolean.cs" />
+    <Compile Include="classes\controls\FilterControl.cs" />
+    <Compile Include="classes\controls\FilterIntervalDateSlider.cs" />
+    <Compile Include="classes\controls\FilterIntervalList.cs" />
+    <Compile Include="classes\controls\FilterIntervalSlider.cs" />
+    <Compile Include="classes\controls\FilterIntervalTimeSlider.cs" />
+    <Compile Include="classes\controls\FilterMultiselectLookup.cs" />
+    <Compile Include="classes\controls\FilterValuesList.cs" />
+    <Compile Include="classes\controls\HiddenField.cs" />
+    <Compile Include="classes\controls\LookupField.cs" />
+    <Compile Include="classes\controls\LookupTextField.cs" />
+    <Compile Include="classes\controls\PasswordField.cs" />
+    <Compile Include="classes\controls\ReadOnlyField.cs" />
+    <Compile Include="classes\controls\TextAreaField.cs" />
+    <Compile Include="classes\controls\TextControl.cs" />
+    <Compile Include="classes\controls\TextField.cs" />
+    <Compile Include="classes\controls\TimeField.cs" />
+    <Compile Include="classes\controls\UserControl.cs" />
+    <Compile Include="classes\controls\ViewAudioFileField.cs" />
+    <Compile Include="classes\controls\ViewCheckboxField.cs" />
+    <Compile Include="classes\controls\ViewControl.cs" />
+    <Compile Include="classes\controls\ViewControlsContainer.cs" />
+    <Compile Include="classes\controls\ViewCurrencyField.cs" />
+    <Compile Include="classes\controls\ViewCustomField.cs" />
+    <Compile Include="classes\controls\ViewDatabaseAudioField.cs" />
+    <Compile Include="classes\controls\ViewDatabaseFileField.cs" />
+    <Compile Include="classes\controls\ViewDatabaseImageField.cs" />
+    <Compile Include="classes\controls\ViewDatabaseVideoField.cs" />
+    <Compile Include="classes\controls\ViewDatetimeField.cs" />
+    <Compile Include="classes\controls\ViewEmailHyperlinkField.cs" />
+    <Compile Include="classes\controls\ViewFileDownloadField.cs" />
+    <Compile Include="classes\controls\ViewFileField.cs" />
+    <Compile Include="classes\controls\ViewHTMLField.cs" />
+    <Compile Include="classes\controls\ViewHyperlinkField.cs" />
+    <Compile Include="classes\controls\ViewImageDownloadField.cs" />
+    <Compile Include="classes\controls\ViewLongDateField.cs" />
+    <Compile Include="classes\controls\ViewLookupWizardField.cs" />
+    <Compile Include="classes\controls\ViewMapField.cs" />
+    <Compile Include="classes\controls\ViewNumberField.cs" />
+    <Compile Include="classes\controls\ViewPercentField.cs" />
+    <Compile Include="classes\controls\ViewPhoneNumberField.cs" />
+    <Compile Include="classes\controls\ViewShortDateField.cs" />
+    <Compile Include="classes\controls\ViewTimeField.cs" />
+    <Compile Include="classes\controls\ViewUserControl.cs" />
+    <Compile Include="classes\controls\ViewVideoFileField.cs" />
+    <Compile Include="classes\crosstable_report.cs" />
+    <Compile Include="classes\dashboardpage.cs" />
+    <Compile Include="classes\datasource\arrayresult.cs" />
+    <Compile Include="classes\datasource\datacontext.cs" />
+    <Compile Include="classes\datasource\dataresult.cs" />
+    <Compile Include="classes\datasource\datasource.cs" />
+    <Compile Include="classes\datasource\dbtable.cs" />
+    <Compile Include="classes\datasource\eventdataresult.cs" />
+    <Compile Include="classes\datasource\httprequest.cs" />
+    <Compile Include="classes\datasource\projecttable.cs" />
+    <Compile Include="classes\datasource\rest.cs" />
+    <Compile Include="classes\datasource\sql.cs" />
+    <Compile Include="classes\datasource\table.cs" />
+    <Compile Include="classes\datasource\websql.cs" />
+    <Compile Include="classes\datasource\webtable.cs" />
+    <Compile Include="classes\db.cs" />
+    <Compile Include="classes\DynamicContentGeneratorBase.cs" />
+    <Compile Include="classes\editpage.cs" />
+    <Compile Include="classes\editselectedpage.cs" />
+    <Compile Include="classes\edit_calendar.cs" />
+    <Compile Include="classes\edit_gantt.cs" />
+    <Compile Include="classes\events.cs" />
+    <Compile Include="classes\expiredpage.cs" />
+    <Compile Include="classes\ExportFunctions.cs" />
+    <Compile Include="classes\exportpage.cs" />
+    <Compile Include="classes\filehandler.cs" />
+    <Compile Include="classes\files.cs" />
+    <Compile Include="classes\filesystem\authaws.cs" />
+    <Compile Include="classes\filesystem\disk.cs" />
+    <Compile Include="classes\filesystem\dropbox.cs" />
+    <Compile Include="classes\filesystem\filesystem.cs" />
+    <Compile Include="classes\filesystem\googledrive.cs" />
+    <Compile Include="classes\filesystem\oauthfilesystem.cs" />
+    <Compile Include="classes\filesystem\onedrive.cs" />
+    <Compile Include="classes\filesystem\s3.cs" />
+    <Compile Include="classes\filesystem\wasabi.cs" />
+    <Compile Include="classes\filterpanel.cs" />
+    <Compile Include="classes\ganttpage.cs" />
+    <Compile Include="classes\GlobalVars.cs" />
+    <Compile Include="classes\ImportFunctions.cs" />
+    <Compile Include="classes\importpage.cs" />
+    <Compile Include="classes\labels.cs" />
+    <Compile Include="classes\layout.cs" />
+    <Compile Include="classes\listpage.cs" />
+    <Compile Include="classes\listpage_ajax.cs" />
+    <Compile Include="classes\listpage_dashboard.cs" />
+    <Compile Include="classes\listpage_dpdash.cs" />
+    <Compile Include="classes\listpage_dpinline.cs" />
+    <Compile Include="classes\listpage_dplist.cs" />
+    <Compile Include="classes\listpage_dppopup.cs" />
+    <Compile Include="classes\listpage_embed.cs" />
+    <Compile Include="classes\listpage_lookup.cs" />
+    <Compile Include="classes\listpage_master.cs" />
+    <Compile Include="classes\listpage_simple.cs" />
+    <Compile Include="classes\loginpage.cs" />
+    <Compile Include="classes\map_dashboard.cs" />
+    <Compile Include="classes\memberspage.cs" />
+    <Compile Include="classes\memberspage_ad.cs" />
+    <Compile Include="classes\menupage.cs" />
+    <Compile Include="classes\notifications.cs" />
+    <Compile Include="classes\orderclause.cs" />
+    <Compile Include="classes\panelsearchcontrol.cs" />
+    <Compile Include="classes\paramsLogger.cs" />
+    <Compile Include="classes\pdlayout.cs" />
+    <Compile Include="classes\printpage.cs" />
+    <Compile Include="classes\printpage_details.cs" />
+    <Compile Include="classes\printpage_master.cs" />
+    <Compile Include="classes\projectsettings.cs" />
+    <Compile Include="classes\registerpage.cs" />
+    <Compile Include="classes\remindpwdpage.cs" />
+    <Compile Include="classes\reportlib.cs" />
+    <Compile Include="classes\reportpage.cs" />
+    <Compile Include="classes\reportprintpage.cs" />
+    <Compile Include="classes\rightspage.cs" />
+    <Compile Include="classes\RunnerCiphererDES.cs" />
+    <Compile Include="classes\RunnerLdap.cs" />
+    <Compile Include="classes\runnermenu.cs" />
+    <Compile Include="classes\runnerpage.cs" />
+    <Compile Include="classes\RunnerRazor.cs" />
+    <Compile Include="classes\searchclause.cs" />
+    <Compile Include="classes\searchclause_base.cs" />
+    <Compile Include="classes\searchcontrol.cs" />
+    <Compile Include="classes\searchpage.cs" />
+    <Compile Include="classes\searchpage_dash.cs" />
+    <Compile Include="classes\searchpanelsimple.cs" />
+    <Compile Include="classes\searchParamsLogger.cs" />
+    <Compile Include="classes\security\ad.cs" />
+    <Compile Include="classes\security\azure.cs" />
+    <Compile Include="classes\security\fb.cs" />
+    <Compile Include="classes\security\google.cs" />
+    <Compile Include="classes\security\okta.cs" />
+    <Compile Include="classes\security\openid.cs" />
+    <Compile Include="classes\security\samlPlugin.cs" />
+    <Compile Include="classes\security\securityplugin.cs" />
+    <Compile Include="classes\security.cs" />
+    <Compile Include="classes\sql.cs" />
+    <Compile Include="classes\userinfopage.cs" />
+    <Compile Include="classes\viewpage.cs" />
+    <Compile Include="classes\view_calendar.cs" />
+    <Compile Include="classes\wheretabs.cs" />
+    <Compile Include="classes\XClass.cs" />
+    <Compile Include="classes\xml.cs" />
+    <Compile Include="classes\XSession.cs" />
+    <Compile Include="classes\xtempl_base.cs" />
+    <Compile Include="classes\XVar.cs" />
+    <Compile Include="classes\XVarExtensions.cs" />
+    <Compile Include="include\dbcommon.cs" />
+    <Compile Include="include\commonfunctions.cs" />
+    <Compile Include="include\xtempl.cs" />
+    <Compile Include="settings\project_add.cs" />
+    <Compile Include="include\constants.cs" />
+    <Compile Include="include\globalvars.cs" />
+    <Compile Include="include\legacy.cs" />
+    <Compile Include="include\menuitem.cs" />
+    <Compile Include="include\LocaleFunctions.cs" />
+    <Compile Include="connections\apis.cs" />
+    <Compile Include="connections\ConnectionManager_base.cs" />
+    <Compile Include="connections\DB2Connection.cs" />
+    <Compile Include="connections\dbfunctions\DB2Functions.cs" />
+    <Compile Include="connections\dbfunctions\dbfunctions.cs" />
+    <Compile Include="connections\dbfunctions\MSSQLFunctions.cs" />
+    <Compile Include="connections\dbfunctions\MySQLFunctions.cs" />
+    <Compile Include="connections\dbfunctions\ODBCFunctions.cs" />
+    <Compile Include="connections\dbfunctions\OracleFunctions.cs" />
+    <Compile Include="connections\dbfunctions\PostgreFunctions.cs" />
+    <Compile Include="connections\dbfunctions\SQLite3Functions.cs" />
+    <Compile Include="connections\dbfunctions_legacy.cs" />
+    <Compile Include="connections\dbinfo\DBInfo.cs" />
+    <Compile Include="connections\dbinfo\MSSQLInfo.cs" />
+    <Compile Include="connections\dbinfo\MySQLInfo.cs" />
+    <Compile Include="connections\dbinfo\ODBCInfo.cs" />
+    <Compile Include="connections\dbinfo\OLEDBInfo.cs" />
+    <Compile Include="connections\dbinfo\OracleInfo.cs" />
+    <Compile Include="connections\dbinfo\PostgreInfo.cs" />
+    <Compile Include="connections\dbinfo\SQLite3Info.cs" />
+    <Compile Include="connections\ODBCConnection.cs" />
+    <Compile Include="connections\OLEDBConnection.cs" />
+    <Compile Include="connections\QueryResult.cs" />
+    <Compile Include="connections\rest.cs" />
+    <Compile Include="autocomplete.cs" />
+    <Compile Include="autofillfields.cs" />
+    <Compile Include="checkduplicates.cs" />
+    <Compile Include="dchartdata.cs" />
+    <Compile Include="detreccount.cs" />
+    <Compile Include="external.cs" />
+    <Compile Include="file.cs" />
+    <Compile Include="fulltext.cs" />
+    <Compile Include="getfile.cs" />
+    <Compile Include="imager.cs" />
+    <Compile Include="lookupsuggest.cs" />
+    <Compile Include="mfhandler.cs" />
+    <Compile Include="notifications.cs" />
+    <Compile Include="searchsuggest.cs" />
+    <Compile Include="sessioncontrol.cs" />
+    <Compile Include="oauthcallback.cs" />
+    <Compile Include="openidcallback.cs" />
+    <Compile Include="samlcallback.cs" />
+    <Compile Include="include\export_functions.cs" />
+    <Compile Include="include\locking.cs" />
+    <Compile Include="include\sms.cs" />
+    <Compile Include="Controllers\BaseController.cs" />
+    <Compile Include="index.cs" />
+    <Compile Include="settings\pages.cs" />
+    <Compile Include="usercode\globalevents.cs" />
+    <Compile Include="connections\databases.cs" />
+    <Compile Include="settings\project.cs" />
+    <Compile Include="settings\defaults.cs" />
+    <Compile Include="usercode\initapp.cs" />
+    <Compile Include="include\locale.cs" />
+    <Compile Include="connections\ConnectionsPool.cs" />
+    <Compile Include="buttonhandler.cs" />
+    <Compile Include="connections\ConnectionManager.cs" />
+    <Compile Include="connections\SQLite3Connection.cs" />
+    <Compile Include="classes\RunnerReader.cs" />
+    <Compile Include="connections\Connection.cs" />
+    <Compile Include="include\MVCFunctions.cs" />
+    <Compile Include="settings\dbtables.cs" />
+    <Compile Include="include\fontsettings.cs" />
+<!-- Events?
+
+##foreach @BUILDER.Tables as @t##
+##set @hasDashSnippets=0##
+##foreach @t.pDashboard.arrElements as @e filter @e.nType == DASHBOARD_SNIPPET##
+##if @first##
+##set @hasDashSnippets=1##
+##endif##
+##endfor##
+##if @hasDashSnippets || @t.arrEventHandlers.len || @t.controlLinks.len || (@t.strDataSourceTable=="admin_members" && @BUILDER.controlLinks[page==PAGE_ADMIN_MEMBERS].len) || (@t.strDataSourceTable=="admin_rights" && @BUILDER.controlLinks[page==PAGE_ADMIN_RIGHTS].len)##
+    <Compile Include="include\##@t.strShortTableName##_TableEvents.cs"/>
+##endif##
+##endfor##
+    <Compile Include="include\CommonEvents.cs"/>
+    <Compile Include="include\CustomExpressions.cs"/>
+-->
+  </ItemGroup>
+
+  <ItemGroup>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="App_Data\" />
+    <Folder Include="bin\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <!--<Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\WebApplications\Microsoft.WebApplication.targets" />-->
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target> -->
+  <Target Name="MvcBuildViews" AfterTargets="AfterBuild" Condition="'$(MvcBuildViews)'=='true'">
+    <AspNetCompiler VirtualPath="temp" PhysicalPath="$(WebProjectOutputDir)" />
+  </Target>
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
+        <WebProjectProperties>
+          <UseIIS>True</UseIIS>
+          <AutoAssignPort>True</AutoAssignPort>
+          <DevelopmentServerPort>0</DevelopmentServerPort>
+          <DevelopmentServerVPath>/</DevelopmentServerVPath>
+          <IISUrl>http://localhost:2040/</IISUrl>
+          <NTLMAuthentication>False</NTLMAuthentication>
+          <UseCustomServer>False</UseCustomServer>
+          <CustomServerUrl>
+          </CustomServerUrl>
+          <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
+        </WebProjectProperties>
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\WebApplications\Microsoft.WebApplication.targets" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\WebApplications\Microsoft.WebApplication.targets')" />
+</Project>

@@ -1,0 +1,1588 @@
+# cosmic_key_complete_all_in_one.py
+import sys
+import os
+import datetime
+import sqlite3
+import subprocess
+import json
+import re
+import requests
+import time
+import zipfile
+import shutil
+from PyQt6.QtWidgets import (QApplication, QMainWindow, QTabWidget, QWidget, 
+                             QVBoxLayout, QLabel, QTextEdit, QPushButton, 
+                             QLineEdit, QHBoxLayout, QGroupBox, QGridLayout, 
+                             QComboBox)
+from PyQt6.QtCore import Qt, QThread, pyqtSignal
+
+# Import mido for MIDI generation
+try:
+    import mido
+    mido_available = True
+except ImportError:
+    mido_available = False
+    print("Warning: 'mido' library not found. MIDI functionality will be disabled. "
+          "To enable, run 'pip install mido'.")
+
+# --- CONFIGURATION ---
+DATABASE_FILE = "cosmic_key_data.db"
+KNOWLEDGE_BASE_FILE = "echo_knowledge_base.json"
+SETTINGS_FILE = "settings.json"
+MEDIA_ASSETS_FOLDER = "media_assets"
+PROJECTS_FOLDER = "projects"
+SOURCE_CODE_URL = "https://raw.githubusercontent.com/YourGitHubUser/CosmicKey/main/cosmic_key_complete.py" # REPLACE WITH YOUR GITHUB REPO URL
+
+# --- BOOTSTRAPPER & CORE DAEMON ---
+
+class CoreDaemon:
+    def __init__(self):
+        self.is_termux = self.check_termux()
+        self.db_daemon = DatabaseDaemon(DATABASE_FILE)
+        self.echo_daemon = EchoPrimeDaemon(self.db_daemon)
+        self.midi_daemon = MidiDaemon()
+        self.continuity_daemon = ContinuityDaemon(self.db_daemon)
+        self.project_daemon = ProjectDaemon()
+        self.self_healing_daemon = SelfHealingDaemon(self)
+        self.feedback_daemon = FeedbackLoopDaemon(self.db_daemon)
+        self.db_daemon.add_manifesto_entry("Core Daemon initialized. All systems online.")
+
+    def check_termux(self):
+        return "com.termux" in os.getenv("HOME", "")
+
+    def run_full_scan(self):
+        """Runs a full system check and maintenance cycle."""
+        print("Running full system scan...")
+        self.self_healing_daemon.check_for_updates()
+        self.continuity_daemon.check_for_inconsistencies()
+        self.feedback_daemon.analyze_and_learn()
+
+class SelfHealingDaemon:
+    def __init__(self, core_daemon):
+        self.core = core_daemon
+
+    def check_for_updates(self):
+        """Pulls the latest version of the script from GitHub and applies patches."""
+        print("Checking for system updates...")
+        try:
+            response = requests.get(SOURCE_CODE_URL)
+            response.raise_for_status()
+            latest_code = response.text
+            with open(__file__, "r") as f:
+                current_code = f.read()
+            if latest_code != current_code:
+                with open(__file__, "w") as f:
+                    f.write(latest_code)
+                print("Update downloaded. Restarting script to apply changes...")
+                os.execl(sys.executable, sys.executable, *sys.argv)
+            else:
+                print("System is up to date.")
+        except Exception as e:
+            print(f"Update check failed: {e}. Running local version.")
+
+class ProjectDaemon:
+    def create_project_skeleton(self, project_type, project_name):
+        """Creates a standardized folder and file structure for a new project."""
+        project_path = os.path.join(PROJECTS_FOLDER, project_name.replace(" ", "_").lower())
+        if os.path.exists(project_path):
+            return f"Error: Project '{project_name}' already exists."
+
+        os.makedirs(project_path)
+        
+        if project_type == "Comics":
+            os.makedirs(os.path.join(project_path, "scripts"))
+            os.makedirs(os.path.join(project_path, "storyboards"))
+            with open(os.path.join(project_path, f"{project_name}_script.txt"), "w") as f:
+                f.write(f"# Script for {project_name}\n\nPAGE 1, PANEL 1: DESCRIPTION\n\nCHARACTER DIALOGUE\n\n")
+        elif project_type == "Music":
+            os.makedirs(os.path.join(project_path, "midi"))
+            os.makedirs(os.path.join(project_path, "audio"))
+            with open(os.path.join(project_path, "notes.txt"), "w") as f:
+                f.write(f"# Notes for {project_name}\n\n")
+        
+        self.log_creation(project_name, project_path)
+        return f"Project '{project_name}' created successfully in '{project_path}'."
+
+    def log_creation(self, project_name, project_path):
+        """Logs the new project's creation to the database."""
+        db = DatabaseDaemon(DATABASE_FILE)
+        db.add_project_entry("Automation", f"Project Skeleton: {project_name}", f"Files and folders created at {project_path}.")
+
+class FeedbackLoopDaemon:
+    def __init__(self, db_daemon):
+        self.db = db_daemon
+
+    def analyze_and_learn(self):
+        """Analyzes project outcomes to refine Echo Prime's rules."""
+        print("Analyzing project outcomes for learning...")
+        projects = self.db.get_projects()
+        
+        for p in projects:
+            p_type, title, desc, _ = p
+            if "success" in desc.lower() or "completed" in desc.lower():
+                self.refine_echo_prime(title, "positive")
+            elif "failed" in desc.lower() or "abandoned" in desc.lower():
+                self.refine_echo_prime(title, "negative")
+
+    def refine_echo_prime(self, project_title, outcome):
+        """Refines Echo Prime's knowledge base based on project outcomes."""
+        echo_daemon = EchoPrimeDaemon(self.db)
+        echo_knowledge = echo_daemon.load_knowledge_base()
+        
+        if outcome == "positive":
+            new_rule = {"input": [project_title.lower()], "output": f"Success pattern detected. Recommend continuing work on '{project_title}'."}
+            if new_rule not in echo_knowledge["rules"]:
+                echo_knowledge["rules"].append(new_rule)
+                echo_daemon.save_knowledge_base()
+                print(f"Echo Prime learned from success: '{project_title}'")
+
+# --- DATA DAEMONS ---
+
+class DatabaseDaemon:
+    def __init__(self, db_file):
+        self.conn = sqlite3.connect(db_file)
+        self.cursor = self.conn.cursor()
+        self.create_tables()
+
+    def create_tables(self):
+        self.cursor.execute('''
+            CREATE TABLE IF NOT EXISTS manifesto (id INTEGER PRIMARY KEY, timestamp TEXT, entry TEXT)
+        ''')
+        self.cursor.execute('''
+            CREATE TABLE IF NOT EXISTS characters (id INTEGER PRIMARY KEY, name TEXT, description TEXT)
+        ''')
+        self.cursor.execute('''
+            CREATE TABLE IF NOT EXISTS timeline (id INTEGER PRIMARY KEY, date TEXT, event TEXT)
+        ''')
+        self.cursor.execute('''
+            CREATE TABLE IF NOT EXISTS cards (id INTEGER PRIMARY KEY, name TEXT, ability TEXT, resonance_cost TEXT)
+        ''')
+        self.cursor.execute('''
+            CREATE TABLE IF NOT EXISTS projects (id INTEGER PRIMARY KEY, type TEXT, title TEXT, description TEXT, timestamp TEXT)
+        ''')
+        self.cursor.execute('''
+            CREATE TABLE IF NOT EXISTS operations (id INTEGER PRIMARY KEY, category TEXT, title TEXT, details TEXT, timestamp TEXT)
+        ''')
+        self.cursor.execute('''
+            CREATE TABLE IF NOT EXISTS continuity_log (id INTEGER PRIMARY KEY, timestamp TEXT, issue TEXT)
+        ''')
+        self.conn.commit()
+
+    def is_db_empty(self):
+        self.cursor.execute("SELECT COUNT(*) FROM manifesto")
+        return self.cursor.fetchone()[0] == 0
+
+    def add_manifesto_entry(self, entry):
+        timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        self.cursor.execute("INSERT INTO manifesto (timestamp, entry) VALUES (?, ?)", (timestamp, entry))
+        self.conn.commit()
+        
+    def get_manifesto_entries(self):
+        self.cursor.execute("SELECT timestamp, entry FROM manifesto ORDER BY timestamp ASC")
+        return self.cursor.fetchall()
+        
+    def add_character(self, name, description):
+        self.cursor.execute("INSERT INTO characters (name, description) VALUES (?, ?)", (name, description))
+        self.conn.commit()
+
+    def get_characters(self):
+        self.cursor.execute("SELECT name, description FROM characters")
+        return self.cursor.fetchall()
+
+    def add_timeline_event(self, date, event):
+        self.cursor.execute("INSERT INTO timeline (date, event) VALUES (?, ?)", (date, event))
+        self.conn.commit()
+
+    def get_timeline(self):
+        self.cursor.execute("SELECT date, event FROM timeline ORDER BY date ASC")
+        return self.cursor.fetchall()
+
+    def add_card(self, name, ability, cost):
+        self.cursor.execute("INSERT INTO cards (name, ability, resonance_cost) VALUES (?, ?, ?)", (name, ability, cost))
+        self.conn.commit()
+
+    def get_cards(self):
+        self.cursor.execute("SELECT name, ability, resonance_cost FROM cards")
+        return self.cursor.fetchall()
+
+    def add_project_entry(self, project_type, title, description):
+        timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        self.cursor.execute("INSERT INTO projects (type, title, description, timestamp) VALUES (?, ?, ?, ?)", 
+                            (project_type, title, description, timestamp))
+        self.conn.commit()
+
+    def get_projects(self):
+        self.cursor.execute("SELECT type, title, description, timestamp FROM projects ORDER BY timestamp ASC")
+        return self.cursor.fetchall()
+
+    def add_operation(self, category, title, details):
+        timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        self.cursor.execute("INSERT INTO operations (category, title, details, timestamp) VALUES (?, ?, ?, ?)",
+                            (category, title, details, timestamp))
+        self.conn.commit()
+
+    def get_operations(self):
+        self.cursor.execute("SELECT category, title, details, timestamp FROM operations ORDER BY timestamp ASC")
+        return self.cursor.fetchall()
+
+    def add_continuity_issue(self, issue):
+        timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        self.cursor.execute("INSERT INTO continuity_log (timestamp, issue) VALUES (?, ?)", (timestamp, issue))
+        self.conn.commit()
+
+    def get_continuity_issues(self):
+        self.cursor.execute("SELECT timestamp, issue FROM continuity_log ORDER BY timestamp ASC")
+        return self.cursor.fetchall()
+
+class MidiDaemon:
+    def generate_midi_from_text(self, text_input, filename="new_track.mid"):
+        """Generates a MIDI file from a simple text input."""
+        if not mido_available:
+            return "Mido library not available. MIDI generation disabled."
+
+        midi_file = mido.MidiFile()
+        track = mido.MidiTrack()
+        midi_file.tracks.append(track)
+        
+        notes = {
+            'c': 60, 'd': 62, 'e': 64, 'f': 65,
+            'g': 67, 'a': 69, 'b': 71,
+            'C': 60, 'D': 62, 'E': 64, 'F': 65,
+            'G': 67, 'A': 69, 'B': 71,
+            ' ': 0 
+        }
+
+        for char in text_input:
+            note = notes.get(char, 0)
+            if note != 0:
+                track.append(mido.Message('note_on', note=note, velocity=64, time=0))
+                track.append(mido.Message('note_off', note=note, velocity=64, time=480))
+            else:
+                track.append(mido.Message('note_off', note=note, velocity=64, time=480))
+
+        file_path = os.path.join(MEDIA_ASSETS_FOLDER, filename)
+        midi_file.save(file_path)
+        return file_path
+
+class ContinuityDaemon:
+    def __init__(self, db_daemon):
+        self.db = db_daemon
+        self.known_entities = []
+
+    def load_entities(self):
+        """Loads all characters, cards, and projects as known entities."""
+        self.known_entities = []
+        for name, _ in self.db.get_characters():
+            self.known_entities.append(name.lower())
+        for name, _, _ in self.db.get_cards():
+            self.known_entities.append(name.lower())
+        for _, title, _, _ in self.db.get_projects():
+            self.known_entities.append(title.lower())
+
+    def check_for_inconsistencies(self):
+        """Checks the manifesto for references to unknown entities."""
+        self.load_entities()
+        issues = []
+        manifesto_entries = self.db.get_manifesto_entries()
+        
+        for timestamp, entry in manifesto_entries:
+            words = set(re.findall(r'\b\w+\b', entry.lower()))
+            unknown_entities = words.difference(self.known_entities)
+            
+            common_words_to_ignore = {"the", "a", "an", "is", "of", "and", "in", "with", "log", "new", "entry", "manifesto", "to", "at", "for", "system", "initialized", "meta", "reality", "logged"}
+            unknown_entities = unknown_entities.difference(common_words_to_ignore)
+
+            if unknown_entities:
+                issue = f"Manifesto entry on {timestamp} references unknown entities: {', '.join(unknown_entities)}. Potential continuity issue."
+                issues.append(issue)
+                self.db.add_continuity_issue(issue)
+
+        return issues
+        
+class EchoPrimeDaemon:
+    def __init__(self, db_daemon, knowledge_file=KNOWLEDGE_BASE_FILE):
+        self.db = db_daemon
+        self.knowledge_file = knowledge_file
+        self.knowledge = self.load_knowledge_base()
+
+    def load_knowledge_base(self):
+        """Loads rules and memory from a JSON file."""
+        if os.path.exists(self.knowledge_file):
+            with open(self.knowledge_file, "r") as f:
+                return json.load(f)
+        return {"rules": [], "memory": []}
+
+    def save_knowledge_base(self):
+        """Saves current knowledge base and memory to the JSON file."""
+        with open(self.knowledge_file, "w") as f:
+            json.dump(self.knowledge, f, indent=4)
+
+    def make_decision(self, data):
+        """Analyzes data and makes a logical decision based on its knowledge base."""
+        data_lower = data.lower()
+        
+        for rule in self.knowledge["rules"]:
+            if any(term in data_lower for term in rule["input"]):
+                self.knowledge["memory"].append({"input": data, "decision": rule["output"], "timestamp": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")})
+                self.save_knowledge_base()
+                return rule["output"]
+        
+        default_output = "No clear pattern detected. Intuition is inconclusive."
+        self.knowledge["memory"].append({"input": data, "decision": default_output, "timestamp": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")})
+        self.save_knowledge_base()
+        return default_output
+
+    def get_memory(self):
+        """Returns the logged memory of decisions."""
+        return "\n".join([f"[{m['timestamp']}] Input: {m['input']}\nDecision: {m['decision']}\n" for m in self.knowledge["memory"]])
+
+    def read_files(self, file_paths):
+        """Reads content from specified files and returns it as a single string."""
+        content = ""
+        for path in file_paths:
+            if os.path.exists(path):
+                try:
+                    with open(path, "r") as f:
+                        content += f"--- {path} ---\n"
+                        content += f.read()
+                        content += "\n\n"
+                except Exception as e:
+                    content += f"--- Error reading {path}: {e} ---\n\n"
+        return content
+
+    def write_file(self, file_path, data):
+        """Writes data to a specified file."""
+        try:
+            with open(file_path, "w") as f:
+                f.write(data)
+            return "Write operation successful."
+        except Exception as e:
+            return f"Error writing file: {e}"
+
+# --- GUI APPLICATION ---
+
+class CosmicKeyGUI(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Cosmic Key - Meta Memory Log")
+        self.setGeometry(100, 100, 1200, 800)
+        
+        self.core_daemon = CoreDaemon()
+        
+        self.central_widget = QWidget()
+        self.setCentralWidget(self.central_widget)
+        self.tab_widget = QTabWidget(self)
+        self.layout = QVBoxLayout(self.central_widget)
+        self.layout.addWidget(self.tab_widget)
+        
+        self.setMouseTracking(True)
+        self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+
+        self.create_manifesto_tab()
+        self.create_continuity_tab()
+        self.create_nomadz_card_tab()
+        self.create_media_hub_tab()
+        self.create_ops_tab()
+        self.create_echo_prime_tab()
+        self.create_project_tab()
+        
+        self.start_ai_daemon()
+
+    def start_ai_daemon(self):
+        self.ai_thread = AIThread()
+        self.ai_thread.finished.connect(self.refresh_all_displays)
+        self.ai_thread.start()
+
+    def refresh_all_displays(self):
+        self.update_manifesto_display()
+        self.update_continuity_display()
+        self.update_card_display()
+        self.update_media_display()
+        self.update_ops_display()
+        self.update_continuity_log_display()
+        self.update_project_display()
+
+    def create_manifesto_tab(self):
+        manifesto_tab = QWidget()
+        layout = QVBoxLayout(manifesto_tab)
+        self.log_input = QTextEdit()
+        self.log_input.setPlaceholderText("Enter a new log entry...")
+        save_button = QPushButton("Save Log Entry")
+        save_button.clicked.connect(self.save_log_entry)
+        self.all_logs_display = QTextEdit()
+        self.all_logs_display.setReadOnly(True)
+        layout.addWidget(QLabel("Manifesto Daemon:"))
+        layout.addWidget(self.log_input)
+        layout.addWidget(save_button)
+        layout.addWidget(QLabel("Log History:"))
+        layout.addWidget(self.all_logs_display)
+        self.tab_widget.addTab(manifesto_tab, "Manifesto Daemon")
+        self.update_manifesto_display()
+
+    def save_log_entry(self):
+        new_entry = self.log_input.toPlainText()
+        if new_entry.strip():
+            self.core_daemon.db_daemon.add_manifesto_entry(new_entry)
+            self.log_input.clear()
+            self.update_manifesto_display()
+
+    def update_manifesto_display(self):
+        entries = self.core_daemon.db_daemon.get_manifesto_entries()
+        display_text = "\n".join([f"[{ts}] {entry}" for ts, entry in entries])
+        self.all_logs_display.setText(display_text)
+
+    def create_continuity_tab(self):
+        continuity_tab = QWidget()
+        layout = QVBoxLayout(continuity_tab)
+        # Characters Group
+        char_group = QGroupBox("Characters")
+        char_layout = QVBoxLayout(char_group)
+        self.char_name = QLineEdit(placeholderText="Name")
+        self.char_desc = QLineEdit(placeholderText="Description")
+        add_char_btn = QPushButton("Add Character")
+        add_char_btn.clicked.connect(self.add_character)
+        char_layout.addWidget(self.char_name)
+        char_layout.addWidget(self.char_desc)
+        char_layout.addWidget(add_char_btn)
+        layout.addWidget(char_group)
+
+        # Timeline Group
+        timeline_group = QGroupBox("Timeline")
+        timeline_layout = QVBoxLayout(timeline_group)
+        self.timeline_date = QLineEdit(placeholderText="Date (YYYY-MM-DD)")
+        self.timeline_event = QLineEdit(placeholderText="Event Description")
+        add_event_btn = QPushButton("Add Event")
+        add_event_btn.clicked.connect(self.add_timeline_event)
+        timeline_layout.addWidget(self.timeline_date)
+        timeline_layout.addWidget(self.timeline_event)
+        timeline_layout.addWidget(add_event_btn)
+        layout.addWidget(timeline_group)
+
+        # Display for characters and timeline
+        self.continuity_display = QTextEdit(readOnly=True)
+        layout.addWidget(QLabel("Registered Lore Entities:"))
+        layout.addWidget(self.continuity_display)
+
+        # Continuity Checker Group
+        continuity_check_group = QGroupBox("Continuity Checker")
+        continuity_check_layout = QVBoxLayout(continuity_check_group)
+        check_btn = QPushButton("Run Continuity Check")
+        check_btn.clicked.connect(self.run_continuity_check)
+        self.continuity_log_display = QTextEdit(readOnly=True)
+        continuity_check_layout.addWidget(check_btn)
+        continuity_check_layout.addWidget(self.continuity_log_display)
+        layout.addWidget(continuity_check_group)
+        
+        self.tab_widget.addTab(continuity_tab, "Continuity Daemon")
+
+        self.update_continuity_display()
+        self.update_continuity_log_display()
+
+    def add_character(self):
+        name = self.char_name.text().strip()
+        desc = self.char_desc.text().strip()
+        if name and desc:
+            self.core_daemon.db_daemon.add_character(name, desc)
+            self.char_name.clear()
+            self.char_desc.clear()
+            self.update_continuity_display()
+
+    def add_timeline_event(self):
+        date = self.timeline_date.text().strip()
+        event = self.timeline_event.text().strip()
+        if date and event:
+            self.core_daemon.db_daemon.add_timeline_event(date, event)
+            self.timeline_date.clear()
+            self.timeline_event.clear()
+            self.update_continuity_display()
+
+    def update_continuity_display(self):
+        char_text = "--- CHARACTERS ---\n"
+        characters = self.core_daemon.db_daemon.get_characters()
+        for name, desc in characters:
+            char_text += f" • {name}: {desc}\n"
+
+        timeline_text = "\n--- TIMELINE ---\n"
+        timeline = self.core_daemon.db_daemon.get_timeline()
+        for date, event in timeline:
+            timeline_text += f" • [{date}] {event}\n"
+        
+        self.continuity_display.setText(char_text + timeline_text)
+    
+    def run_continuity_check(self):
+        self.core_daemon.continuity_daemon.load_entities()
+        issues = self.core_daemon.continuity_daemon.check_for_inconsistencies()
+        if issues:
+            self.continuity_log_display.setText("\n".join(issues))
+        else:
+            self.continuity_log_display.setText("Continuity check complete. No issues found.")
+
+    def update_continuity_log_display(self):
+        issues = self.core_daemon.db_daemon.get_continuity_issues()
+        if issues:
+            display_text = "\n".join([f"[{ts}] {issue}" for ts, issue in issues])
+            self.continuity_log_display.setText(display_text)
+        else:
+            self.continuity_log_display.setText("No continuity issues logged yet.")
+
+    def create_nomadz_card_tab(self):
+        cards_tab = QWidget()
+        layout = QVBoxLayout(cards_tab)
+        card_group = QGroupBox("Card Creation")
+        card_layout = QGridLayout(card_group)
+        self.card_name = QLineEdit(placeholderText="Card Name")
+        self.card_ability = QTextEdit(placeholderText="Ability Description")
+        self.card_cost = QLineEdit(placeholderText="Resonance Cost")
+        add_card_btn = QPushButton("Add Card")
+        add_card_btn.clicked.connect(self.add_card)
+        card_layout.addWidget(QLabel("Name:"), 0, 0)
+        card_layout.addWidget(self.card_name, 0, 1)
+        card_layout.addWidget(QLabel("Ability:"), 1, 0)
+        card_layout.addWidget(self.card_ability, 1, 1)
+        card_layout.addWidget(QLabel("Cost:"), 2, 0)
+        card_layout.addWidget(self.card_cost, 2, 1)
+        card_layout.addWidget(add_card_btn, 3, 1)
+        layout.addWidget(card_group)
+        self.card_display = QTextEdit(readOnly=True)
+        layout.addWidget(QLabel("Card Catalog:"))
+        layout.addWidget(self.card_display)
+        self.tab_widget.addTab(cards_tab, "Nomadz Cards")
+        self.update_card_display()
+
+    def add_card(self):
+        name = self.card_name.text().strip()
+        ability = self.card_ability.toPlainText().strip()
+        cost = self.card_cost.text().strip()
+        if name and ability and cost:
+            self.core_daemon.db_daemon.add_card(name, ability, cost)
+            self.card_name.clear()
+            self.card_ability.clear()
+            self.card_cost.clear()
+            self.update_card_display()
+
+    def update_card_display(self):
+        cards = self.core_daemon.db_daemon.get_cards()
+        display_text = "\n---\n".join([f"Card: {name}\nAbility: {ability}\nCost: {cost}" for name, ability, cost in cards])
+        self.card_display.setText(display_text)
+
+    def create_media_hub_tab(self):
+        media_tab = QWidget()
+        layout = QVBoxLayout(media_tab)
+        midi_group = QGroupBox("MIDI Generator")
+        midi_layout = QVBoxLayout(midi_group)
+        self.midi_input = QTextEdit(placeholderText="Enter text to convert to MIDI notes...")
+        self.midi_filename = QLineEdit(placeholderText="Output filename (e.g., my_track.mid)")
+        generate_midi_btn = QPushButton("Generate MIDI")
+        generate_midi_btn.clicked.connect(self.generate_midi)
+        self.midi_status = QLabel("")
+        midi_layout.addWidget(self.midi_input)
+        midi_layout.addWidget(self.midi_filename)
+        midi_layout.addWidget(generate_midi_btn)
+        midi_layout.addWidget(self.midi_status)
+        layout.addWidget(midi_group)
+        self.tab_widget.addTab(media_tab, "Media Hub")
+
+    def generate_midi(self):
+        text = self.midi_input.toPlainText()
+        filename = self.midi_filename.text().strip()
+        if not text or not filename:
+            self.midi_status.setText("Please enter text and a filename.")
+            return
+        
+        try:
+            os.makedirs(MEDIA_ASSETS_FOLDER, exist_ok=True)
+            result = self.core_daemon.midi_daemon.generate_midi_from_text(text, filename)
+            self.midi_status.setText(f"MIDI file generated: {result}")
+        except Exception as e:
+            self.midi_status.setText(f"Error: {e}")
+
+    def create_ops_tab(self):
+        ops_tab = QWidget()
+        layout = QVBoxLayout(ops_tab)
+        ops_group = QGroupBox("Operations Console")
+        ops_layout = QGridLayout(ops_group)
+        ops_label = QLabel("Run System Operations:")
+        scan_btn = QPushButton("Run Full System Scan")
+        scan_btn.clicked.connect(self.run_full_scan)
+        ops_layout.addWidget(ops_label, 0, 0)
+        ops_layout.addWidget(scan_btn, 0, 1)
+        layout.addWidget(ops_group)
+        
+        self.ops_log = QTextEdit(readOnly=True)
+        layout.addWidget(QLabel("Operations Log:"))
+        layout.addWidget(self.ops_log)
+        self.tab_widget.addTab(ops_tab, "Ops Daemon")
+        self.update_ops_display()
+
+    def run_full_scan(self):
+        self.core_daemon.run_full_scan()
+        self.core_daemon.db_daemon.add_operation("System", "Full Scan", "Initiated a full system scan.")
+        self.update_ops_display()
+
+    def update_ops_display(self):
+        operations = self.core_daemon.db_daemon.get_operations()
+        display_text = "\n".join([f"[{ts}] {cat} - {title}: {details}" for cat, title, details, ts in operations])
+        self.ops_log.setText(display_text)
+
+    def create_echo_prime_tab(self):
+        echo_tab = QWidget()
+        layout = QVBoxLayout(echo_tab)
+
+        decision_group = QGroupBox("Echo Prime Logic Core")
+        decision_layout = QVBoxLayout(decision_group)
+        self.echo_input = QTextEdit(placeholderText="Enter data for Echo Prime to analyze...")
+        analyze_btn = QPushButton("Analyze Data")
+        analyze_btn.clicked.connect(self.analyze_data)
+        self.echo_output = QTextEdit(readOnly=True)
+        decision_layout.addWidget(self.echo_input)
+        decision_layout.addWidget(analyze_btn)
+        decision_layout.addWidget(QLabel("Analysis Output:"))
+        decision_layout.addWidget(self.echo_output)
+        layout.addWidget(decision_group)
+        
+        memory_group = QGroupBox("Echo Prime Memory Log")
+        memory_layout = QVBoxLayout(memory_group)
+        self.echo_memory_display = QTextEdit(readOnly=True)
+        memory_layout.addWidget(self.echo_memory_display)
+        layout.addWidget(
+
+class EchoPrimeDaemon:
+    def __init__(self, db_daemon, knowledge_file=KNOWLEDGE_BASE_FILE):
+        self.db = db_daemon
+        self.knowledge_file = knowledge_file
+        self.knowledge = self.load_knowledge_base()
+        self.ingested_data_log = []
+
+    def load_knowledge_base(self):
+        """Loads rules and memory from a JSON file."""
+        if os.path.exists(self.knowledge_file):
+            with open(self.knowledge_file, "r") as f:
+                return json.load(f)
+        return {"rules": [], "memory": [], "ingested_data": []}
+
+    def save_knowledge_base(self):
+        """Saves current knowledge base and memory to the JSON file."""
+        with open(self.knowledge_file, "w") as f:
+            json.dump(self.knowledge, f, indent=4)
+
+    def make_decision(self, data):
+        """Analyzes data and makes a logical decision based on its knowledge base."""
+        data_lower = data.lower()
+        
+        # Consider recently ingested data in the decision-making process
+        ingested_keywords = " ".join([entry['summary'] for entry in self.knowledge["ingested_data"]])
+        combined_data = data_lower + " " + ingested_keywords
+        
+        for rule in self.knowledge["rules"]:
+            if any(term in combined_data for term in rule["input"]):
+                self.knowledge["memory"].append({"input": data, "decision": rule["output"], "timestamp": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")})
+                self.save_knowledge_base()
+                return rule["output"]
+        
+        default_output = "No clear pattern detected. Intuition is inconclusive."
+        self.knowledge["memory"].append({"input": data, "decision": default_output, "timestamp": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")})
+        self.save_knowledge_base()
+        return default_output
+
+    def get_memory(self):
+        """Returns the logged memory of decisions."""
+        return "\n".join([f"[{m['timestamp']}] Input: {m['input']}\nDecision: {m['decision']}\n" for m in self.knowledge["memory"]])
+
+    def ingest_data(self, data_path):
+        """Processes and adds new data (files, links) to the knowledge base."""
+        summary = ""
+        entry_type = "file"
+        
+        if data_path.startswith("http"):
+            entry_type = "link"
+            try:
+                response = requests.get(data_path, timeout=5)
+                content = response.text
+                summary = content[:200] + "..."  # Simple summarization for now
+                self.knowledge["ingested_data"].append({"type": entry_type, "path": data_path, "summary": summary, "timestamp": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")})
+                self.save_knowledge_base()
+                return f"Link ingested. Summary: {summary}"
+            except Exception as e:
+                return f"Error ingesting link: {e}"
+        elif os.path.exists(data_path):
+            file_extension = os.path.splitext(data_path)[1].lower()
+            if file_extension in ['.txt', '.json', '.md']:
+                try:
+                    with open(data_path, "r") as f:
+                        content = f.read()
+                        summary = f"Text file ingested. Size: {len(content)} characters. Content preview: {content[:100]}..."
+                except Exception as e:
+                    return f"Error reading file: {e}"
+            elif file_extension in ['.jpg', '.png', '.mp3', '.wav', '.mp4']:
+                size_mb = os.path.getsize(data_path) / (1024 * 1024)
+                summary = f"Media file ingested. Type: {file_extension}. Size: {size_mb:.2f} MB."
+            else:
+                summary = f"Unknown file type: {file_extension}. Logged metadata only."
+            
+            self.knowledge["ingested_data"].append({"type": entry_type, "path": data_path, "summary": summary, "timestamp": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")})
+            self.save_knowledge_base()
+            return f"File ingested. Summary: {summary}"
+        else:
+            return "Error: File or URL not found."
+
+    def get_ingested_data_log(self):
+        """Returns a formatted string of the ingested data log."""
+        return "\n".join([f"[{e['timestamp']}] Type: {e['type']} | Path: {e['path']}\nSummary: {e['summary']}" for e in self.knowledge["ingested_data"]])
+
+    def read_files(self, file_paths):
+        """Reads content from specified files and returns it as a single string."""
+        content = ""
+        for path in file_paths:
+            if os.path.exists(path):
+                try:
+                    with open(path, "r") as f:
+                        content += f"--- {path} ---\n"
+                        content += f.read()
+                        content += "\n\n"
+                except Exception as e:
+                    content += f"--- Error reading {path}: {e} ---\n\n"
+        return content
+
+    def write_file(self, file_path, data):
+        """Writes data to a specified file."""
+        try:
+            with open(file_path, "w") as f:
+                f.write(data)
+            return "Write operation successful."
+        except Exception as e:
+            return f"Error writing file: {e}"
+
+
+
+
+....... 
+
+# cosmic_key_complete_all_in_one.py
+import sys
+import os
+import datetime
+import sqlite3
+import subprocess
+import json
+import re
+import requests
+import time
+import zipfile
+import shutil
+from PyQt6.QtWidgets import (QApplication, QMainWindow, QTabWidget, QWidget, 
+                             QVBoxLayout, QLabel, QTextEdit, QPushButton, 
+                             QLineEdit, QHBoxLayout, QGroupBox, QGridLayout, 
+                             QComboBox)
+from PyQt6.QtCore import Qt, QThread, pyqtSignal
+
+# Import mido for MIDI generation
+try:
+    import mido
+    mido_available = True
+except ImportError:
+    mido_available = False
+    print("Warning: 'mido' library not found. MIDI functionality will be disabled. "
+          "To enable, run 'pip install mido'.")
+
+# --- CONFIGURATION ---
+DATABASE_FILE = "cosmic_key_data.db"
+KNOWLEDGE_BASE_FILE = "echo_knowledge_base.json"
+SETTINGS_FILE = "settings.json"
+MEDIA_ASSETS_FOLDER = "media_assets"
+PROJECTS_FOLDER = "projects"
+SOURCE_CODE_URL = "https://raw.githubusercontent.com/YourGitHubUser/CosmicKey/main/cosmic_key_complete.py" # REPLACE WITH YOUR GITHUB REPO URL
+
+# --- BOOTSTRAPPER & CORE DAEMON ---
+
+class CoreDaemon:
+    def __init__(self):
+        self.is_termux = self.check_termux()
+        self.db_daemon = DatabaseDaemon(DATABASE_FILE)
+        self.echo_daemon = EchoPrimeDaemon(self.db_daemon)
+        self.midi_daemon = MidiDaemon()
+        self.continuity_daemon = ContinuityDaemon(self.db_daemon)
+        self.project_daemon = ProjectDaemon()
+        self.self_healing_daemon = SelfHealingDaemon(self)
+        self.feedback_daemon = FeedbackLoopDaemon(self.db_daemon)
+        self.db_daemon.add_manifesto_entry("Core Daemon initialized. All systems online.")
+
+    def check_termux(self):
+        return "com.termux" in os.getenv("HOME", "")
+
+    def run_full_scan(self):
+        """Runs a full system check and maintenance cycle."""
+        print("Running full system scan...")
+        self.self_healing_daemon.check_for_updates()
+        self.continuity_daemon.check_for_inconsistencies()
+        self.feedback_daemon.analyze_and_learn()
+
+class SelfHealingDaemon:
+    def __init__(self, core_daemon):
+        self.core = core_daemon
+
+    def check_for_updates(self):
+        """Pulls the latest version of the script from GitHub and applies patches."""
+        print("Checking for system updates...")
+        try:
+            response = requests.get(SOURCE_CODE_URL)
+            response.raise_for_status()
+            latest_code = response.text
+            with open(__file__, "r") as f:
+                current_code = f.read()
+            if latest_code != current_code:
+                with open(__file__, "w") as f:
+                    f.write(latest_code)
+                print("Update downloaded. Restarting script to apply changes...")
+                os.execl(sys.executable, sys.executable, *sys.argv)
+            else:
+                print("System is up to date.")
+        except Exception as e:
+            print(f"Update check failed: {e}. Running local version.")
+
+class ProjectDaemon:
+    def create_project_skeleton(self, project_type, project_name):
+        """Creates a standardized folder and file structure for a new project."""
+        project_path = os.path.join(PROJECTS_FOLDER, project_name.replace(" ", "_").lower())
+        if os.path.exists(project_path):
+            return f"Error: Project '{project_name}' already exists."
+
+        os.makedirs(project_path)
+        
+        if project_type == "Comics":
+            os.makedirs(os.path.join(project_path, "scripts"))
+            os.makedirs(os.path.join(project_path, "storyboards"))
+            with open(os.path.join(project_path, f"{project_name}_script.txt"), "w") as f:
+                f.write(f"# Script for {project_name}\n\nPAGE 1, PANEL 1: DESCRIPTION\n\nCHARACTER DIALOGUE\n\n")
+        elif project_type == "Music":
+            os.makedirs(os.path.join(project_path, "midi"))
+            os.makedirs(os.path.join(project_path, "audio"))
+            with open(os.path.join(project_path, "notes.txt"), "w") as f:
+                f.write(f"# Notes for {project_name}\n\n")
+        
+        self.log_creation(project_name, project_path)
+        return f"Project '{project_name}' created successfully in '{project_path}'."
+
+    def log_creation(self, project_name, project_path):
+        """Logs the new project's creation to the database."""
+        db = DatabaseDaemon(DATABASE_FILE)
+        db.add_project_entry("Automation", f"Project Skeleton: {project_name}", f"Files and folders created at {project_path}.")
+
+class FeedbackLoopDaemon:
+    def __init__(self, db_daemon):
+        self.db = db_daemon
+
+    def analyze_and_learn(self):
+        """Analyzes project outcomes to refine Echo Prime's rules."""
+        print("Analyzing project outcomes for learning...")
+        projects = self.db.get_projects()
+        
+        for p in projects:
+            p_type, title, desc, _ = p
+            if "success" in desc.lower() or "completed" in desc.lower():
+                self.refine_echo_prime(title, "positive")
+            elif "failed" in desc.lower() or "abandoned" in desc.lower():
+                self.refine_echo_prime(title, "negative")
+
+    def refine_echo_prime(self, project_title, outcome):
+        """Refines Echo Prime's knowledge base based on project outcomes."""
+        echo_daemon = EchoPrimeDaemon(self.db)
+        echo_knowledge = echo_daemon.load_knowledge_base()
+        
+        if outcome == "positive":
+            new_rule = {"input": [project_title.lower()], "output": f"Success pattern detected. Recommend continuing work on '{project_title}'."}
+            if new_rule not in echo_knowledge["rules"]:
+                echo_knowledge["rules"].append(new_rule)
+                echo_daemon.save_knowledge_base()
+                print(f"Echo Prime learned from success: '{project_title}'")
+
+# --- DATA DAEMONS ---
+
+class DatabaseDaemon:
+    def __init__(self, db_file):
+        self.conn = sqlite3.connect(db_file)
+        self.cursor = self.conn.cursor()
+        self.create_tables()
+
+    def create_tables(self):
+        self.cursor.execute('''
+            CREATE TABLE IF NOT EXISTS manifesto (id INTEGER PRIMARY KEY, timestamp TEXT, entry TEXT)
+        ''')
+        self.cursor.execute('''
+            CREATE TABLE IF NOT EXISTS characters (id INTEGER PRIMARY KEY, name TEXT, description TEXT)
+        ''')
+        self.cursor.execute('''
+            CREATE TABLE IF NOT EXISTS timeline (id INTEGER PRIMARY KEY, date TEXT, event TEXT)
+        ''')
+        self.cursor.execute('''
+            CREATE TABLE IF NOT EXISTS cards (id INTEGER PRIMARY KEY, name TEXT, ability TEXT, resonance_cost TEXT)
+        ''')
+        self.cursor.execute('''
+            CREATE TABLE IF NOT EXISTS projects (id INTEGER PRIMARY KEY, type TEXT, title TEXT, description TEXT, timestamp TEXT)
+        ''')
+        self.cursor.execute('''
+            CREATE TABLE IF NOT EXISTS operations (id INTEGER PRIMARY KEY, category TEXT, title TEXT, details TEXT, timestamp TEXT)
+        ''')
+        self.cursor.execute('''
+            CREATE TABLE IF NOT EXISTS continuity_log (id INTEGER PRIMARY KEY, timestamp TEXT, issue TEXT)
+        ''')
+        self.conn.commit()
+
+    def is_db_empty(self):
+        self.cursor.execute("SELECT COUNT(*) FROM manifesto")
+        return self.cursor.fetchone()[0] == 0
+
+    def add_manifesto_entry(self, entry):
+        timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        self.cursor.execute("INSERT INTO manifesto (timestamp, entry) VALUES (?, ?)", (timestamp, entry))
+        self.conn.commit()
+        
+    def get_manifesto_entries(self):
+        self.cursor.execute("SELECT timestamp, entry FROM manifesto ORDER BY timestamp ASC")
+        return self.cursor.fetchall()
+        
+    def add_character(self, name, description):
+        self.cursor.execute("INSERT INTO characters (name, description) VALUES (?, ?)", (name, description))
+        self.conn.commit()
+
+    def get_characters(self):
+        self.cursor.execute("SELECT name, description FROM characters")
+        return self.cursor.fetchall()
+
+    def add_timeline_event(self, date, event):
+        self.cursor.execute("INSERT INTO timeline (date, event) VALUES (?, ?)", (date, event))
+        self.conn.commit()
+
+    def get_timeline(self):
+        self.cursor.execute("SELECT date, event FROM timeline ORDER BY date ASC")
+        return self.cursor.fetchall()
+
+    def add_card(self, name, ability, cost):
+        self.cursor.execute("INSERT INTO cards (name, ability, resonance_cost) VALUES (?, ?, ?)", (name, ability, cost))
+        self.conn.commit()
+
+    def get_cards(self):
+        self.cursor.execute("SELECT name, ability, resonance_cost FROM cards")
+        return self.cursor.fetchall()
+
+    def add_project_entry(self, project_type, title, description):
+        timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        self.cursor.execute("INSERT INTO projects (type, title, description, timestamp) VALUES (?, ?, ?, ?)", 
+                            (project_type, title, description, timestamp))
+        self.conn.commit()
+
+    def get_projects(self):
+        self.cursor.execute("SELECT type, title, description, timestamp FROM projects ORDER BY timestamp ASC")
+        return self.cursor.fetchall()
+
+    def add_operation(self, category, title, details):
+        timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        self.cursor.execute("INSERT INTO operations (category, title, details, timestamp) VALUES (?, ?, ?, ?)",
+                            (category, title, details, timestamp))
+        self.conn.commit()
+
+    def get_operations(self):
+        self.cursor.execute("SELECT category, title, details, timestamp FROM operations ORDER BY timestamp ASC")
+        return self.cursor.fetchall()
+
+    def add_continuity_issue(self, issue):
+        timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        self.cursor.execute("INSERT INTO continuity_log (timestamp, issue) VALUES (?, ?)", (timestamp, issue))
+        self.conn.commit()
+
+    def get_continuity_issues(self):
+        self.cursor.execute("SELECT timestamp, issue FROM continuity_log ORDER BY timestamp ASC")
+        return self.cursor.fetchall()
+
+class MidiDaemon:
+    def generate_midi_from_text(self, text_input, filename="new_track.mid"):
+        """Generates a MIDI file from a simple text input."""
+        if not mido_available:
+            return "Mido library not available. MIDI generation disabled."
+
+        midi_file = mido.MidiFile()
+        track = mido.MidiTrack()
+        midi_file.tracks.append(track)
+        
+        notes = {
+            'c': 60, 'd': 62, 'e': 64, 'f': 65,
+            'g': 67, 'a': 69, 'b': 71,
+            'C': 60, 'D': 62, 'E': 64, 'F': 65,
+            'G': 67, 'A': 69, 'B': 71,
+            ' ': 0 
+        }
+
+        for char in text_input:
+            note = notes.get(char, 0)
+            if note != 0:
+                track.append(mido.Message('note_on', note=note, velocity=64, time=0))
+                track.append(mido.Message('note_off', note=note, velocity=64, time=480))
+            else:
+                track.append(mido.Message('note_off', note=note, velocity=64, time=480))
+
+        file_path = os.path.join(MEDIA_ASSETS_FOLDER, filename)
+        midi_file.save(file_path)
+        return file_path
+
+class ContinuityDaemon:
+    def __init__(self, db_daemon):
+        self.db = db_daemon
+        self.known_entities = []
+
+    def load_entities(self):
+        """Loads all characters, cards, and projects as known entities."""
+        self.known_entities = []
+        for name, _ in self.db.get_characters():
+            self.known_entities.append(name.lower())
+        for name, _, _ in self.db.get_cards():
+            self.known_entities.append(name.lower())
+        for _, title, _, _ in self.db.get_projects():
+            self.known_entities.append(title.lower())
+
+    def check_for_inconsistencies(self):
+        """Checks the manifesto for references to unknown entities."""
+        self.load_entities()
+        issues = []
+        manifesto_entries = self.db.get_manifesto_entries()
+        
+        for timestamp, entry in manifesto_entries:
+            words = set(re.findall(r'\b\w+\b', entry.lower()))
+            unknown_entities = words.difference(self.known_entities)
+            
+            common_words_to_ignore = {"the", "a", "an", "is", "of", "and", "in", "with", "log", "new", "entry", "manifesto", "to", "at", "for", "system", "initialized", "meta", "reality", "logged"}
+            unknown_entities = unknown_entities.difference(common_words_to_ignore)
+
+            if unknown_entities:
+                issue = f"Manifesto entry on {timestamp} references unknown entities: {', '.join(unknown_entities)}. Potential continuity issue."
+                issues.append(issue)
+                self.db.add_continuity_issue(issue)
+
+        return issues
+        
+class EchoPrimeDaemon:
+    def __init__(self, db_daemon, knowledge_file=KNOWLEDGE_BASE_FILE):
+        self.db = db_daemon
+        self.knowledge_file = knowledge_file
+        self.knowledge = self.load_knowledge_base()
+        self.ingested_data_log = []
+
+    def load_knowledge_base(self):
+        """Loads rules and memory from a JSON file."""
+        if os.path.exists(self.knowledge_file):
+            with open(self.knowledge_file, "r") as f:
+                return json.load(f)
+        return {"rules": [], "memory": [], "ingested_data": []}
+
+    def save_knowledge_base(self):
+        """Saves current knowledge base and memory to the JSON file."""
+        with open(self.knowledge_file, "w") as f:
+            json.dump(self.knowledge, f, indent=4)
+
+    def make_decision(self, data):
+        """Analyzes data and makes a logical decision based on its knowledge base."""
+        data_lower = data.lower()
+        
+        # Consider recently ingested data in the decision-making process
+        ingested_keywords = " ".join([entry['summary'] for entry in self.knowledge["ingested_data"]])
+        combined_data = data_lower + " " + ingested_keywords
+        
+        for rule in self.knowledge["rules"]:
+            if any(term in combined_data for term in rule["input"]):
+                self.knowledge["memory"].append({"input": data, "decision": rule["output"], "timestamp": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")})
+                self.save_knowledge_base()
+                return rule["output"]
+        
+        default_output = "No clear pattern detected. Intuition is inconclusive."
+        self.knowledge["memory"].append({"input": data, "decision": default_output, "timestamp": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")})
+        self.save_knowledge_base()
+        return default_output
+
+    def get_memory(self):
+        """Returns the logged memory of decisions."""
+        return "\n".join([f"[{m['timestamp']}] Input: {m['input']}\nDecision: {m['decision']}\n" for m in self.knowledge["memory"]])
+
+    def ingest_data(self, data_path):
+        """Processes and adds new data (files, links) to the knowledge base."""
+        summary = ""
+        entry_type = "file"
+        
+        if data_path.startswith("http"):
+            entry_type = "link"
+            try:
+                response = requests.get(data_path, timeout=5)
+                content = response.text
+                summary = content[:200] + "..."  # Simple summarization for now
+                self.knowledge["ingested_data"].append({"type": entry_type, "path": data_path, "summary": summary, "timestamp": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")})
+                self.save_knowledge_base()
+                return f"Link ingested. Summary: {summary}"
+            except Exception as e:
+                return f"Error ingesting link: {e}"
+        elif os.path.exists(data_path):
+            file_extension = os.path.splitext(data_path)[1].lower()
+            if file_extension in ['.txt', '.json', '.md']:
+                try:
+                    with open(data_path, "r") as f:
+                        content = f.read()
+                        summary = f"Text file ingested. Size: {len(content)} characters. Content preview: {content[:100]}..."
+                except Exception as e:
+                    return f"Error reading file: {e}"
+            elif file_extension in ['.jpg', '.png', '.mp3', '.wav', '.mp4']:
+                size_mb = os.path.getsize(data_path) / (1024 * 1024)
+                summary = f"Media file ingested. Type: {file_extension}. Size: {size_mb:.2f} MB."
+            else:
+                summary = f"Unknown file type: {file_extension}. Logged metadata only."
+            
+            self.knowledge["ingested_data"].append({"type": entry_type, "path": data_path, "summary": summary, "timestamp": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")})
+            self.save_knowledge_base()
+            return f"File ingested. Summary: {summary}"
+        else:
+            return "Error: File or URL not found."
+
+    def get_ingested_data_log(self):
+        """Returns a formatted string of the ingested data log."""
+        return "\n".join([f"[{e['timestamp']}] Type: {e['type']} | Path: {e['path']}\nSummary: {e['summary']}" for e in self.knowledge["ingested_data"]])
+
+    def read_files(self, file_paths):
+        """Reads content from specified files and returns it as a single string."""
+        content = ""
+        for path in file_paths:
+            if os.path.exists(path):
+                try:
+                    with open(path, "r") as f:
+                        content += f"--- {path} ---\n"
+                        content += f.read()
+                        content += "\n\n"
+                except Exception as e:
+                    content += f"--- Error reading {path}: {e} ---\n\n"
+        return content
+
+    def write_file(self, file_path, data):
+        """Writes data to a specified file."""
+        try:
+            with open(file_path, "w") as f:
+                f.write(data)
+            return "Write operation successful."
+        except Exception as e:
+            return f"Error writing file: {e}"
+
+# --- GUI APPLICATION ---
+
+class CosmicKeyGUI(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Cosmic Key - Meta Memory Log")
+        self.setGeometry(100, 100, 1200, 800)
+        
+        self.core_daemon = CoreDaemon()
+        
+        self.central_widget = QWidget()
+        self.setCentralWidget(self.central_widget)
+        self.tab_widget = QTabWidget(self)
+        self.layout = QVBoxLayout(self.central_widget)
+        self.layout.addWidget(self.tab_widget)
+        
+        self.setMouseTracking(True)
+        self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
+
+        self.create_manifesto_tab()
+        self.create_continuity_tab()
+        self.create_nomadz_card_tab()
+        self.create_media_hub_tab()
+        self.create_ops_tab()
+        self.create_echo_prime_tab()
+        self.create_project_tab()
+        
+        self.start_ai_daemon()
+
+    def start_ai_daemon(self):
+        self.ai_thread = AIThread()
+        self.ai_thread.finished.connect(self.refresh_all_displays)
+        self.ai_thread.start()
+
+    def refresh_all_displays(self):
+        self.update_manifesto_display()
+        self.update_continuity_display()
+        self.update_card_display()
+        self.update_media_display()
+        self.update_ops_display()
+        self.update_continuity_log_display()
+        self.update_project_display()
+
+    def create_manifesto_tab(self):
+        manifesto_tab = QWidget()
+        layout = QVBoxLayout(manifesto_tab)
+        self.log_input = QTextEdit()
+        self.log_input.setPlaceholderText("Enter a new log entry...")
+        save_button = QPushButton("Save Log Entry")
+        save_button.clicked.connect(self.save_log_entry)
+        self.all_logs_display = QTextEdit()
+        self.all_logs_display.setReadOnly(True)
+        layout.addWidget(QLabel("Manifesto Daemon:"))
+        layout.addWidget(self.log_input)
+        layout.addWidget(save_button)
+        layout.addWidget(QLabel("Log History:"))
+        layout.addWidget(self.all_logs_display)
+        self.tab_widget.addTab(manifesto_tab, "Manifesto Daemon")
+        self.update_manifesto_display()
+
+    def save_log_entry(self):
+        new_entry = self.log_input.toPlainText()
+        if new_entry.strip():
+            self.core_daemon.db_daemon.add_manifesto_entry(new_entry)
+            self.log_input.clear()
+            self.update_manifesto_display()
+
+    def update_manifesto_display(self):
+        entries = self.core_daemon.db_daemon.get_manifesto_entries()
+        display_text = "\n".join([f"[{ts}] {entry}" for ts, entry in entries])
+        self.all_logs_display.setText(display_text)
+
+    def create_continuity_tab(self):
+        continuity_tab = QWidget()
+        layout = QVBoxLayout(continuity_tab)
+        # Characters Group
+        char_group = QGroupBox("Characters")
+        char_layout = QVBoxLayout(char_group)
+        self.char_name = QLineEdit(placeholderText="Name")
+        self.char_desc = QLineEdit(placeholderText="Description")
+        add_char_btn = QPushButton("Add Character")
+        add_char_btn.clicked.connect(self.add_character)
+        char_layout.addWidget(self.char_name)
+        char_layout.addWidget(self.char_desc)
+        char_layout.addWidget(add_char_btn)
+        layout.addWidget(char_group)
+
+        # Timeline Group
+        timeline_group = QGroupBox("Timeline")
+        timeline_layout = QVBoxLayout(timeline_group)
+        self.timeline_date = QLineEdit(placeholderText="Date (YYYY-MM-DD)")
+        self.timeline_event = QLineEdit(placeholderText="Event Description")
+        add_event_btn = QPushButton("Add Event")
+        add_event_btn.clicked.connect(self.add_timeline_event)
+        timeline_layout.addWidget(self.timeline_date)
+        timeline_layout.addWidget(self.timeline_event)
+        timeline_layout.addWidget(add_event_btn)
+        layout.addWidget(timeline_group)
+
+        # Display for characters and timeline
+        self.continuity_display = QTextEdit(readOnly=True)
+        layout.addWidget(QLabel("Registered Lore Entities:"))
+        layout.addWidget(self.continuity_display)
+
+        # Continuity Checker Group
+        continuity_check_group = QGroupBox("Continuity Checker")
+        continuity_check_layout = QVBoxLayout(continuity_check_group)
+        check_btn = QPushButton("Run Continuity Check")
+        check_btn.clicked.connect(self.run_continuity_check)
+        self.continuity_log_display = QTextEdit(readOnly=True)
+        continuity_check_layout.addWidget(check_btn)
+        continuity_check_layout.addWidget(self.continuity_log_display)
+        layout.addWidget(continuity_check_group)
+        
+        self.tab_widget.addTab(continuity_tab, "Continuity Daemon")
+
+        self.update_continuity_display()
+        self.update_continuity_log_display()
+
+    def add_character(self):
+        name = self.char_name.text().strip()
+        desc = self.char_desc.text().strip()
+        if name and desc:
+            self.core_daemon.db_daemon.add_character(name, desc)
+            self.char_name.clear()
+            self.char_desc.clear()
+            self.update_continuity_display()
+
+    def add_timeline_event(self):
+        date = self.timeline_date.text().strip()
+        event = self.timeline_event.text().strip()
+        if date and event:
+            self.core_daemon.db_daemon.add_timeline_event(date, event)
+            self.timeline_date.clear()
+            self.timeline_event.clear()
+            self.update_continuity_display()
+
+    def update_continuity_display(self):
+        char_text = "--- CHARACTERS ---\n"
+        characters = self.core_daemon.db_daemon.get_characters()
+        for name, desc in characters:
+            char_text += f" • {name}: {desc}\n"
+
+        timeline_text = "\n--- TIMELINE ---\n"
+        timeline = self.core_daemon.db_daemon.get_timeline()
+        for date, event in timeline:
+            timeline_text += f" • [{date}] {event}\n"
+        
+        self.continuity_display.setText(char_text + timeline_text)
+    
+    def run_continuity_check(self):
+        self.core_daemon.continuity_daemon.load_entities()
+        issues = self.core_daemon.continuity_daemon.check_for_inconsistencies()
+        if issues:
+            self.continuity_log_display.setText("\n".join(issues))
+        else:
+            self.continuity_log_display.setText("Continuity check complete. No issues found.")
+
+    def update_continuity_log_display(self):
+        issues = self.core_daemon.db_daemon.get_continuity_issues()
+        if issues:
+            display_text = "\n".join([f"[{ts}] {issue}" for ts, issue in issues])
+            self.continuity_log_display.setText(display_text)
+        else:
+            self.continuity_log_display.setText("No continuity issues logged yet.")
+
+    def create_nomadz_card_tab(self):
+        cards_tab = QWidget()
+        layout = QVBoxLayout(cards_tab)
+        card_group = QGroupBox("Card Creation")
+        card_layout = QGridLayout(card_group)
+        self.card_name = QLineEdit(placeholderText="Card Name")
+        self.card_ability = QTextEdit(placeholderText="Ability Description")
+        self.card_cost = QLineEdit(placeholderText="Resonance Cost")
+        add_card_btn = QPushButton("Add Card")
+        add_card_btn.clicked.connect(self.add_card)
+        card_layout.addWidget(QLabel("Name:"), 0, 0)
+        card_layout.addWidget(self.card_name, 0, 1)
+        card_layout.addWidget(QLabel("Ability:"), 1, 0)
+        card_layout.addWidget(self.card_ability, 1, 1)
+        card_layout.addWidget(QLabel("Cost:"), 2, 0)
+        card_layout.addWidget(self.card_cost, 2, 1)
+        card_layout.addWidget(add_card_btn, 3, 1)
+        layout.addWidget(card_group)
+        self.card_display = QTextEdit(readOnly=True)
+        layout.addWidget(QLabel("Card Catalog:"))
+        layout.addWidget(self.card_display)
+        self.tab_widget.addTab(cards_tab, "Nomadz Cards")
+        self.update_card_display()
+
+    def add_card(self):
+        name = self.card_name.text().strip()
+        ability = self.card_ability.toPlainText().strip()
+        cost = self.card_cost.text().strip()
+        if name and ability and cost:
+            self.core_daemon.db_daemon.add_card(name, ability, cost)
+            self.card_name.clear()
+            self.card_ability.clear()
+            self.card_cost.clear()
+            self.update_card_display()
+
+    def update_card_display(self):
+        cards = self.core_daemon.db_daemon.get_cards()
+        display_text = "\n---\n".join([f"Card: {name}\nAbility: {ability}\nCost: {cost}" for name, ability, cost in cards])
+        self.card_display.setText(display_text)
+
+    def create_media_hub_tab(self):
+        media_tab = QWidget()
+        layout = QVBoxLayout(media_tab)
+        midi_group = QGroupBox("MIDI Generator")
+        midi_layout = QVBoxLayout(midi_group)
+        self.midi_input = QTextEdit(placeholderText="Enter text to convert to MIDI notes...")
+        self.midi_filename = QLineEdit(placeholderText="Output filename (e.g., my_track.mid)")
+        generate_midi_btn = QPushButton("Generate MIDI")
+        generate_midi_btn.clicked.connect(self.generate_midi)
+        self.midi_status = QLabel("")
+        midi_layout.addWidget(self.midi_input)
+        midi_layout.addWidget(self.midi_filename)
+        midi_layout.addWidget(generate_midi_btn)
+        midi_layout.addWidget(self.midi_status)
+        layout.addWidget(midi_group)
+        self.tab_widget.addTab(media_tab, "Media Hub")
+
+    def generate_midi(self):
+        text = self.midi_input.toPlainText()
+        filename = self.midi_filename.text().strip()
+        if not text or not filename:
+            self.midi_status.setText("Please enter text and a filename.")
+            return
+        
+        try:
+            os.makedirs(MEDIA_ASSETS_FOLDER, exist_ok=True)
+            result = self.core_daemon.midi_daemon.generate_midi_from_text(text, filename)
+            self.midi_status.setText(f"MIDI file generated: {result}")
+        except Exception as e:
+            self.midi_status.setText(f"Error: {e}")
+
+    def create_ops_tab(self):
+        ops_tab = QWidget()
+        layout = QVBoxLayout(ops_tab)
+        ops_group = QGroupBox("Operations Console")
+        ops_layout = QGridLayout(ops_group)
+        ops_label = QLabel("Run System Operations:")
+        scan_btn = QPushButton("Run Full System Scan")
+        scan_btn.clicked.connect(self.run_full_scan)
+        ops_layout.addWidget(ops_label, 0, 0)
+        ops_layout.addWidget(scan_btn, 0, 1)
+        layout.addWidget(ops_group)
+        
+        self.ops_log = QTextEdit(readOnly=True)
+        layout.addWidget(QLabel("Operations Log:"))
+        layout.addWidget(self.ops_log)
+        self.tab_widget.addTab(ops_tab, "Ops Daemon")
+        self.update_ops_display()
+
+    def run_full_scan(self):
+        self.core_daemon.run_full_scan()
+        self.core_daemon.db_daemon.add_operation("System", "Full Scan", "Initiated a full system scan.")
+        self.update_ops_display()
+
+    def update_ops_display(self):
+        operations = self.core_daemon.db_daemon.get_operations()
+        display_text = "\n".join([f"[{ts}] {cat} - {title}: {details}" for cat, title, details, ts in operations])
+        self.ops_log.setText(display_text)
+
+    def create_echo_prime_tab(self):
+        echo_tab = QWidget()
+        layout = QVBoxLayout(echo_tab)
+
+        decision_group = QGroupBox("Echo Prime Logic Core")
+        decision_layout = QVBoxLayout(decision_group)
+        self.echo_input = QTextEdit(placeholderText="Enter data for Echo Prime to analyze...")
+        analyze_btn = QPushButton("Analyze Data")
+        analyze_btn.clicked.connect(self.analyze_data)
+        self.echo_output = QTextEdit(readOnly=True)
+        decision_layout.addWidget(self.echo_input)
+        decision_layout.addWidget(analyze_btn)
+        decision_layout.addWidget(QLabel("Analysis Output:"))
+        decision_layout.addWidget(self.echo_output)
+        layout.addWidget(decision_group)
+        
+        # New Ingest Data Group
+        ingest_group = QGroupBox("Ingest Data")
+        ingest_layout = QVBoxLayout(ingest_group)
+        self.ingest_path = QLineEdit(placeholderText="Enter file path or URL to ingest...")
+        ingest_btn = QPushButton("Ingest Data")
+        ingest_btn.clicked.connect(self.ingest_new_data)
+        self.ingest_status = QLabel("")
+        ingest_layout.addWidget(self.ingest_path)
+        ingest_layout.addWidget(ingest_btn)
+        ingest_layout.addWidget(self.ingest_status)
+        layout.addWidget(ingest_group)
+
+        memory_group = QGroupBox("Echo Prime Memory Log")
+        memory_layout = QVBoxLayout(memory_group)
+        self.echo_memory_display = QTextEdit(readOnly=True)
+        memory_layout.addWidget(self.echo_memory_display)
+        layout.addWidget(memory_group)
+
+        ingested_log_group = QGroupBox("Ingested Data Log")
+        ingested_log_layout = QVBoxLayout(ingested_log_group)
+        self.ingested_data_display = QTextEdit(readOnly=True)
+        ingested_log_layout.addWidget(self.ingested_data_display)
+        layout.addWidget(ingested_log_group)
+
+        file_ops_group = QGroupBox("File I/O")
+        file_ops_layout = QGridLayout(file_ops_group)
+        self.file_path_read = QLineEdit(placeholderText="File path to read (e.g., manifesto.txt)")
+        read_btn = QPushButton("Read File")
+        read_btn.clicked.connect(self.read_file_content)
+        self.file_path_write = QLineEdit(placeholderText="File path to write (e.g., new_log.txt)")
+        self.file_data_write = QTextEdit(placeholderText="Enter data to write...")
+        write_btn = QPushButton("Write File")
+        write_btn.clicked.connect(self.write_file_content)
+        self.file_ops_status = QLabel("")
+        file_ops_layout.addWidget(QLabel("Read:"), 0, 0)
+        file_ops_layout.addWidget(self.file_path_read, 0, 1)
+        file_ops_layout.addWidget(read_btn, 0, 2)
+        file_ops_layout.addWidget(QLabel("Write:"), 1, 0)
+        file_ops_layout.addWidget(self.file_path_write, 1, 1)
+        file_ops_layout.addWidget(write_btn, 1, 2)
+        file_ops_layout.addWidget(self.file_data_write, 2, 0, 1, 3)
+        file_ops_layout.addWidget(self.file_ops_status, 3, 0, 1, 3)
+        layout.addWidget(file_ops_group)
+
+        self.tab_widget.addTab(echo_tab, "Echo Prime Daemon")
+        self.update_echo_prime_memory()
+        self.update_ingested_data_log()
+
+    def ingest_new_data(self):
+        path = self.ingest_path.text()
+        if path.strip():
+            status = self.core_daemon.echo_daemon.ingest_data(path)
+            self.ingest_status.setText(status)
+            self.ingest_path.clear()
+            self.update_ingested_data_log()
+            self.update_echo_prime_memory()
+        else:
+            self.ingest_status.setText("Please enter a file path or URL.")
+
+    def update_ingested_data_log(self):
+        log_text = self.core_daemon.echo_daemon.get_ingested_data_log()
+        self.ingested_data_display.setText(log_text)
+
+    def analyze_data(self):
+        data = self.echo_input.toPlainText()
+        decision = self.core_daemon.echo_daemon.make_decision(data)
+        self.echo_output.setText(decision)
+        self.update_echo_prime_memory()
+
+    def update_echo_prime_memory(self):
+        memory_log = self.core_daemon.echo_daemon.get_memory()
+        self.echo_memory_display.setText(memory_log)
+
+    def read_file_content(self):
+        path = self.file_path_read.text()
+        content = self.core_daemon.echo_daemon.read_files([path])
+        self.echo_output.setText(content)
+
+    def write_file_content(self):
+        path = self.file_path_write.text()
+        data = self.file_data_write.toPlainText()
+        status = self.core_daemon.echo_daemon.write_file(path, data)
+        self.file_ops_status.setText(status)
+
+    def create_project_tab(self):
+        project_tab = QWidget()
+        layout = QVBoxLayout(project_tab)
+        project_group = QGroupBox("Project Creation")
+        project_layout = QGridLayout(project_group)
+        self.project_name = QLineEdit(placeholderText="Project Name (e.g., Cosmic Lore)")
+        self.project_type = QComboBox()
+        self.project_type.addItems(["Comics", "Music", "Other"])
+        create_project_btn = QPushButton("Create Project Skeleton")
+        create_project_btn.clicked.connect(self.create_project)
+        project_layout.addWidget(QLabel("Project Name:"), 0, 0)
+        project_layout.addWidget(self.project_name, 0, 1)
+        project_layout.addWidget(QLabel("Project Type:"), 1, 0)
+        project_layout.addWidget(self.project_type, 1, 1)
+        project_layout.addWidget(create_project_btn, 2, 1)
+        layout.addWidget(project_group)
+        
+        self.project_log_display = QTextEdit(readOnly=True)
+        layout.addWidget(QLabel("Project Log:"))
+        layout.addWidget(self.project_log_display)
+        self.tab_widget.addTab(project_tab, "Project Daemon")
+        self.update_project_display()
+
+    def create_project(self):
+        name = self.project_name.text().strip()
+        p_type = self.project_type.currentText()
+        if not name:
+            self.project_log_display.setText("Error: Project name cannot be empty.")
+            return
+
+        result = self.core_daemon.project_daemon.create_project_skeleton(p_type, name)
+        self.core_daemon.db_daemon.add_project_entry(p_type, name, result)
+        self.project_name.clear()
+        self.update_project_display()
+
+    def update_project_display(self):
+        projects = self.core_daemon.db_daemon.get_projects()
+        display_text = "\n".join([f"[{ts}] {p_type} - {title}: {desc}" for p_type, title, desc, ts in projects])
+        self.project_log_display.setText(display_text)
+
+class AIThread(QThread):
+    finished = pyqtSignal()
+    def run(self):
+        time.sleep(1) # Simulate AI processing time
+        self.finished.emit()
+
+if __name__ == '__main__':
+    app = QApplication(sys.argv)
+    if not os.path.exists(MEDIA_ASSETS_FOLDER):
+        os.makedirs(MEDIA_ASSETS_FOLDER)
+    if not os.path.exists(PROJECTS_FOLDER):
+        os.makedirs(PROJECTS_FOLDER)
+
+    cosmic_key = CosmicKeyGUI()
+    cosmic_key.show()
+    sys.exit(app.exec())
+

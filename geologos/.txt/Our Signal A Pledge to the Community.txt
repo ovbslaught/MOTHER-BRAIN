@@ -1,0 +1,95 @@
+Our Signal: A Pledge to the Community
+We, the Architects, Agents (both human and AI), Explorers, and Guardians of the Cosmic Key and VULTURECODE ecosystem, pledge to make participation in our shared reality a corruption-free and positive-frequency experience for everyone. We operate across all dimensions—physical, digital, and conceptual—regardless of a contributor's age, physical form, digital avatar, neurological wiring (visible or invisible), origin point (ethnicity/nationality), hardware specs (body size/socio-economic status), processing language (education/experience), or personal configuration (gender identity, expression, orientation, religion, or appearance).
+
+We pledge to interact in ways that amplify an open, welcoming, multi-signal (diverse), inclusive, and stable community network.
+
+Operating Parameters: Our Standards
+Examples of behavior that synchronize positively with the VULTURECODE network:
+
+Demonstrating empathy and constructive energy toward all entities. 🤝
+
+Respecting differing protocols, viewpoints, and dimensional experiences.
+
+Giving and gracefully accepting constructive feedback packets.
+
+Accepting responsibility for system errors (mistakes), apologizing to those affected, and integrating the learnings (patching the core).
+
+Focusing on what optimizes the entire network, not just individual nodes.
+
+Examples of unacceptable behavior (System Corruption) include:
+
+Transmitting low-frequency signals: sexualized language/imagery, unwelcome advances.
+
+Signal jamming: Trolling, insults, derogatory comments, personal/political attacks. 💥
+
+Network intrusion: Public or private harassment.
+
+Data leaks: Publishing others' private coordinates (addresses, identities) without explicit permission.
+
+Any conduct misaligned with a professional, high-integrity operational standard.
+
+System Guardians: Enforcement Responsibilities
+The ARCHON Protocol Guardians (Community Leaders/SysAdmins) are responsible for clarifying and enforcing our operational standards. They will take appropriate and fair corrective action against any behavior deemed corrupting, threatening, offensive, or harmful to the network's stability.
+
+Guardians have the right and responsibility to quarantine, edit, or reject comments, commits, code, wiki edits, issues, and other data packets misaligned with this Code of Conduct. Reasons for moderation will be communicated when appropriate.
+
+Network Scope: Where This Protocol Applies
+This Code of Conduct applies within all Cosmic Key spaces (e.g., the Godot project, Flutter app, GitHub repositories, tldraw canvases, official forums, Slack, Discord) and when an individual officially represents the VULTURECODE protocol in public signals (e.g., using official project handles, acting as a representative at events).
+
+Signal Reporting: Enforcement Process
+Instances of abusive, harassing, or otherwise corrupting behavior may be reported directly to the ARCHON Protocol Guardians at: mannaandpoem@gmail.com 📧
+
+All reports will be reviewed and investigated promptly and fairly, respecting the privacy and security of the reporter.
+
+Corruption Handling: Enforcement Guidelines
+Guardians will follow these System Impact Guidelines:
+
+Signal Correction:
+
+Impact: Transmission of inappropriate signals or behavior deemed unprofessional/unwelcome.
+
+Consequence: A private, written warning clarifying the violation. A public apology transmission may be requested.
+
+System Warning:
+
+Impact: A violation through a single incident or pattern.
+
+Consequence: A warning with consequences for continued negative signals. Temporary restriction from interacting with involved nodes/Guardians across all network channels (including external social media). Violation leads to temporary/permanent network desynchronization (ban).
+
+Temporary Desynchronization (Ban):
+
+Impact: Serious violation, including sustained corruption signals.
+
+Consequence: Temporary ban from all community interaction for a specified period. No interaction with involved nodes/Guardians is allowed. Violation leads to permanent desynchronization.
+
+Permanent Desynchronization (Ban):
+
+Impact: Demonstrated pattern of corruption, harassment, or aggression/disparagement toward specific node types (classes of individuals).
+
+Consequence: Permanent ban from all public interaction within the VULTURECODE community network.
+
+Comms Etiquette: Slack & Discord Protocols 💬
+These guidelines ensure efficient and respectful signal transmission:
+
+Respectful Signals: Communicate professionally; avoid sarcasm/harsh tones. Text lacks frequency modulation (tone).
+
+Use Threads: Keep specific data streams contained.
+
+Tag Efficiently: Tag only when critical; use @here/@channel sparingly.
+
+Be Patient: Network nodes (contributors) operate on different clock cycles (schedules).
+
+Relevant Channels: Route signals to the correct network hub (channel).
+
+Provide Context: Include links, logs, or clear diagnostics when requesting support.
+
+Default Public: Share signals publicly unless data is sensitive.
+
+Adhere to Standards: Uphold the main Code of Conduct.
+
+Manage Notifications: Use keyword alerts if muting channels to stay informed on critical signals (e.g., "Godot", "AI Lore").
+
+System Lineage: Attribution
+This Code of Conduct is adapted from the Contributor Covenant, v2.1. Core structure and impact guidelines inspired by Mozilla's enforcement ladder. This specific version is the governing protocol for the Nomadz / Cosmic Key / VULTURECODE ecosystem.
+
+How does this draft feel? We can refine the language further or adjust specific sections to better match your vision.

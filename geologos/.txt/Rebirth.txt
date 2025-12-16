@@ -1,0 +1,1 @@
+bash -c 'ROOT="$HOME/cosmic-key"; CK_FILE="$ROOT/cosmic_key.json"; SYNC_FILE="$ROOT/cosmic_key_echo_sync.json"; if [ -f "$SYNC_FILE" ]; then jq -c . "$SYNC_FILE" > "$CK_FILE"; echo "[✔] Cosmic Key restored from Echo Sync: $SYNC_FILE"; else echo "[!] Echo Sync file not found: $SYNC_FILE"; fi'
