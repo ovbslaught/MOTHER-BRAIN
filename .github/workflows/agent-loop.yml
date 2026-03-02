@@ -1,0 +1,18 @@
+name: NOMADZ Agent Loop
+on: [push, schedule: - cron: '0 */6 * * *']
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: rclone sync
+      env:
+        RCLONE_CONFIG: ${{ secrets.RCLONE_CONFIG }}
+      run: |
+        curl https://rclone.org/install.sh | bash
+        echo "$RCLONE_CONFIG" > ~/.config/rclone/rclone.conf
+        rclone sync gdrive:Models ./Godot-Voxel/Terrain-Chunks/ --update
+    - name: Ollama test
+      run: |
+        curl -fsSL https://ollama.com/install.sh | sh
+        ollama list
