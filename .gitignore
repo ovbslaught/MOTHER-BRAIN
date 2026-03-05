@@ -16,3 +16,14 @@
 .obsidian/
 Security/
 notes/**/.DS_Store
+
+# Logs should not be in Git
+99_System_Logs/
+00SYSTEM/logs/
+*.log
+
+# --- DO NOT TRACK LOGS IN GIT ---
+99_System_Logs/
+00SYSTEM/logs/
+**/logs/
+*.log
