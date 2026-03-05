@@ -1,0 +1,375 @@
+[2026-03-04T21:50:29-05:00] DOWN (Drive -> local mirror)
+2026/03/05 02:53:19 NOTICE: ARCHIVE/project.godot: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: GEOBRAIN/06_CREATIVE_SUITE (1).py: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: GEOBRAIN/07_NOMADZ_STORY_ENGINE (1).py: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: GEOBRAIN/08_WORLD_BUILDER (1).py: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: GEOBRAIN/09_COSMIC_KEY_ARCHIVE (1).py: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: GEOBRAIN/26_PILLAR_EXPANSION_SUMMARY.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: GEOBRAIN/Advance all.xlsx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: GEOBRAIN/FINAL_DEPLOYMENT_MANIFEST (1).json: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: GEOBRAIN/FINAL_SUMMARY (1).json: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: GEOBRAIN/Month-1-Execution-Plan.md: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: GEOBRAIN/Should we integrate protocols etc to enhance our....xlsx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: GEOBRAIN/Software development proposal.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/"SECURITY_CONSTITUTION_ID": "NOMADZ-ARCHON-SECURI....docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/"SECURITY_CONSTITUTION_ID": "NOMADZ-ARCHON-SECURI....docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/"SECURITY_CONSTITUTION_ID": "NOMADZ-ARCHON-SECURI....xlsx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/.exmu-cfg1.data: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/.exmu-cfg1.data: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: snapshots/Copy of Session Snapshot.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: snapshots/Copy of Session Snapshot.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: snapshots/Copy of Session Snapshot.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: snapshots/Copy of Session Snapshot.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: snapshots/Copy of Session Snapshot.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: snapshots/Copy of Session Snapshot.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: snapshots/Copy of Session Snapshot.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: GEOBRAIN/Untitled document.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: GEOBRAIN/Untitled document.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: GEOBRAIN/Untitled document.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: snapshots/Copy of Session Snapshot.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: snapshots/Copy of Session Snapshot.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: snapshots/Copy of Session Snapshot.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: snapshots/Copy of Session Snapshot.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: snapshots/Copy of Session Snapshot.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: snapshots/Generate snapshot of full session data.xlsx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: snapshots/Generate snapshot of full session data.xlsx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: snapshots/Session Snapshot (Human-Readable).docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: snapshots/Session Snapshot.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: snapshots/Session Snapshot.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: snapshots/Session Snapshot.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: snapshots/Session Snapshot: Context Rehydration Script.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: GEOBRAIN/{␊  "session_id": "2025-11-25T19:42:55Z",␊  "proj....xlsx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: GEOBRAIN/{␊  "system_identity": {␊    "codename": "VULTURE....docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: Cortex_services/Cosmic Key droid Project Tracker/COSMIC-droid: Duplicate directory found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/68c976a3-a234-8325-8438-d361d9be4ee9: Duplicate directory found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/8nxG3Vma01w8LR5E-My_workflow_3.json: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: GEOBRAIN/Archives/Copy of Financial Allocation Matrix.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: GEOBRAIN/Archives/Copy of Financial Allocation Matrix.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Agent 007-.txt: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: GEOBRAIN/Archives/Copy of Financial Allocation Matrix.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Aggregated Master Archive.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Aggregated Master Archive.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Aggregated Master Archive.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: GEOBRAIN/Archives/Copy of Financial Allocation Matrix.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: GEOBRAIN/Archives/Copy of Financial Allocation Matrix.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: GEOBRAIN/Archives/Copy of Financial Allocation Matrix.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: GEOBRAIN/Archives/Copy of Financial Allocation Matrix.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: GEOBRAIN/Archives/Copy of Financial Allocation Matrix.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: GEOBRAIN/Archives/Copy of Financial Allocation Matrix.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: GEOBRAIN/Archives/Copy of Financial Allocation Matrix.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: GEOBRAIN/Archives/Copy of Financial Allocation Matrix.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: GEOBRAIN/Archives/Copy of Financial Allocation Matrix.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: GEOBRAIN/Archives/Copy of Financial Allocation Matrix.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: GEOBRAIN/Archives/Copy of Financial Allocation Matrix.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/All.xlsx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: GEOBRAIN/Archives/Copy of Financial Allocation Matrix.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: GEOBRAIN/Archives/Copy of Financial Allocation Matrix.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/An untitled mindmap: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: GEOBRAIN/Archives/Copy of Financial Allocation Matrix.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: GEOBRAIN/Archives/Copy of Financial Allocation Matrix.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: GEOBRAIN/Archives/Copy of Financial Allocation Matrix.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: GEOBRAIN/Archives/Copy of Financial Allocation Matrix.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: GEOBRAIN/Archives/Copy of Financial Allocation Matrix.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: GEOBRAIN/Archives/Copy of Financial Allocation Matrix.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: GEOBRAIN/Archives/Copy of Financial Allocation Matrix.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: GEOBRAIN/Archives/Copy of Financial Allocation Matrix.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: GEOBRAIN/Archives/Copy of Financial Allocation Matrix.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: GEOBRAIN/Archives/Copy of Financial Allocation Matrix.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: GEOBRAIN/Archives/Copy of Financial Allocation Matrix.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: GEOBRAIN/Archives/Copy of Financial Allocation Matrix.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: GEOBRAIN/Archives/Galaxy Genesis Blueprint.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: GEOBRAIN/Archives/Galaxy Genesis Blueprint.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: GEOBRAIN/Archives/Galaxy Genesis Blueprint.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: GEOBRAIN/Archives/Galaxy Genesis Blueprint.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: GEOBRAIN/Archives/Galaxy Genesis Blueprint.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: GEOBRAIN/Archives/Galaxy Genesis Blueprint.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: GEOBRAIN/Archives/Galaxy Genesis Blueprint.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: GEOBRAIN/Archives/Galaxy Genesis Blueprint.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: GEOBRAIN/Archives/Galaxy Genesis Blueprint.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Architectural.txt: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: GEOBRAIN/Archives/Kinetic Feedback Metric Simulator.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Archon 51507: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Backup-codes-ovbslaught (1).txt: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: GEOBRAIN/Archives/Master Archive Specification.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: GEOBRAIN/Archives/Master Archive Specification.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Backup-codes-ovbslaught.txt: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: GEOBRAIN/Archives/Master_Archive_Snapshot.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: GEOBRAIN/Archives/Master_Archive_Snapshot.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Blender AI Assistant (1): Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Blender AI Assistant: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: GEOBRAIN/Archives/NOMADZ S23 ULTRA MASTER v2.0.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: GEOBRAIN/Archives/NOMADZ Story Bible Framework.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/CONTRIBUTING.md: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: GEOBRAIN/Archives/NOMADZ-ARCHON-SECURITY-V4.0 Document.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: GEOBRAIN/Archives/New Text Document.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: GEOBRAIN/Archives/New Text Document.txt: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: GEOBRAIN/Archives/Session Log.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: GEOBRAIN/Archives/Session Log.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: GEOBRAIN/Archives/Session Snapshot.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: GEOBRAIN/Archives/Survival Diagnostic Snippet.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Ckos.Txt: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of "SECURITY_CONSTITUTION_ID": "NOMADZ-ARCHON-SECURI....xlsx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of "SECURITY_CONSTITUTION_ID": "NOMADZ-ARCHON-SECURI....xlsx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of "SECURITY_CONSTITUTION_ID": "NOMADZ-ARCHON-SECURI....xlsx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of "SECURITY_CONSTITUTION_ID": "NOMADZ-ARCHON-SECURI....xlsx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of "SECURITY_CONSTITUTION_ID": "NOMADZ-ARCHON-SECURI....xlsx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Aggregated Master Archive.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Aggregated Master Archive.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Aggregated Master Archive.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Aggregated Master Archive.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Aggregated Master Archive.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Aggregated Master Archive.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Aggregated Master Archive.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Aggregated Master Archive.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Aggregated Master Archive.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Aggregated Master Archive.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Aggregated Master Archive.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Aggregated Master Archive.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Aggregated Master Archive.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Aggregated Master Archive.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Aggregated Master Archive.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Aggregated Master Archive.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Aggregated Master Archive.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Aggregated Master Archive.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Aggregated Master Archive.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Aggregated Master Archive.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Archon Injection Manifest.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Archon Injection Manifest.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Archon Injection Manifest.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Archon Injection Manifest.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Archon Injection Manifest.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Archon Injection Manifest.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Archon Injection Manifest.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Archon Injection Manifest.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Archon Injection Manifest.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Archon Injection Manifest.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Archon Injection Manifest.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Archon Injection Manifest.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Archon Injection Manifest.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Archon Injection Manifest.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Critical 20 Post 1: Geometry of Hegemony.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Critical 20 Post 1: Geometry of Hegemony.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Critical 20 Post 1: Geometry of Hegemony.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Critical 20 Post 1: Geometry of Hegemony.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Critical 20 Post 2: The R4 Constraint.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Critical 20 Post 2: The R4 Constraint.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Critical 20 Post 2: The R4 Constraint.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Critical 20 Post 2: The R4 Constraint.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Critical 20 Post 3: Collective Ownership.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Critical 20 Post 3: Collective Ownership.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Critical 20 Post 3: Collective Ownership.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Critical 20 Post 3: Collective Ownership.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Critical 20 Post 3: Collective Ownership.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Critical 20 Post 3: Collective Ownership.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Critical 20 Post 3: Collective Ownership.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Critical 20 Post 3: Collective Ownership.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Critical 20 Post 3: Collective Ownership.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Critical Recovery Plan.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Critical Recovery Plan.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Critical Recovery Plan.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Critical Recovery Plan.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Critical Recovery Plan.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Critical Recovery Plan.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Critical Recovery Plan.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Critical Recovery Plan.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Critical Recovery Plan.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Critical Recovery Plan.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Exporter Output Confirmation.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Exporter Output Confirmation.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Exporter Output Confirmation.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Financial Allocation Matrix.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Financial Allocation Matrix.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: Cortex_services/Cosmic Key droid Project Tracker/COSMIC-droid/AndroidManifest.xml: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Financial Allocation Matrix.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: GEOBRAIN/Archives/Untitled 1.base: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Financial Allocation Matrix.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Financial Allocation Matrix.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Financial Allocation Matrix.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: Cortex_services/Cosmic Key droid Project Tracker/COSMIC-droid/res: Duplicate directory found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Financial Allocation Matrix.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Financial Allocation Matrix.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Financial Allocation Matrix.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Financial Allocation Matrix.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Financial Allocation Matrix.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Financial Allocation Matrix.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Financial Allocation Matrix.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Financial Allocation Matrix.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: Cortex_services/Cosmic Key droid Project Tracker/COSMIC-droid/src: Duplicate directory found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Financial Allocation Matrix.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Financial Allocation Matrix.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Financial Allocation Matrix.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Financial Allocation Matrix.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Financial Allocation Matrix.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Financial Allocation Matrix.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Financial Allocation Matrix.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Financial Allocation Matrix.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Financial Allocation Matrix.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Financial Allocation Matrix.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Financial Allocation Matrix.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Financial Allocation Matrix.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Financial Allocation Matrix.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Financial Allocation Matrix.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Financial Allocation Matrix.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Financial Allocation Matrix.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Financial Allocation Matrix.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Financial Allocation Matrix.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Financial Allocation Matrix.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Financial Allocation Matrix.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Financial Allocation Matrix.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Financial Allocation Matrix.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Master Context Payload Builder (GEOLOGOS Edition).docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Copy of Sample Document for Form Builder Plus.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Cosmic flower.txt: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Csv.txt: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Daemons.txt: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Escalate elevate and proceed.xlsx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Executive report.xlsx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Executive report.xlsx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Greenlit.txt: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: Cortex_services/Cosmic Key droid Project Tracker/COSMIC-droid/res/drawable-hdpi: Duplicate directory found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/MERGE REQUEST: [YYYY-MM-DDTHH:MM:SSZ]␊SOURCE SESS....xlsx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Master Context Payload Builder (GEOLOGOS Edition).docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: Cortex_services/Cosmic Key droid Project Tracker/COSMIC-droid/res/drawable-ldpi: Duplicate directory found in source - ignoring
+2026/03/05 02:53:19 NOTICE: Cortex_services/Cosmic Key droid Project Tracker/COSMIC-droid/res/drawable-mdpi: Duplicate directory found in source - ignoring
+2026/03/05 02:53:19 NOTICE: Cortex_services/Cosmic Key droid Project Tracker/COSMIC-droid/res/drawable-xhdpi: Duplicate directory found in source - ignoring
+2026/03/05 02:53:19 NOTICE: Cortex_services/Cosmic Key droid Project Tracker/COSMIC-droid/res/layout: Duplicate directory found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Master Toolkit Orchestrator with Hypercore PQC Int....docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: Cortex_services/Cosmic Key droid Project Tracker/COSMIC-droid/res/values: Duplicate directory found in source - ignoring
+2026/03/05 02:53:19 NOTICE: Cortex_services/Cosmic Key droid Project Tracker/COSMIC-droid/src/com: Duplicate directory found in source - ignoring
+2026/03/05 02:53:19 NOTICE: Cortex_services/Cosmic Key droid Project Tracker/COSMIC-droid/res/drawable-hdpi/ic_launcher.png: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: Cortex_services/Cosmic Key droid Project Tracker/COSMIC-droid/res/drawable-ldpi/ic_launcher.png: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: Cortex_services/Cosmic Key droid Project Tracker/COSMIC-droid/src/com/nomadz: Duplicate directory found in source - ignoring
+2026/03/05 02:53:19 NOTICE: GEOBRAIN/Text/setup_log.txt: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: Cortex_services/Cosmic Key droid Project Tracker/COSMIC-droid/res/drawable-mdpi/ic_launcher.png: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: Cortex_services/Cosmic Key droid Project Tracker/COSMIC-droid/src/com/nomadz/cosmic_key: Duplicate directory found in source - ignoring
+2026/03/05 02:53:19 NOTICE: Cortex_services/Cosmic Key droid Project Tracker/COSMIC-droid/res/drawable-xhdpi/ic_launcher.png: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: Cortex_services/Cosmic Key droid Project Tracker/COSMIC-droid/res/layout/layout_main.xml: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: Cortex_services/Cosmic Key droid Project Tracker/COSMIC-droid/src/com/nomadz/cosmic_key/MainActivity.java: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: ARCHON/ASSSEX/.11.jpg: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: ARCHON/ASSSEX/Check out this board I made on Pinterest!: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: ARCHON/ASSSEX/Check out this board I made on Pinterest!: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: ARCHON/ASSSEX/Check out this board I made on Pinterest!: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: ARCHON/ASSSEX/Check out this board I made on Pinterest!: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Megajson.txt: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: ARCHON/ASSSEX/Check out this board I made on Pinterest!: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: ARCHON/ASSSEX/Check out this board I made on Pinterest!: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: ARCHON/ASSSEX/Check out this board I made on Pinterest!: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: ARCHON/ASSSEX/Check out this board I made on Pinterest!: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: ARCHON/ASSSEX/Jonah: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Mfrr.txt: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Mother Brain Archive Snapshot Analysis.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/MotherBrain Snapshot Packer Utility (P3).docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Music.zip: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/My Activity.json: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/My Activity.json: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/My Activity.json: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/My Activity.json: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/My Activity.json: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/NOMADZ Master Index Framework.pdf.md: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/NOMADZ Master Vault Archive: 54 Artifacts Consolid....docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: ARCHON/ASSSEX/Nora: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: ARCHON/ASSSEX/Rook: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Public api: Duplicate directory found in source - ignoring
+2026/03/05 02:53:19 NOTICE: ARCHON/ASSSEX/Untitled: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/README.md.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Readyplayerone docker.txt: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Script Merge and Deployment Guide.pdf.md: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Setting up OAuth for GDrive & Tinfoil – Tinfoil Shop – Switch Hacking 101.pdf.md: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Shift to full stack production and generate full....xlsx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Shift to full stack production and generate full....xlsx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Shift to full stack production and generate full....xlsx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: Cortex_services/Cosmic Key droid Project Tracker/COSMIC-droid/res/values/strings.xml: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: Cortex_services/Cosmic Key droid Project Tracker/COSMIC-droid/res/values/styles.xml: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Take a look! 📌: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Take a look! 📌: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Take a look! 📌: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Universal Injection Protocol.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Universe Engine Simulation.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Universe Engine Simulation.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Untitled.canvas.md: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Untitled.canvas: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Untitled.md: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Untitled.txt: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Untitled.txt: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/V11. 6 (1).txt: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/VmmwFCSk97ZVipzZ-Nomad_MotherBrain_Self_Wiki_System.json: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/With the following added to all data in this sess....xlsx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/With the following added to all data in this sess....xlsx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/With the following added to all data in this sess....xlsx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/XQNVK-8JYDB-WJ9W3-YJ8YR-WFG99 offic.pdf.md: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/YOUR_API_KEY.pdf.md: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Yes.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Yes.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Yes.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Yes.pdf.md: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/Yes.xlsx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/a1c5d0d2.md: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/ad367495.md: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/applet_access_history (1).json: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/applet_access_history.json: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/applet_access_history.json: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/applet_access_history.json: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/chatlog_master.txt: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/cmd script.txt: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/content-roadmap.md: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/cosmic_key_full_story.txt: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/echoes_log.txt: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/import os.txt: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/message_feedback.json: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/public: Duplicate directory found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/requirements.docx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/setup_log.txt: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/shared_conversations.json: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/sk-...cygA.pdf.md: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/src: Duplicate directory found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/src: Duplicate directory found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/table.csv: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/tsconfig.json: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/watchdog_dep_log.txt: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/{.txt: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/{.txt: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/{␊  "Archive_Metadata": {␊    "Snapshot_Time": "2....xlsx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/{␊  "Archive_Metadata": {␊    "Snapshot_Time": "2....xlsx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/{␊  "Archive_Metadata": {␊    "Snapshot_Time": "2....xlsx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/{␊  "protocol_id": "E_D_E_P_001_GUARDIAN_ECHO",....xlsx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: TEMPORAL_RAW_DATA/{␊  "protocol_id": "E_D_E_P_001_GUARDIAN_ECHO",....xlsx: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: ARCHON/ASSSEX/Opalassetsexport/City Builder Remix: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: ARCHON/ASSSEX/Opalassetsexport/Untitled: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: ARCHON/ASSSEX/Opalassetsexport/Untitled: Duplicate object found in source - ignoring
+2026/03/05 02:53:19 NOTICE: ARCHON/ASSSEX/Opalassetsexport/Untitled: Duplicate object found in source - ignoring
+2026/03/05 02:53:20 NOTICE: ARCHON/KEYZ/KEYZ: Duplicate directory found in source - ignoring
+2026/03/05 02:53:20 NOTICE: ARCHON/KEYZ/KEYZ: Duplicate directory found in source - ignoring
+2026/03/05 02:53:20 NOTICE: ARCHON/KEYZ/KEYZ/Docker key.txt: Duplicate object found in source - ignoring
+2026/03/05 02:53:20 NOTICE: ARCHON/KEYZ/KEYZ/Elevenlabs api.txt: Duplicate object found in source - ignoring
+2026/03/05 02:53:20 NOTICE: ARCHON/KEYZ/KEYZ/gemini api key.txt: Duplicate object found in source - ignoring
+2026/03/05 02:53:20 NOTICE: ARCHON/KEYZ/KEYZ/key copy.txt: Duplicate object found in source - ignoring
+2026/03/05 02:53:20 NOTICE: ARCHON/KEYZ/KEYZ/ollamaapikey.txt: Duplicate object found in source - ignoring
+2026/03/05 02:53:20 NOTICE: ARCHON/KEYZ/KEYZ/open ai api key.txt: Duplicate object found in source - ignoring
+2026/03/05 02:53:20 NOTICE: ARCHON/KEYZ/KEYZ/openrouter api key.txt: Duplicate object found in source - ignoring
+2026/03/05 02:53:39 NOTICE: GODOT_BLENDER/BYTEZ'BIT/UI/universe-win-64/resources/app.asar.unpacked: Duplicate directory found in source - ignoring
+2026/03/05 02:53:48 ERROR : GEOBRAIN/"""␊Nomadz Multi-Universal Deployment Master Scri....xlsx: Failed to copy: open /storage/emulated/0/WORMHOLE/MOTHER-BRAIN/GEOBRAIN/"""
+Nomadz Multi-Universal Deployment Master Scri....xlsx.cc12e1f9.partial: operation not permitted
+2026/03/05 02:53:49 ERROR : GEOBRAIN/# ⚛️ NOMADZ Knowledge Snapshot: SESS_102␊␊---␊␊|....xlsx: Failed to copy: open /storage/emulated/0/WORMHOLE/MOTHER-BRAIN/GEOBRAIN/# ⚛️ NOMADZ Knowledge Snapshot: SESS_102
+
+---
+
+|....xlsx.f8568e5c.partial: operation not permitted
+2026/03/05 02:53:50 ERROR : GEOBRAIN/#!／usr／bin／env python3␊"""␊COSMIC KEY - SINGLE CO....xlsx: Failed to copy: open /storage/emulated/0/WORMHOLE/MOTHER-BRAIN/GEOBRAIN/#!／usr／bin／env python3
+"""
+COSMIC KEY - SINGLE CO....xlsx.96615403.partial: operation not permitted
+2026/03/05 02:53:51 ERROR : GEOBRAIN/$\mathbf{\text{PQC Marketing Visual}}$.xlsx: Failed to copy: open /storage/emulated/0/WORMHOLE/MOTHER-BRAIN/GEOBRAIN/$\mathbf{\text{PQC Marketing Visual}}$.xlsx.cc6937e0.partial: operation not permitted
+2026/03/05 02:54:57 ERROR : MOTHER-BRAIN-MASTER-RECORD/Session Snapshot: Context Rehydration Script.docx: Failed to copy: open /storage/emulated/0/WORMHOLE/MOTHER-BRAIN/MOTHER-BRAIN-MASTER-RECORD/Session Snapshot: Context Rehydration Script.docx.47191cd5.partial: operation not permitted
+[2026-03-04T21:56:39-05:00] DOWN (Drive -> local mirror)
+2026/03/05 02:57:13 ERROR : GEOBRAIN/Blog Post 10: The Geometry of Governance: The Tetr....docx: Failed to copy: open /storage/emulated/0/WORMHOLE/MOTHER-BRAIN/GEOBRAIN/Blog Post 10: The Geometry of Governance: The Tetr....docx.67d84016.partial: operation not permitted
+2026/03/05 02:57:14 ERROR : GEOBRAIN/Blog Post 3: Tesla's Key to Vortex Dynamics (3-6-9....docx: Failed to copy: open /storage/emulated/0/WORMHOLE/MOTHER-BRAIN/GEOBRAIN/Blog Post 3: Tesla's Key to Vortex Dynamics (3-6-9....docx.720b3b29.partial: operation not permitted
+2026/03/05 02:57:14 ERROR : GEOBRAIN/Blog Post 4: Mandelbrot and Hilbert Mapping.docx: Failed to copy: open /storage/emulated/0/WORMHOLE/MOTHER-BRAIN/GEOBRAIN/Blog Post 4: Mandelbrot and Hilbert Mapping.docx.c9e09af9.partial: operation not permitted
+2026/03/05 02:57:15 ERROR : GEOBRAIN/Blog Post 5: The Road to Region II: Lunar Science ....docx: Failed to copy: open /storage/emulated/0/WORMHOLE/MOTHER-BRAIN/GEOBRAIN/Blog Post 5: The Road to Region II: Lunar Science ....docx.94d9503a.partial: operation not permitted
+2026/03/05 02:57:15 ERROR : GEOBRAIN/Blog Post 6: Join the Nomadz Initiative: Call to A....docx: Failed to copy: open /storage/emulated/0/WORMHOLE/MOTHER-BRAIN/GEOBRAIN/Blog Post 6: Join the Nomadz Initiative: Call to A....docx.3e874a2a.partial: operation not permitted
+2026/03/05 02:57:37 ERROR : GEOBRAIN/Cosmic Key Launcher v2.0: Resilient and Automated.docx: Failed to copy: open /storage/emulated/0/WORMHOLE/MOTHER-BRAIN/GEOBRAIN/Cosmic Key Launcher v2.0: Resilient and Automated.docx.373758e4.partial: operation not permitted
+2026/03/05 02:57:40 ERROR : GEOBRAIN/Critical 20 Post 1: Geometry of Hegemony.docx: Failed to copy: open /storage/emulated/0/WORMHOLE/MOTHER-BRAIN/GEOBRAIN/Critical 20 Post 1: Geometry of Hegemony.docx.99b2d34b.partial: operation not permitted
+2026/03/05 02:57:41 ERROR : GEOBRAIN/Critical 20 Post 3: Collective Ownership.docx: Failed to copy: open /storage/emulated/0/WORMHOLE/MOTHER-BRAIN/GEOBRAIN/Critical 20 Post 3: Collective Ownership.docx.bcb85c37.partial: operation not permitted
+2026/03/05 02:57:42 ERROR : GEOBRAIN/Critical 20 Post 2: The R4 Constraint.docx: Failed to copy: open /storage/emulated/0/WORMHOLE/MOTHER-BRAIN/GEOBRAIN/Critical 20 Post 2: The R4 Constraint.docx.ae97f089.partial: operation not permitted
+[2026-03-04T21:59:24-05:00] DOWN (Drive -> local mirror)
+Terminated                 rclone sync "$REMOTE" "$LOCAL" --inplace --fast-list --checkers 8 --transfers 4 --drive-chunk-size 64M --create-empty-src-dirs --exclude ".git/**" --exclude ".obsidian/**"
+2026/03/05 03:01:44 ERROR : ARCHON/83b66707402ee168de282d0e2cb0fe7111c8c7d7f4af0cce1d817e97182c1baa-2025-10-26-04-22-46-da526ae44bf64138b2ec23dd5c40baa7.zip: Failed to copy: multi-thread copy: failed to write chunk: context canceled
+Terminated                 rclone sync "$REMOTE" "$LOCAL" --fast-list --checkers 8 --transfers 4 --drive-chunk-size 64M --create-empty-src-dirs --exclude ".git/**" --exclude ".obsidian/**"
