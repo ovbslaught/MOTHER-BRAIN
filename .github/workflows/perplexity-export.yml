@@ -1,0 +1,43 @@
+name: Perplexity Export (headless)
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 * * * *"  # hourly at minute 17 (UTC)
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install deps
+        working-directory: Agent-Loop/Automation/perplexity-exporter
+        run: |
+          npm ci || npm install
+
+      - name: Install Playwright Chromium + deps
+        working-directory: Agent-Loop/Automation/perplexity-exporter
+        run: |
+          npx playwright install chromium --with-deps
+
+      - name: Run exporter
+        working-directory: Agent-Loop/Automation/perplexity-exporter
+        env:
+          OUT_DIR: exports
+          COOKIES_JSON: cookies/perplexity.json
+          THREAD_URLS_FILE: threads.txt
+        run: |
+          node export_perplexity.mjs
+
+      - name: Upload exports artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: perplexity-exports
+          path: Agent-Loop/Automation/perplexity-exporter/exports/
+          if-no-files-found: warn

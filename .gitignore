@@ -1,29 +1,23 @@
-# Ignore everything by default
-/*
-
-# But keep these top-level paths
-!.gitignore
-!Scripts/
-!Config/
-!notes/
-
-# Ensure Git will traverse into these dirs
-!Scripts/**
-!Config/**
-!notes/**
-
-# Still ignore Obsidian app-state + secrets even inside notes
-.obsidian/
+# --- keep sensitive / noisy out of Git ---
 Security/
-notes/**/.DS_Store
+**/secrets.json
+**/*token*
+**/*cookie*
+**/*cookies*
+.env
+.env.*
 
-# Logs should not be in Git
-99_System_Logs/
-00SYSTEM/logs/
-*.log
+# Obsidian app-state local only
+.obsidian/
 
-# --- DO NOT TRACK LOGS IN GIT ---
+# Logs never tracked
 99_System_Logs/
 00SYSTEM/logs/
 **/logs/
 *.log
+
+# rclone local config
+.rclone_excludes
+
+# (optional) big media; comment out if you truly want them in Git
+MEDIA/

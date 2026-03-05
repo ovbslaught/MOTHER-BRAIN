@@ -1,0 +1,3 @@
+# Put one Perplexity thread URL per line
+# Example:
+# https://www.perplexity.ai/search/...
