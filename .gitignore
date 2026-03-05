@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Secrets
+*.env
+.env
+secrets/
+
+# Big / generated / datasets
+dataset/
+*.zip
+*.tar.gz
+*.parquet
+*.csv
+
+# Logs
+*.log
