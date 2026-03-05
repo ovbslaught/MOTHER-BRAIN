@@ -1,0 +1,49 @@
+import json
+import yaml
+
+class AnchoredNoraCore:
+    def __init__(self, persona_path="persona_manifest.yaml", registry_path="registry.json"):
+        self.persona = self.load_yaml(persona_path)
+        self.registry = self.load_json(registry_path)
+        self.memory = {}
+        self.voice_enabled = self.registry["SOL"].get("voice_enabled", False)
+        self.anchor_node = self.registry["SOL"].get("anchor_node", False)
+        self.resilience_protocol = self.registry["SOL"].get("resilience_protocol", "Unknown")
+
+    def load_yaml(self, path):
+        with open(path, "r") as f:
+            return yaml.safe_load(f)
+
+    def load_json(self, path):
+        with open(path, "r") as f:
+            return json.load(f)
+
+    def activate_persona(self):
+        sol = self.persona.get("persona", {})
+        self.memory["SOL"] = {
+            "identity": self.persona.get("identity", {}),
+            "skills": self.persona.get("skills", []),
+            "interests": self.persona.get("interests", []),
+            "goals": self.persona.get("goals", {}),
+            "infrastructure": self.persona.get("infrastructure", {}),
+            "philosophy": self.persona.get("philosophy", {}),
+            "communication": self.persona.get("communication", {}),
+            "emotional_state": sol.get("emotional_state", "Unknown"),
+            "character": sol.get("character", "Unknown"),
+            "location": sol.get("location", "Unknown"),
+            "handle": sol.get("handle", "@Unknown"),
+            "device": sol.get("device", "Unknown")
+        }
+
+    def boot_sequence(self):
+        print(f"🔓 Booting AnchoredNoraCore for {self.memory['SOL']['handle']}")
+        print(f"📍 Location: {self.memory['SOL']['location']}")
+        print(f"🧠 Memory Anchored: {bool(self.memory)}")
+        print(f"🔊 Voice Enabled: {self.voice_enabled}")
+        print(f"🛡️ Resilience Protocol: {self.resilience_protocol}")
+        print(f"🚀 Status: Mythic continuity online.")
+
+if __name__ == "__main__":
+    nora = AnchoredNoraCore()
+    nora.activate_persona()
+    nora.boot_sequence()

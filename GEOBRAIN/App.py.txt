@@ -1,0 +1,54 @@
+import os
+from flask import Flask, jsonify, request, send_file
+from flask_cors import CORS
+
+app = Flask(__name__)
+CORS(app)
+
+# Accessible scan paths on Android Termux
+paths_to_scan = [
+    os.path.expanduser('~'),
+    '/storage/emulated/0/Download',
+    '/storage/emulated/0/Pictures'
+]
+
+def allowed_file(filename):
+    return filename.lower().endswith(('.py', '.txt', '.jpg', '.jpeg', '.png'))
+
+@app.route('/api/scan-files')
+def scan_files():
+    found_files = []
+    for base_path in paths_to_scan:
+        for root, dirs, files in os.walk(base_path):
+            for file in files:
+                if allowed_file(file):
+                    full_path = os.path.join(root, file)
+                    found_files.append(full_path)
+    return jsonify({"files": found_files})
+
+@app.route('/api/file-preview', methods=['POST'])
+def file_preview():
+    data = request.get_json()
+    path = data.get('path')
+    if not path or not os.path.exists(path):
+        return jsonify({"error": "File not found"}), 404
+
+    if path.lower().endswith(('.py', '.txt')):
+        try:
+            with open(path, 'r', encoding='utf-8') as f:
+                content = f.read(1000)  # limit preview size
+            return jsonify({"content": content})
+        except Exception as e:
+            return jsonify({"error": f"Error reading file: {e}"}), 500
+
+    elif path.lower().endswith(('.jpg', '.jpeg', '.png')):
+        try:
+            return send_file(path, mimetype='image/jpeg')
+        except Exception as e:
+            return jsonify({"error": f"Could not send image: {e}"}), 500
+
+    else:
+        return jsonify({"error": "Unsupported file type"}), 400
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)

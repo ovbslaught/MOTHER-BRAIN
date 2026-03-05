@@ -1,0 +1,109 @@
+{
+  "base_models": [
+    {
+      "id": "llama2_7b_base",
+      "provider": "Meta",
+      "family": "Llama-2",
+      "parameters": 7_000_000_000,
+      "precision": "8bit",
+      "license": "custom_permissive (Llama 2)",
+      "primary_use_cases": ["general_reasoning", "code", "math"],
+      "notes": "Loaded with bitsandbytes 8-bit quantization for backpack mode."
+    },
+    {
+      "id": "mistral_7b_base",
+      "provider": "Mistral AI",
+      "family": "Mistral",
+      "parameters": 7_000_000_000,
+      "precision": "8bit",
+      "license": "Apache-2.0",
+      "primary_use_cases": ["fast_inference", "general_chat"],
+      "notes": "Alternative base where Apache-2.0 is mandatory."
+    },
+    {
+      "id": "deepseek_coder_6b",
+      "provider": "DeepSeek",
+      "family": "DeepSeek-Coder",
+      "parameters": 6_000_000_000,
+      "precision": "8bit",
+      "license": "permissive",
+      "primary_use_cases": ["code_generation", "static_analysis"],
+      "notes": "Specialized coding backbone for Research and Story Engines."
+    }
+  ],
+
+  "adapters": [
+    {
+      "id": "llama2_7b_geologos_base",
+      "base_model_id": "llama2_7b_base",
+      "method": "lora",
+      "rank": 64,
+      "target_modules": ["q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj"],
+      "learning_rate": 0.0002,
+      "optimizer": "lion_8bit",
+      "epochs": 4,
+      "pillars": ["algorithms", "mathematics", "physics"],
+      "datasets": ["starcoder_python", "magicoder_evol_instruct_110k", "openwebmath", "metamath_qa"],
+      "modes": ["online_cluster", "backpack_offline"],
+      "notes": "Primary GEOLOGOS adapter; balances performance with memory efficiency for consumer GPUs."
+    },
+    {
+      "id": "llama2_7b_med_lora",
+      "base_model_id": "llama2_7b_base",
+      "method": "lora",
+      "rank": 128,
+      "target_modules": "all",
+      "learning_rate": 0.0002,
+      "optimizer": "lion_8bit",
+      "epochs": 3,
+      "pillars": ["medicine"],
+      "datasets": ["medqa", "pubmed_qa", "disaster_protocols_local"],
+      "modes": ["backpack_offline"],
+      "notes": "Healthcare & disaster-relief specialist adapter; conservative hyperparameters to reduce hallucination risk."
+    },
+    {
+      "id": "llama2_7b_story_lora",
+      "base_model_id": "llama2_7b_base",
+      "method": "lora",
+      "rank": 64,
+      "target_modules": "all",
+      "learning_rate": 0.0002,
+      "optimizer": "lion_8bit",
+      "epochs": 3,
+      "pillars": ["history_culture", "music", "visual_arts"],
+      "datasets": ["nomadz_story_corpus"],
+      "modes": ["online_cluster", "backpack_offline"],
+      "notes": "NOMADZ universe narrative adapter; aligns outputs with existing canon and style."
+    }
+  ],
+
+  "training": {
+    "frameworks": ["torch>=2.0", "transformers>=4.30", "peft>=0.4", "bitsandbytes>=0.41", "accelerate>=0.20"],
+    "strategy": {
+      "code_math": {
+        "preferred": "full_finetune_or_high_rank_lora",
+        "rationale": "Research shows LoRA underperforms full FT on code/math unless rank is 10–100× higher.",
+        "metrics": ["HumanEval", "MBPP", "GSM8K", "MATH"]
+      },
+      "general_domain": {
+        "preferred": "lora",
+        "rationale": "LoRA preserves base-model knowledge and resists catastrophic forgetting while being memory efficient.",
+        "metrics": ["HellaSwag", "ARC-Challenge", "WinoGrande"]
+      },
+      "healthcare": {
+        "preferred": "lora_with_small_lr",
+        "rationale": "Safety-critical; prioritize stability and alignment with source texts.",
+        "metrics": ["MedQA", "PubMedQA", "custom_disaster_scenarios"]
+      }
+    }
+  },
+
+  "evaluation": {
+    "tooling": ["lm-evaluation-harness"],
+    "suites": [
+      { "id": "code_suite", "datasets": ["human_eval", "mbpp"] },
+      { "id": "math_suite", "datasets": ["gsm8k"], "pillars": ["mathematics"] },
+      { "id": "medical_suite", "datasets": ["medqa", "pubmed_qa"], "pillars": ["medicine"] }
+    ]
+  }
+}

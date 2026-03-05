@@ -1,0 +1,266 @@
+version: '3.9'
+
+services:
+  # ==========================================================================
+  # DATABASE
+  # ==========================================================================
+  
+  postgres:
+    image: postgres:15-alpine
+    container_name: geologos-postgres
+    environment:
+      POSTGRES_USER: geologos_app
+      POSTGRES_PASSWORD: secure_password_change_me
+      POSTGRES_DB: geologos
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./01_database_setup.sql:/docker-entrypoint-initdb.d/schema.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U geologos_app -d geologos"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - geologos
+
+  # ==========================================================================
+  # CACHE & MESSAGE BROKER
+  # ==========================================================================
+  
+  redis:
+    image: redis:7-alpine
+    container_name: geologos-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - geologos
+
+  # ==========================================================================
+  # VECTOR DATABASE (Semantic Search)
+  # ==========================================================================
+  
+  milvus:
+    image: milvusdb/milvus:v0.3.12
+    container_name: geologos-milvus
+    environment:
+      COMMON_STORAGETYPE: local
+    ports:
+      - "19530:19530"
+      - "9091:9091"
+    volumes:
+      - milvus_data:/var/lib/milvus
+    command: milvus run standalone
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9091/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - geologos
+
+  # ==========================================================================
+  # FULL-TEXT SEARCH
+  # ==========================================================================
+  
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.5.0
+    container_name: geologos-elasticsearch
+    environment:
+      - discovery.type=single-node
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - xpack.security.enabled=false
+    ports:
+      - "9200:9200"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s http://localhost:9200 | grep -q cluster_name"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - geologos
+
+  # ==========================================================================
+  # FASTAPI SERVER
+  # ==========================================================================
+  
+  api-server:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    container_name: geologos-api
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql://geologos_app:secure_password_change_me@postgres:5432/geologos
+      REDIS_URL: redis://redis:6379
+      MILVUS_URL: http://milvus:19530
+      ES_URL: http://elasticsearch:9200
+      JWT_SECRET: ${JWT_SECRET:-change-me-in-production}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      milvus:
+        condition: service_started
+      elasticsearch:
+        condition: service_healthy
+    volumes:
+      - ./02_api_server.py:/app/api_server.py
+    command: uvicorn api_server:app --host 0.0.0.0 --port 8000 --reload
+    networks:
+      - geologos
+
+  # ==========================================================================
+  # ASYNC TASK WORKER (Celery)
+  # ==========================================================================
+  
+  celery-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    container_name: geologos-celery
+    environment:
+      DATABASE_URL: postgresql://geologos_app:secure_password_change_me@postgres:5432/geologos
+      REDIS_URL: redis://redis:6379
+      CELERY_BROKER_URL: redis://redis:6379
+      CELERY_RESULT_BACKEND: redis://redis:6379
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - ./celery_tasks.py:/app/celery_tasks.py
+    command: celery -A celery_tasks worker --loglevel=info
+    networks:
+      - geologos
+
+  # ==========================================================================
+  # SCHEDULED TASKS (Celery Beat)
+  # ==========================================================================
+  
+  celery-beat:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    container_name: geologos-celery-beat
+    environment:
+      DATABASE_URL: postgresql://geologos_app:secure_password_change_me@postgres:5432/geologos
+      CELERY_BROKER_URL: redis://redis:6379
+      CELERY_RESULT_BACKEND: redis://redis:6379
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - ./celery_tasks.py:/app/celery_tasks.py
+    command: celery -A celery_tasks beat --loglevel=info
+    networks:
+      - geologos
+
+  # ==========================================================================
+  # LLM SERVER (Ollama/LM Studio)
+  # ==========================================================================
+  
+  llm-server:
+    image: ollama/ollama:latest
+    container_name: geologos-llm
+    ports:
+      - "11434:11434"
+    volumes:
+      - llm_models:/root/.ollama
+    environment:
+      OLLAMA_HOST: 0.0.0.0:11434
+    command: serve
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - geologos
+
+  # ==========================================================================
+  # REACT FRONTEND
+  # ==========================================================================
+  
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: geologos-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      REACT_APP_API_URL: http://localhost:8000
+      REACT_APP_WS_URL: ws://localhost:8000
+    depends_on:
+      - api-server
+    volumes:
+      - ./frontend/src:/app/src
+    command: npm start
+    networks:
+      - geologos
+
+  # ==========================================================================
+  # MESH NETWORK NODE
+  # ==========================================================================
+  
+  mesh-node:
+    build:
+      context: .
+      dockerfile: Dockerfile.mesh
+    container_name: geologos-mesh
+    ports:
+      - "4000:4000"
+      - "5353:5353/udp"  # mDNS
+    environment:
+      DATABASE_URL: postgresql://geologos_app:secure_password_change_me@postgres:5432/geologos
+      REDIS_URL: redis://redis:6379
+      NODE_ID: ${NODE_ID:-primary-node}
+      MESH_PORT: 4000
+    depends_on:
+      - postgres
+      - redis
+    volumes:
+      - ./05_mesh_network.py:/app/mesh_network.py
+      - mesh_sync_data:/data
+    command: python mesh_network.py
+    networks:
+      - geologos
+
+# =============================================================================
+# VOLUMES (Persistent Storage)
+# =============================================================================
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  milvus_data:
+    driver: local
+  elasticsearch_data:
+    driver: local
+  llm_models:
+    driver: local
+  mesh_sync_data:
+    driver: local
+
+# =============================================================================
+# NETWORKS
+# =============================================================================
+
+networks:
+  geologos:
+    driver: bridge

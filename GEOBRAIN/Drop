@@ -1,0 +1,64 @@
+#!/usr/bin/env python3
+"""
+Cosmic Key Ultimate One-Click Builder
+-------------------------------------
+- Packages Cosmic Key master script for PC and Android
+- Generates .py, .exe, and Termux-ready .py
+- Fully portable and self-contained
+"""
+
+import os, sys, shutil
+from pathlib import Path
+from textwrap import dedent
+import subprocess
+
+# --- Directories ---
+BASE_DIR = Path.home() / "CosmicKey_Builder"
+SRC_DIR = BASE_DIR / "src"
+DIST_DIR = BASE_DIR / "dist"
+
+for d in [BASE_DIR, SRC_DIR, DIST_DIR]:
+    d.mkdir(parents=True, exist_ok=True)
+
+# --- Master Cosmic Key Script ---
+MASTER_SCRIPT = SRC_DIR / "cosmic_key_master.py"
+
+MASTER_CODE = dedent("""
+# Paste the full Cosmic Key GUI + Daemon code here
+# (The script generated in the previous step)
+""")
+
+with open(MASTER_SCRIPT, "w") as f:
+    f.write(MASTER_CODE)
+
+print(f"[✅] Master Python script written to {MASTER_SCRIPT}")
+
+# --- Build Windows Executable ---
+try:
+    import PyInstaller.__main__ as pyinst
+except ImportError:
+    print("[ℹ️] Installing PyInstaller...")
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "pyinstaller"])
+    import PyInstaller.__main__ as pyinst
+
+exe_path = DIST_DIR / "cosmic_key_master.exe"
+print("[🔧] Building Windows executable...")
+pyinst.run([
+    "--onefile",
+    "--name=cosmic_key_master",
+    str(MASTER_SCRIPT)
+])
+# Move exe to dist folder
+shutil.move(Path("dist/cosmic_key_master.exe"), exe_path)
+print(f"[✅] Windows executable ready at {exe_path}")
+
+# --- Android/Termux Ready Script ---
+ANDROID_DIR = DIST_DIR / "android"
+ANDROID_DIR.mkdir(exist_ok=True)
+shutil.copy(MASTER_SCRIPT, ANDROID_DIR / "cosmic_key_master.py")
+print(f"[✅] Android/Termux Python script ready at {ANDROID_DIR / 'cosmic_key_master.py'}")
+
+print("[🚀] Cosmic Key One-Click Build Complete!")
+print(f"PC .py: {MASTER_SCRIPT}")
+print(f"PC .exe: {exe_path}")
+print(f"Android/Termux .py: {ANDROID_DIR / 'cosmic_key_master.py'}")

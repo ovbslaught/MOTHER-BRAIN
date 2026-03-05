@@ -1,0 +1,48 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=5
+
+[application]
+
+config/name="Cosmo"
+run/main_scene="uid://bkejdh14ihkbc"
+config/features=PackedStringArray("4.5", "Mobile")
+config/icon="res://icon.svg"
+
+[autoload]
+
+AppConfig="*res://addons/maaacks_menus_template/base/nodes/autoloads/app_config/app_config.tscn"
+SceneLoader="*res://addons/maaacks_menus_template/base/nodes/autoloads/scene_loader/scene_loader.tscn"
+ProjectMusicController="*res://addons/maaacks_menus_template/base/nodes/autoloads/music_controller/project_music_controller.tscn"
+ProjectUISoundController="*res://addons/maaacks_menus_template/base/nodes/autoloads/ui_sound_controller/project_ui_sound_controller.tscn"
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/fuku/plugin.cfg", "res://addons/maaacks_game_template/plugin.cfg", "res://addons/maaacks_menus_template/plugin.cfg", "res://addons/terrain_3d/plugin.cfg")
+
+[internationalization]
+
+locale/translations=PackedStringArray("res://addons/maaacks_game_template/base/translations/menus_translations.en.translation", "res://addons/maaacks_game_template/base/translations/menus_translations.fr.translation", "res://addons/maaacks_menus_template/base/translations/menus_translations.en.translation", "res://addons/maaacks_menus_template/base/translations/menus_translations.fr.translation")
+
+[maaacks_game_template]
+
+disable_install_audio_busses=true
+disable_update_check=false
+disable_install_wizard=true
+
+[maaacks_menus_template]
+
+disable_install_audio_busses=true
+disable_update_check=false
+disable_install_wizard=true
+copy_path="res://"
+
+[rendering]
+
+renderer/rendering_method="mobile"

@@ -1,0 +1,152 @@
+import os
+import shutil
+import json
+from datetime import datetime
+from watchdog.observers import Observer
+from watchdog.events import FileSystemEventHandler
+import time
+
+# === AUTO-DETECT PATHS ===
+current_folder = os.path.abspath(os.getcwd())
+staging_folder = os.path.join(current_folder, "assets")
+output_folder = os.path.join(current_folder, "CosmicKey_Restored")
+master_index_file = os.path.join(output_folder, "master_index.json")
+
+merge_text_extensions = ['.txt', '.md', '.log']
+
+categories = {
+    'stories': ['story', 'narrative', 'plot'],
+    'scripts': ['scene', 'script', '.py', '.js'],
+    'chat_sessions': ['chat', 'session'],
+    'assets/images': ['.png', '.jpg', '.jpeg', '.gif', '.webp'],
+    'assets/audio': ['.mp3', '.wav', '.ogg'],
+    'assets/video': ['.mp4', '.mov', '.avi']
+}
+
+# === HELPERS ===
+def detect_category(filename):
+    fname = filename.lower()
+    for cat, keywords in categories.items():
+        for kw in keywords:
+            if kw in fname or fname.endswith(kw):
+                return cat
+    return 'misc'
+
+def safe_move(src, dest):
+    os.makedirs(os.path.dirname(dest), exist_ok=True)
+    if not os.path.exists(dest):
+        shutil.move(src, dest)
+
+def merge_text_files(file_list, output_file):
+    with open(output_file, 'w', encoding='utf-8') as outfile:
+        for f in sorted(file_list):
+            with open(f, 'r', encoding='utf-8', errors='ignore') as infile:
+                outfile.write(f"\n\n--- FILE: {os.path.basename(f)} ---\n\n")
+                outfile.write(infile.read())
+
+def parse_chatgpt_json(file_path, output_dir):
+    with open(file_path, 'r', encoding='utf-8') as f:
+        try:
+            data = json.load(f)
+        except:
+            return None
+    convo_text = ""
+    messages = data.get("messages") or data.get("conversation") or []
+    for msg in messages:
+        role = msg.get("role", "unknown")
+        content = msg.get("content", "")
+        if isinstance(content, list):
+            content = "\n".join([c.get("text", str(c)) for c in content])
+        elif isinstance(content, dict):
+            content = content.get("text", str(content))
+        convo_text += f"{role.upper()}: {content}\n"
+
+    base_name = os.path.basename(file_path).replace('.json', '.txt')
+    os.makedirs(output_dir, exist_ok=True)
+    out_file = os.path.join(output_dir, base_name)
+    with open(out_file, 'w', encoding='utf-8') as f:
+        f.write(convo_text)
+    return out_file
+
+# Load existing master index or start fresh
+if os.path.exists(master_index_file):
+    with open(master_index_file, 'r', encoding='utf-8') as f:
+        master_index = json.load(f)
+else:
+    master_index = []
+
+merge_text_dict = {}
+
+def update_master_index(original_path, restored_path, category, ext):
+    # Avoid duplicates in master index
+    for entry in master_index:
+        if entry['original_path'] == original_path:
+            return
+    master_index.append({
+        'original_path': original_path,
+        'restored_path': restored_path,
+        'category': category,
+        'extension': ext,
+        'timestamp': datetime.now().isoformat()
+    })
+    # Save immediately
+    with open(master_index_file, 'w', encoding='utf-8') as f:
+        json.dump(master_index, f, indent=2)
+
+def process_file(full_path):
+    ext = os.path.splitext(full_path)[1].lower()
+    if ext == '.json' and 'chat' in full_path.lower():
+        restored_file = parse_chatgpt_json(full_path, os.path.join(output_folder, 'chat_sessions'))
+        update_master_index(full_path, restored_file, 'chat_sessions', ext)
+        print(f"Processed ChatGPT JSON: {restored_file}")
+        return
+
+    category = detect_category(full_path)
+    dest_folder = os.path.join(output_folder, category)
+    os.makedirs(dest_folder, exist_ok=True)
+    dest_file_path = os.path.join(dest_folder, os.path.basename(full_path))
+
+    if ext in merge_text_extensions:
+        key = category
+        merge_text_dict.setdefault(key, []).append(full_path)
+        update_master_index(full_path, 'merged_later', category, ext)
+        print(f"Queued text for merge: {full_path}")
+    else:
+        safe_move(full_path, dest_file_path)
+        update_master_index(full_path, dest_file_path, category, ext)
+        print(f"Moved file: {dest_file_path}")
+
+def merge_all_texts():
+    for cat, files_to_merge in merge_text_dict.items():
+        if files_to_merge:
+            merged_file_path = os.path.join(output_folder, cat, f"{cat}_merged.txt")
+            merge_text_files(files_to_merge, merged_file_path)
+            for entry in master_index:
+                if entry['original_path'] in files_to_merge:
+                    entry['restored_path'] = merged_file_path
+            merge_text_dict[cat] = []
+            with open(master_index_file, 'w', encoding='utf-8') as f:
+                json.dump(master_index, f, indent=2)
+            print(f"Merged text files for category: {cat}")
+
+class Handler(FileSystemEventHandler):
+    def on_created(self, event):
+        if not event.is_directory:
+            time.sleep(0.5)
+            process_file(event.src_path)
+            merge_all_texts()
+
+if __name__ == "__main__":
+    print(f"Watching folder: {staging_folder} ...")
+    os.makedirs(staging_folder, exist_ok=True)
+    os.makedirs(output_folder, exist_ok=True)
+    observer = Observer()
+    event_handler = Handler()
+    observer.schedule(event_handler, staging_folder, recursive=True)
+    observer.start()
+    try:
+        while True:
+            time.sleep(1)
+    except KeyboardInterrupt:
+        observer.stop()
+    observer.join()

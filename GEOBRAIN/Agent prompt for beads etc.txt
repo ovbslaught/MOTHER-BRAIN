@@ -1,0 +1,4 @@
+"Enter persistent agent loop mode.
+Stepwise:Clone and set up Beads (https://github.com/steveyegge/beads) and Memvid (https://github.com/Olow304/memvid) in my workspace.Install all dependencies for both projects.Launch Beads and Memvid local servers or scripts as background processes using Windows PowerShell's Start-Process command.
+Example:Start-Process "python" "-m memvid.server"Start-Process "python" "-m beads.server"Confirm that both services remain running after terminal windows are closed.Monitor resource usage; recommend stopping or detaching any unnecessary tasks, or use Task Manager to kill hung processes.After verification, provide a summary of running processes, and stepwise instructions for further iterative tasks, agent memory usage, and error-handling.
+Always execute and document each sub-step, prompt for troubleshooting if anything fails, and keep my system balanced for performance."

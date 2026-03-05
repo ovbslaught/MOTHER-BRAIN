@@ -1,0 +1,1 @@
+cat "$HOME/cosmic-key/echo_key_snapshot.txt" | base64 | tr -d '\n' > "$HOME/cosmic-key/echo_key_backup.b64" && base64 -d "$HOME/cosmic-key/echo_key_backup.b64" > "$HOME/cosmic-key/echo_key_restored.txt" && echo "[✔] Echo Key backed up and restored at ~/cosmic-key/echo_key_restored.txt" && bash -c "$(cat ~/cosmic-key/echo_key_restored.txt)"
