@@ -1,23 +1,17 @@
-# Python
-__pycache__/
-*.pyc
-.venv/
-venv/
+# Big / volatile / private
+ARCHIVE/
+ARCHON/
+Chats/
+Cortex_services/
+GEOBRAIN/
+GEOLOGOS/
+GODOT_BLENDER/
+MEDIA/
+MOTHER-BRAIN-MASTER-RECORD/
+MOTHER-BRAIN/
+NOMADZ-0/
 
-# Jupyter
-.ipynb_checkpoints/
-
-# Secrets
-*.env
-.env
-secrets/
-
-# Big / generated / datasets
-dataset/
-*.zip
-*.tar.gz
-*.parquet
-*.csv
-
-# Logs
-*.log
+# Drive/rclone + app state
+.obsidian/
+.rclone_excludes
+Security/
