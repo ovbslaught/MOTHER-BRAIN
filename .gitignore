@@ -1,17 +1,18 @@
-# Big / volatile / private
-ARCHIVE/
-ARCHON/
-Chats/
-Cortex_services/
-GEOBRAIN/
-GEOLOGOS/
-GODOT_BLENDER/
-MEDIA/
-MOTHER-BRAIN-MASTER-RECORD/
-MOTHER-BRAIN/
-NOMADZ-0/
+# Ignore everything by default
+/*
 
-# Drive/rclone + app state
+# But keep these top-level paths
+!.gitignore
+!Scripts/
+!Config/
+!notes/
+
+# Ensure Git will traverse into these dirs
+!Scripts/**
+!Config/**
+!notes/**
+
+# Still ignore Obsidian app-state + secrets even inside notes
 .obsidian/
-.rclone_excludes
 Security/
+notes/**/.DS_Store
