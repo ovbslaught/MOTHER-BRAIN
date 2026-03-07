@@ -1,0 +1,43 @@
+{
+  "models": {
+    "perplexity": {
+      "api_key_env": "PERPLEXITY_API_KEY",
+      "endpoint": "https://api.perplexity.ai",
+      "enabled": true,
+      "model": "llama-3.1-sonar-large-128k-online"
+    },
+    "openai": {
+      "api_key_env": "OPENAI_API_KEY",
+      "endpoint": "https://api.openai.com/v1",
+      "enabled": false,
+      "model": "gpt-4"
+    },
+    "anthropic": {
+      "api_key_env": "ANTHROPIC_API_KEY",
+      "enabled": false,
+      "model": "claude-3-opus"
+    }
+  },
+  "automation": {
+    "blender_script": "scripts/blender_automation.py",
+    "godot_script": "scripts/godot_automation.py",
+    "sync_script": "scripts/data_sync.py"
+  },
+  "scheduling": {
+    "max_concurrent_tasks": 3,
+    "retry_attempts": 3,
+    "retry_delay_seconds": 10,
+    "task_timeout_seconds": 300
+  },
+  "logging": {
+    "level": "INFO",
+    "log_file": "logs/orchestration.log",
+    "max_log_size_mb": 50
+  },
+  "data_paths": {
+    "gdrive_mount": "/mnt/gdrive",
+    "local_data": "./data",
+    "temp_dir": "./temp",
+    "output_dir": "./output"
+  }
+}
