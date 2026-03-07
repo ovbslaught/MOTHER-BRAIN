@@ -1,0 +1,49 @@
+# MOTHER-BRAIN Requirements
+# Python dependencies for automation and orchestration
+
+# Core dependencies
+requests>=2.31.0
+bpy>=3.6.0
+PyGObject>=3.44.0
+
+# Data processing
+pandas>=2.0.0
+numpy>=1.24.0
+
+# Database
+sqlite-utils>=3.34
+
+# API clients
+openai>=1.0.0
+anthropicґ>=0.18.0
+
+# Google Drive integration
+google-api-python-client>=2.100.0
+google-auth-httplib2>=0.1.1
+google-auth-oauthlib>=1.1.0
+
+# File sync and utilities
+watchdog>=3.0.0
+patool>=1.12
+
+# Web automation (optional)
+playwright>=1.40.0
+selenium>=4.15.0
+
+# System monitoring
+psutil>=5.9.0
+
+# Logging and debugging
+rich>=13.7.0
+loguru>=0.7.0
+
+# Configuration
+python-dotenv>=1.0.0
+pyyaml>=6.0.1
+
+# Termux specific (optional)
+termux-api>=0.1.0
+
+# Development tools
+ipython>=8.18.0
+ipdb>=0.13.13
