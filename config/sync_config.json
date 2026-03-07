@@ -1,0 +1,54 @@
+{
+  "gdrive_path": "/mnt/gdrive/MOTHER-BRAIN",
+  "local_path": "./data",
+  "github_path": ".",
+  "termux_path": "/data/data/com.termux/files/home/MOTHER-BRAIN",
+  "sync_patterns": [
+    "*.json",
+    "*.db",
+    "*.sqlite",
+    "*.txt",
+    "*.md",
+    "*.py",
+    "*.gd"
+  ],
+  "exclude_patterns": [
+    "temp/*",
+    "*.tmp",
+    "*.log",
+    "__pycache__/*",
+    ".git/*",
+    "node_modules/*",
+    "venv/*",
+    ".godot/*"
+  ],
+  "sync_options": {
+    "bidirectional": true,
+    "conflict_resolution": "newer",
+    "preserve_permissions": true,
+    "verify_checksums": true,
+    "create_backups": true,
+    "backup_dir": "./backups"
+  },
+  "scheduling": {
+    "auto_sync_enabled": false,
+    "sync_interval_minutes": 30,
+    "sync_on_change": true
+  },
+  "platforms": {
+    "gdrive": {
+      "enabled": true,
+      "mount_point": "/mnt/gdrive"
+    },
+    "github": {
+      "enabled": true,
+      "auto_commit": false,
+      "branch": "Cosmic-key"
+    },
+    "termux": {
+      "enabled": true,
+      "ssh_host": "termux.local",
+      "ssh_port": 8022
+    }
+  }
+}
