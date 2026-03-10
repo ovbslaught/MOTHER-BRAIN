@@ -16,6 +16,10 @@ on:
         type: boolean
         default: false
 
+permissions:
+  contents: write
+  actions: read
+
 env:
   REPO_NAME: MOTHER-BRAIN
   PYTHON_VERSION: '3.11'
@@ -24,172 +28,172 @@ jobs:
   autonomous-operations:
     runs-on: ubuntu-latest
     name: Autonomous System Operations
-    
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          token: ${{ secrets.GH_PAT }}
-      
-      - name: Setup Python environment
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-          cache: 'pip'
-      
-      - name: Setup Node.js environment
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-      
-      - name: Install dependencies
-        run: |
-          pip install --upgrade pip
-          pip install requests beautifulsoup4 selenium playwright google-auth google-auth-oauthlib google-auth-httplib2 google-api-python-client
-          playwright install chromium
-          npm install -g gltf-pipeline obj2gltf
-      
-      - name: Configure Google API
-        run: |
-          echo "GOOGLE_API_KEY=${{ secrets.GOOGLE_API_KEY }}" >> $GITHUB_ENV
-          echo "✅ Google API configured"
-      
-      - name: Setup rclone for Drive sync
-        run: |
-          curl https://rclone.org/install.sh | sudo bash
-          rclone version
-          
-          mkdir -p ~/.config/rclone
-          cat > ~/.config/rclone/rclone.conf << 'EOF'
-          [gdrive]
-          type = drive
-          scope = drive
-          service_account_file = /tmp/gdrive-sa.json
-          root_folder_id = 1VSH08EzxY0Knni5HKUaHePTliUAKxfWh
-          EOF
-          
-          echo '${{ secrets.GDRIVE_SERVICE_ACCOUNT_JSON }}' > /tmp/gdrive-sa.json
-          chmod 600 /tmp/gdrive-sa.json
-      
-      - name: Sync from Google Drive
-        run: |
-          echo "🌀 Starting Drive → GitHub sync..."
-          
-          SYNC_PATHS=(
-            "MOTHER-BRAIN"
-            "NOMADZ-0"
-            "VULTURE"
-            "Worldline"
-            "Waterhole"
-            "copilot"
-            "agents"
-            "scripts"
-            "data"
-          )
-          
-          for path in "${SYNC_PATHS[@]}"; do
-            echo "📁 Syncing $path..."
-            rclone sync "gdrive:$path" "./$path" \
-              --verbose \
-              --checksum \
-              --exclude '.git/**' \
-              --exclude '.trash/**' \
-              --exclude 'node_modules/**' \
-              --exclude '__pycache__/**' \
-              --exclude '*.pyc'
-          done
-          
-          echo "✅ Drive sync complete!"
-      
-      - name: Run Gumroad scraper
-        continue-on-error: true
-        run: |
-          if [ -f "scripts/gumroad_scraper.py" ]; then
-            python scripts/gumroad_scraper.py
-          else
-            echo "⚠️ Gumroad scraper not found, skipping..."
-          fi
-      
-      - name: Run TurboSquid scraper
-        continue-on-error: true
-        run: |
-          if [ -f "scripts/turbosquid_scraper.py" ]; then
-            python scripts/turbosquid_scraper.py
-          else
-            echo "⚠️ TurboSquid scraper not found, skipping..."
-          fi
-      
-      - name: Process 3D assets
-        continue-on-error: true
-        run: |
-          echo "🎨 Processing 3D assets..."
-          if [ -d "assets/3d" ]; then
-            cd assets/3d
-            for file in *.obj; do
-              if [ -f "$file" ]; then
-                obj2gltf -i "$file" -o "${file%.obj}.gltf"
-              fi
-            done
-          fi
-      
-      - name: Configure Git
-        run: |
-          git config user.name "MOTHER-BRAIN Autonomous Bot"
-          git config user.email "ovbslaught@gmail.com"
-      
-      - name: Commit and push changes
-        run: |
-          git add -A
-          
-          if git diff --staged --quiet; then
-            echo "✅ No changes to commit"
-          else
-            TIMESTAMP=$(date -u +"%Y-%m-%d %H:%M:%S UTC")
-            git commit -m "🤖 Autonomous sync: $TIMESTAMP
 
-            Automated operations:
-            - Drive synchronization
-            - Asset processing
-            - Data ingestion
-            - System maintenance
-            
-            Via GitHub Actions"
-            
-            git push origin ${{ github.ref_name }}
-            echo "✅ Changes pushed successfully"
-          fi
-      
-      - name: Repository health check
-        run: |
-          echo "=== MOTHER-BRAIN Health Report ==="
-          echo "Repository: ${{ github.repository }}"
-          echo "Branch: ${{ github.ref_name }}"
-          echo "Commit: ${{ github.sha }}"
-          echo "Total commits: $(git rev-list --count HEAD)"
-          echo "Repository size: $(du -sh . | cut -f1)"
-          echo "File count: $(find . -type f | wc -l)"
-          echo "=================================="
-      
-      - name: Generate workflow summary
-        if: always()
-        run: |
-          echo "# 🤖 MOTHER-BRAIN Autonomous Operations" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Timestamp:** $(date -u)" >> $GITHUB_STEP_SUMMARY
-          echo "**Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
-          echo "**Trigger:** ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "## Operations Status" >> $GITHUB_STEP_SUMMARY
-          echo "✅ Drive sync completed" >> $GITHUB_STEP_SUMMARY
-          echo "✅ Asset processing completed" >> $GITHUB_STEP_SUMMARY
-          echo "✅ Repository updated" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "---" >> $GITHUB_STEP_SUMMARY
-          echo "*Next scheduled run: Every 4 hours* 🌀" >> $GITHUB_STEP_SUMMARY
-      
-      - name: Cleanup sensitive data
-        if: always()
-        run: |
-          rm -f /tmp/gdrive-sa.json
-          echo "✅ Cleanup complete"
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Setup Python environment
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        cache: 'pip'
+
+    - name: Setup Node.js environment
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Install dependencies
+      run: |
+        pip install --upgrade pip
+        pip install requests beautifulsoup4 selenium playwright google-auth google-auth-oauthlib google-auth-httplib2 google-api-python-client
+        playwright install chromium
+        npm install -g gltf-pipeline obj2gltf
+
+    - name: Configure Google API
+      run: |
+        echo "GOOGLE_API_KEY=${{ secrets.GOOGLE_API_KEY }}" >> $GITHUB_ENV
+        echo "Google API configured"
+
+    - name: Setup rclone for Drive sync
+      run: |
+        curl https://rclone.org/install.sh | sudo bash
+        rclone version
+
+        mkdir -p ~/.config/rclone
+        cat > ~/.config/rclone/rclone.conf << 'EOF'
+        [gdrive]
+        type = drive
+        scope = drive
+        service_account_file = /tmp/gdrive-sa.json
+        root_folder_id = 1VSH08EzxY0Knni5HKUaHePTliUAKxfWh
+        EOF
+
+        echo '${{ secrets.GDRIVE_SERVICE_ACCOUNT_JSON }}' > /tmp/gdrive-sa.json
+        chmod 600 /tmp/gdrive-sa.json
+
+    - name: Sync from Google Drive
+      run: |
+        echo "Starting Drive to GitHub sync..."
+
+        SYNC_PATHS=(
+          "MOTHER-BRAIN"
+          "NOMADZ-0"
+          "VULTURE"
+          "Worldline"
+          "Waterhole"
+          "copilot"
+          "agents"
+          "scripts"
+          "data"
+        )
+
+        for path in "${SYNC_PATHS[@]}"; do
+          echo "Syncing $path..."
+          rclone sync "gdrive:$path" "./$path" \
+            --verbose \
+            --checksum \
+            --exclude '.git/**' \
+            --exclude '.trash/**' \
+            --exclude 'node_modules/**' \
+            --exclude '__pycache__/**' \
+            --exclude '*.pyc'
+        done
+
+        echo "Drive sync complete!"
+
+    - name: Run Gumroad scraper
+      continue-on-error: true
+      run: |
+        if [ -f "scripts/gumroad_scraper.py" ]; then
+          python scripts/gumroad_scraper.py
+        else
+          echo "Gumroad scraper not found, skipping..."
+        fi
+
+    - name: Run TurboSquid scraper
+      continue-on-error: true
+      run: |
+        if [ -f "scripts/turbosquid_scraper.py" ]; then
+          python scripts/turbosquid_scraper.py
+        else
+          echo "TurboSquid scraper not found, skipping..."
+        fi
+
+    - name: Process 3D assets
+      continue-on-error: true
+      run: |
+        echo "Processing 3D assets..."
+        if [ -d "assets/3d" ]; then
+          cd assets/3d
+          for file in *.obj; do
+            if [ -f "$file" ]; then
+              obj2gltf -i "$file" -o "${file%.obj}.gltf"
+            fi
+          done
+        fi
+
+    - name: Configure Git
+      run: |
+        git config user.name "MOTHER-BRAIN Autonomous Bot"
+        git config user.email "ovbslaught@gmail.com"
+
+    - name: Commit and push changes
+      run: |
+        git add -A
+
+        if git diff --staged --quiet; then
+          echo "No changes to commit"
+        else
+          TIMESTAMP=$(date -u +"%Y-%m-%d %H:%M:%S UTC")
+          git commit -m "Autonomous sync: $TIMESTAMP
+
+Automated operations:
+- Drive synchronization
+- Asset processing
+- Data ingestion
+- System maintenance
+
+Via GitHub Actions"
+
+          git push origin ${{ github.ref_name }}
+          echo "Changes pushed successfully"
+        fi
+
+    - name: Repository health check
+      run: |
+        echo "=== MOTHER-BRAIN Health Report ==="
+        echo "Repository: ${{ github.repository }}"
+        echo "Branch: ${{ github.ref_name }}"
+        echo "Commit: ${{ github.sha }}"
+        echo "Total commits: $(git rev-list --count HEAD)"
+        echo "Repository size: $(du -sh . | cut -f1)"
+        echo "File count: $(find . -type f | wc -l)"
+        echo "=================================="
+
+    - name: Generate workflow summary
+      if: always()
+      run: |
+        echo "# MOTHER-BRAIN Autonomous Operations" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**Timestamp:** $(date -u)" >> $GITHUB_STEP_SUMMARY
+        echo "**Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+        echo "**Trigger:** ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "## Operations Status" >> $GITHUB_STEP_SUMMARY
+        echo "Drive sync completed" >> $GITHUB_STEP_SUMMARY
+        echo "Asset processing completed" >> $GITHUB_STEP_SUMMARY
+        echo "Repository updated" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "---" >> $GITHUB_STEP_SUMMARY
+        echo "*Next scheduled run: Every 4 hours*" >> $GITHUB_STEP_SUMMARY
+
+    - name: Cleanup sensitive data
+      if: always()
+      run: |
+        rm -f /tmp/gdrive-sa.json
+        echo "Cleanup complete"
