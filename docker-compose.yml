@@ -1,0 +1,197 @@
+# MOTHER-BRAIN AGI Stack - cosmo project / omega-brain-vm
+# Full autonomous content + monetization + sync system
+# Brett Slaughter / ovbslaught@gmail.com
+
+version: '3.9'
+
+networks:
+  omega-net:
+    driver: bridge
+
+volumes:
+  brain-hole:
+  drive-sync:
+  content-queue:
+  admin-queue:
+
+services:
+
+  # ============================================================
+  # COSMIC-BRAIN: Master Orchestrator (LLM decision engine)
+  # ============================================================
+  cosmic-brain:
+    image: python:3.11-slim
+    container_name: cosmic-brain
+    restart: unless-stopped
+    networks: [omega-net]
+    volumes:
+      - brain-hole:/data/brain-hole
+      - content-queue:/data/content-queue
+      - admin-queue:/data/admin-queue
+      - ./scripts:/app/scripts
+      - ./config:/app/config
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - PERPLEXITY_API_KEY=${PERPLEXITY_API_KEY}
+      - LINEAR_API_KEY=${LINEAR_API_KEY}
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - ADMIN_CHAT_ID=${ADMIN_CHAT_ID}
+      - GOOGLE_DRIVE_FOLDER=${GOOGLE_DRIVE_FOLDER}
+      - BRAIN_MODE=AUTONOMOUS
+      - APPROVE_MODE=TELEGRAM
+    command: python /app/scripts/cosmic_brain.py
+    ports:
+      - "8000:8000"
+
+  # ============================================================
+  # OMEGA-BRAIN: Content Generation Engine
+  # ============================================================
+  omega-brain:
+    image: python:3.11-slim
+    container_name: omega-brain
+    restart: unless-stopped
+    networks: [omega-net]
+    volumes:
+      - content-queue:/data/content-queue
+      - brain-hole:/data/brain-hole
+      - ./scripts:/app/scripts
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - PERPLEXITY_API_KEY=${PERPLEXITY_API_KEY}
+      - CONTENT_TARGETS=youtube,facebook,telegram,blog,podcast,comics
+    command: python /app/scripts/omega_brain.py
+    depends_on: [cosmic-brain]
+
+  # ============================================================
+  # MOTHER-BRAIN: Memory / RAG / BRAIN-HOLE Ingest
+  # ============================================================
+  mother-brain:
+    image: python:3.11-slim
+    container_name: mother-brain
+    restart: unless-stopped
+    networks: [omega-net]
+    volumes:
+      - brain-hole:/data/brain-hole
+      - drive-sync:/data/drive
+      - ./scripts:/app/scripts
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - FIRECRAWL_API_KEY=${FIRECRAWL_API_KEY}
+      - GDRIVE_TOKEN=${GDRIVE_TOKEN}
+    command: python /app/scripts/mother_brain.py
+
+  # ============================================================
+  # GEOLOGOS: Knowledge Graph / Data Science Node
+  # ============================================================
+  geologos:
+    image: python:3.11-slim
+    container_name: geologos
+    restart: unless-stopped
+    networks: [omega-net]
+    volumes:
+      - brain-hole:/data/brain-hole
+      - ./scripts:/app/scripts
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    command: python /app/scripts/geologos.py
+
+  # ============================================================
+  # TELEGRAM-ADMIN: Human approval bot
+  # Admin approves/edits/rejects content before publish
+  # ============================================================
+  telegram-admin:
+    image: python:3.11-slim
+    container_name: telegram-admin
+    restart: unless-stopped
+    networks: [omega-net]
+    volumes:
+      - admin-queue:/data/admin-queue
+      - content-queue:/data/content-queue
+      - ./scripts:/app/scripts
+    environment:
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - ADMIN_CHAT_ID=${ADMIN_CHAT_ID}
+      - APPROVE_TIMEOUT_HOURS=2
+    command: python /app/scripts/telegram_admin_bot.py
+
+  # ============================================================
+  # PUBLISHER: Multi-platform autonomous posting agent
+  # YouTube, Facebook, Blog, Podcast RSS, Comics, Web Series
+  # ============================================================
+  publisher:
+    image: python:3.11-slim
+    container_name: publisher
+    restart: unless-stopped
+    networks: [omega-net]
+    volumes:
+      - content-queue:/data/content-queue
+      - admin-queue:/data/admin-queue
+      - ./scripts:/app/scripts
+    environment:
+      - YOUTUBE_API_KEY=${YOUTUBE_API_KEY}
+      - FB_PAGE_TOKEN=${FB_PAGE_TOKEN}
+      - WORDPRESS_URL=${WORDPRESS_URL}
+      - WORDPRESS_TOKEN=${WORDPRESS_TOKEN}
+      - SPOTIFY_CLIENT_ID=${SPOTIFY_CLIENT_ID}
+      - SPOTIFY_CLIENT_SECRET=${SPOTIFY_CLIENT_SECRET}
+      - ANCHOR_EMAIL=${ANCHOR_EMAIL}
+      - ANCHOR_PASSWORD=${ANCHOR_PASSWORD}
+    command: python /app/scripts/publisher.py
+    depends_on: [telegram-admin]
+
+  # ============================================================
+  # DRIVE-DAEMON: Google Drive <-> Local <-> Cloud sync
+  # Watches C: / D: mirrors via rclone
+  # ============================================================
+  drive-daemon:
+    image: rclone/rclone:latest
+    container_name: drive-daemon
+    restart: unless-stopped
+    networks: [omega-net]
+    volumes:
+      - drive-sync:/data/drive
+      - ./config/rclone.conf:/config/rclone/rclone.conf
+    command: >
+      sync gdrive:OMEGA-SPACE /data/drive
+      --transfers=4
+      --checkers=8
+      --fast-list
+      --log-level INFO
+
+  # ============================================================
+  # MCP-SERVER: Model Context Protocol endpoint
+  # Connects Colab / Linear / Asana / GitHub Actions
+  # ============================================================
+  mcp-server:
+    image: python:3.11-slim
+    container_name: mcp-server
+    restart: unless-stopped
+    networks: [omega-net]
+    volumes:
+      - brain-hole:/data/brain-hole
+      - ./scripts:/app/scripts
+    environment:
+      - LINEAR_API_KEY=${LINEAR_API_KEY}
+      - LINEAR_WEBHOOK_SECRET=${LINEAR_WEBHOOK_SECRET}
+      - GITHUB_PAT=${GITHUB_PAT}
+      - ASANA_TOKEN=${ASANA_TOKEN}
+    ports:
+      - "8080:8080"
+    command: python /app/scripts/mcp_server.py
+
+  # ============================================================
+  # MONETIZATION-AGENT: AdSense, Merch, Affiliate, Sponsorship
+  # ============================================================
+  monetization:
+    image: python:3.11-slim
+    container_name: monetization
+    restart: unless-stopped
+    networks: [omega-net]
+    volumes:
+      - ./scripts:/app/scripts
+      - admin-queue:/data/admin-queue
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - STRIPE_API_KEY=${STRIPE_API_KEY}
+      - ADSENSE_PUBLISHER_ID=${ADSENSE_PUBLISHER_ID}
+    command: python /app/scripts/monetization.py
