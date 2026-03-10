@@ -46,15 +46,40 @@ jobs:
           service_account_file = /tmp/gdrive-sa.json
           root_folder_id = 1VSH08EzxY0Knni5HKUaHePTliUAKxfWh
           RCLONE_EOF
-          echo '${{ secrets.GDRIVE_SERVICE_ACCOUNT_JSON }}' > /tmp/gdrive-sa.json
+          # Try base64-encoded secret first (preferred - avoids PEM truncation)
+          if [ -n "${{ secrets.GDRIVE_SA_B64 }}" ]; then
+            echo '${{ secrets.GDRIVE_SA_B64 }}' | base64 -d > /tmp/gdrive-sa.json
+            echo "Used GDRIVE_SA_B64 (base64 decoded)"
+          else
+            printf '%s' '${{ secrets.GDRIVE_SERVICE_ACCOUNT_JSON }}' > /tmp/gdrive-sa.json
+            echo "Used GDRIVE_SERVICE_ACCOUNT_JSON (raw)"
+          fi
           chmod 600 /tmp/gdrive-sa.json
+          # Validate the key file
+          python3 -c "import json,sys; d=json.load(open('/tmp/gdrive-sa.json')); print('SA email:', d.get('client_email','MISSING')); pk=d.get('private_key',''); print('Key length:', len(pk)); sys.exit(0 if len(pk) > 100 else 1)"
 
       - name: Sync from Google Drive
         continue-on-error: true
+        id: drive_sync
         run: |
+          SYNC_LOG=""
+          SYNC_SUCCESS=0
+          SYNC_FAIL=0
           for path in MOTHER-BRAIN NOMADZ-0 VULTURE agents scripts data; do
-            rclone sync "gdrive:$path" "./$path" --checksum --exclude '.git/**' || true
+            echo "Syncing $path..."
+            if rclone sync "gdrive:$path" "./$path" --checksum --exclude '.git/**' 2>&1; then
+              echo "SUCCESS: $path"
+              SYNC_SUCCESS=$((SYNC_SUCCESS+1))
+              SYNC_LOG="$SYNC_LOG\n- $path: OK"
+            else
+              echo "WARN: $path sync had issues (non-fatal)"
+              SYNC_FAIL=$((SYNC_FAIL+1))
+              SYNC_LOG="$SYNC_LOG\n- $path: WARN"
+            fi
           done
+          echo "SYNC_SUCCESS=$SYNC_SUCCESS" >> $GITHUB_ENV
+          echo "SYNC_FAIL=$SYNC_FAIL" >> $GITHUB_ENV
+          printf "SYNC_LOG<<EOF\n$SYNC_LOG\nEOF" >> $GITHUB_ENV
 
       - name: Configure Git
         run: |
@@ -62,21 +87,100 @@ jobs:
           git config user.email "ovbslaught@gmail.com"
 
       - name: Commit and push changes
+        id: git_push
         run: |
           git add -A
           if git diff --staged --quiet; then
             echo "No changes to commit"
+            echo "COMMITTED=false" >> $GITHUB_ENV
           else
-            git commit -m "Autonomous sync $(date -u '+%Y-%m-%d %H:%M UTC')"
+            TIMESTAMP=$(date -u '+%Y-%m-%d %H:%M UTC')
+            git commit -m "Autonomous sync $TIMESTAMP"
             git push origin ${{ github.ref_name }}
+            echo "COMMITTED=true" >> $GITHUB_ENV
+            echo "COMMIT_TIME=$TIMESTAMP" >> $GITHUB_ENV
+          fi
+
+      - name: Log to Notion
+        continue-on-error: true
+        if: always()
+        env:
+          NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
+        run: |
+          if [ -z "$NOTION_API_KEY" ]; then
+            echo "NOTION_API_KEY not set, skipping Notion log"
+            exit 0
+          fi
+          TIMESTAMP=$(date -u '+%Y-%m-%dT%H:%M:%SZ')
+          STATUS="${{ job.status }}"
+          PAYLOAD=$(cat << NOTIONEOF
+          {
+            "parent": {"database_id": "${{ secrets.NOTION_LOG_DB_ID }}"},
+            "properties": {
+              "Name": {"title": [{"text": {"content": "MOTHER-BRAIN Sync $TIMESTAMP"}}]},
+              "Status": {"select": {"name": "$STATUS"}},
+              "Branch": {"rich_text": [{"text": {"content": "${{ github.ref_name }}"}}]},
+              "Commit": {"rich_text": [{"text": {"content": "${{ github.sha }}"}}]},
+              "Synced": {"number": ${{ env.SYNC_SUCCESS || 0 }}},
+              "Warnings": {"number": ${{ env.SYNC_FAIL || 0 }}},
+              "Date": {"date": {"start": "$TIMESTAMP"}}
+            }
+          }
+          NOTIONEOF
+          )
+          curl -s -X POST https://api.notion.com/v1/pages \
+            -H "Authorization: Bearer $NOTION_API_KEY" \
+            -H "Notion-Version: 2022-06-28" \
+            -H "Content-Type: application/json" \
+            -d "$PAYLOAD" | python3 -c "import json,sys; r=json.load(sys.stdin); print('Notion:', r.get('id','ERROR:'+str(r)))"
+
+      - name: Log to NOMADZ-0-WIKI
+        continue-on-error: true
+        if: always()
+        env:
+          GH_PAT: ${{ secrets.GH_PAT }}
+        run: |
+          TIMESTAMP=$(date -u '+%Y-%m-%d %H:%M UTC')
+          DATE=$(date -u '+%Y-%m-%d')
+          STATUS="${{ job.status }}"
+          BRANCH="${{ github.ref_name }}"
+          SHA="${{ github.sha }}"
+          LOG_ENTRY="## MOTHER-BRAIN Sync Log - $TIMESTAMP\n\n**Status:** $STATUS  \n**Branch:** $BRANCH  \n**Commit:** $SHA  \n**Drive paths synced:** ${{ env.SYNC_SUCCESS || 0 }} OK / ${{ env.SYNC_FAIL || 0 }} WARN  \n**Changes committed:** ${{ env.COMMITTED || 'false' }}\n"
+          # Get current file content
+          API_RESP=$(curl -s -H "Authorization: token $GH_PAT" \
+            -H "Accept: application/vnd.github.v3+json" \
+            "https://api.github.com/repos/ovbslaught/NOMADZ-0-WIKI/contents/MOTHER-BRAIN-sync-log.md")
+          CURRENT_SHA=$(echo "$API_RESP" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d.get('sha',''))" 2>/dev/null || echo "")
+          CURRENT_CONTENT=$(echo "$API_RESP" | python3 -c "import json,sys,base64; d=json.load(sys.stdin); print(base64.b64decode(d.get('content','')).decode())" 2>/dev/null || echo "")
+          NEW_CONTENT=$(printf "# MOTHER-BRAIN Sync Logs\n\n$LOG_ENTRY\n---\n\n$CURRENT_CONTENT")
+          ENCODED=$(printf '%s' "$NEW_CONTENT" | base64 -w 0)
+          if [ -z "$CURRENT_SHA" ]; then
+            # Create new file
+            curl -s -X PUT "https://api.github.com/repos/ovbslaught/NOMADZ-0-WIKI/contents/MOTHER-BRAIN-sync-log.md" \
+              -H "Authorization: token $GH_PAT" \
+              -H "Content-Type: application/json" \
+              -d "{\"message\": \"Auto-log: MOTHER-BRAIN sync $DATE\", \"content\": \"$ENCODED\"}" \
+              | python3 -c "import json,sys; r=json.load(sys.stdin); print('Wiki created:', r.get('content',{}).get('sha','ERROR'))"
+          else
+            # Update existing file
+            curl -s -X PUT "https://api.github.com/repos/ovbslaught/NOMADZ-0-WIKI/contents/MOTHER-BRAIN-sync-log.md" \
+              -H "Authorization: token $GH_PAT" \
+              -H "Content-Type: application/json" \
+              -d "{\"message\": \"Auto-log: MOTHER-BRAIN sync $DATE\", \"content\": \"$ENCODED\", \"sha\": \"$CURRENT_SHA\"}" \
+              | python3 -c "import json,sys; r=json.load(sys.stdin); print('Wiki updated:', r.get('content',{}).get('sha','ERROR'))"
           fi
 
       - name: Health check
+        if: always()
         run: |
+          echo "=== MOTHER-BRAIN Health Check ==="
           echo "Repo: ${{ github.repository }}"
           echo "Branch: ${{ github.ref_name }}"
           echo "Commit: ${{ github.sha }}"
-          echo "Files: $(find . -type f | wc -l)"
+          echo "Files: $(find . -not -path './.git/*' -type f | wc -l)"
+          echo "Sync OK: ${{ env.SYNC_SUCCESS || 0 }}"
+          echo "Sync WARN: ${{ env.SYNC_FAIL || 0 }}"
+          echo "Changes committed: ${{ env.COMMITTED || 'false' }}"
 
       - name: Cleanup
         if: always()
