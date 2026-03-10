@@ -187,6 +187,103 @@ jobs:
               -d "{\"message\": \"Auto-log: MOTHER-BRAIN sync $DATE\", \"content\": \"$ENCODED\", \"sha\": \"$CURRENT_SHA\"}" \
               | python3 -c "import json,sys; r=json.load(sys.stdin); print('Wiki updated:', r.get('content',{}).get('sha','ERROR'))"
           fi
+
+                - name: Log to OMEGA SPACE Sheets
+        continue-on-error: true
+        if: always()
+        run: |
+          TIMESTAMP=$(date -u '+%Y-%m-%d %H:%M:%S')
+          SPREADSHEET_ID="1Uw-ybevyQ2J-OEi1TbD3mh5AfUydnOLedhytAGp31qg"
+          # Append sync log entry to "Table 1" sheet
+          python3 << 'PYEOF'
+import os, sys, json
+from googleapiclient.discovery import build
+from google.oauth2.service_account import Credentials
+
+# Load SA key
+try:
+    with open('/tmp/gdrive-sa.json', 'r') as f:
+        sa_data = json.load(f)
+    creds = Credentials.from_service_account_info(sa_data, scopes=['https://www.googleapis.com/auth/spreadsheets'])
+    service = build('sheets', 'v4', credentials=creds)
+    
+    spreadsheet_id = '1Uw-ybevyQ2J-OEi1TbD3mh5AfUydnOLedhytAGp31qg'
+    timestamp = os.environ.get('TIMESTAMP', '')
+    sync_success = os.environ.get('SYNC_SUCCESS', '0')
+    sync_fail = os.environ.get('SYNC_FAIL', '0')
+    commit_status = os.environ.get('COMMITTED', 'false')
+    branch = os.environ.get('GITHUB_REF_NAME', '')
+    sha = os.environ.get('GITHUB_SHA', '')[:7]
+    
+    # Table 1 row: File Name, Title, Description, Architecture Component, File Size, Created Date, Core Technology, Source
+    row_data = [
+        f'sync-{timestamp}',
+        'MOTHER-BRAIN Autonomous Sync',
+        f'Synced {sync_success} paths OK, {sync_fail} WARN. Committed: {commit_status}',
+        'MOTHER-BRAIN',
+        '',
+        timestamp,
+        'GitHub Actions',
+        f'{branch}@{sha}'
+    ]
+    
+    body = {'values': [row_data]}
+    result = service.spreadsheets().values().append(
+        spreadsheetId=spreadsheet_id,
+        range='Table 1!A:H',
+        valueInputOption='RAW',
+        body=body
+    ).execute()
+    
+    print(f'Sheets: Appended {result.get("updates").get("updatedCells")} cells')
+except Exception as e:
+    print('Sheets error:', e)
+    sys.exit(0)
+          PYEOF
+      - name: Enhanced Notion Event Log
+        continue-on-error: true
+        if: always()
+        env:
+          NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
+        run: |
+          if [ -z "$NOTION_API_KEY" ]; then
+            echo "NOTION_API_KEY not set"
+            exit 0
+          fi
+          TIMESTAMP=$(date -u '+%Y-%m-%dT%H:%M:%SZ')
+          STATUS="${{ job.status }}"
+          SEQ=$(date +%s)
+          # Enhanced Event Log with proper schema
+          PAYLOAD=$(cat << NOTIONEOF
+          {
+            "parent": {"database_id": "${{ secrets.NOTION_LOG_DB_ID }}"},
+            "properties": {
+              "Name": {"title": [{"text": {"content": "MOTHER-BRAIN Sync Event"}}]},
+              "Summary": {"rich_text": [{"text": {"content": "Synced ${{ env.SYNC_SUCCESS || 0 }} paths, ${{ env.SYNC_FAIL || 0 }} warnings. Status: $STATUS"}}]},
+              "EventType": {"select": {"name": "AutoSync"}},
+              "Timestamp": {"date": {"start": "$TIMESTAMP"}},
+              "Seq": {"number": $SEQ},
+              "Space": {"rich_text": [{"text": {"content": "OMEGA-CORE-01"}}]},
+              "Operator": {"rich_text": [{"text": {"content": "github-actions[bot]"}}]},
+              "Data": {"rich_text": [{"text": {"content": "Branch: ${{ github.ref_name }}, Commit: ${{ github.sha }}"}}]}
+            }
+          }
+          NOTIONEOF
+          )
+          curl -s -X POST https://api.notion.com/v1/pages \
+            -H "Authorization: Bearer $NOTION_API_KEY" \
+            -H "Notion-Version: 2022-06-28" \
+            -H "Content-Type: application/json" \
+            -d "$PAYLOAD" | python3 -c "import json,sys; r=json.load(sys.stdin); print('Notion Event:', r.get('id','ERROR'))"
+      - name: Crawl & Log Chats with Firecrawl
+        continue-on-error: true
+        run: |
+          echo "Firecrawl chat scraping - placeholder for expansion"
+          # TODO: Implement Firecrawl scraping of Grok/Mistral chat URLs from OMEGA SPACE sheets
+          # - Read "Grok Chats" and "Mistral AI Chats" sheet tabs
+          # - For each URL, use Firecrawl API to scrape content
+          # - Append scraped markdown to appropriate Drive folder
+          # - Log results back to sheets
       - name: Health check
         if: always()
         run: |
