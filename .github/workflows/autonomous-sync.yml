@@ -1,19 +1,15 @@
 name: MOTHER-BRAIN Autonomous Sync & Automation
-
 on:
   push:
     branches: ['**']
   schedule:
     - cron: '0 */4 * * *'
   workflow_dispatch:
-
 permissions:
   contents: write
   actions: read
-
 env:
   PYTHON_VERSION: '3.11'
-
 jobs:
   autonomous-operations:
     runs-on: ubuntu-latest
@@ -23,17 +19,14 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
       - name: Setup Python environment
         uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-
       - name: Install dependencies
         run: |
           pip install --upgrade pip
           pip install requests beautifulsoup4 google-auth google-auth-httplib2 google-api-python-client
-
       - name: Setup rclone for Drive sync
         continue-on-error: true
         run: |
@@ -46,18 +39,50 @@ jobs:
           service_account_file = /tmp/gdrive-sa.json
           root_folder_id = 1VSH08EzxY0Knni5HKUaHePTliUAKxfWh
           RCLONE_EOF
-          # Try base64-encoded secret first (preferred - avoids PEM truncation)
+          # Try base64-encoded secret first (GDRIVE_SA_B64)
           if [ -n "${{ secrets.GDRIVE_SA_B64 }}" ]; then
             echo '${{ secrets.GDRIVE_SA_B64 }}' | base64 -d > /tmp/gdrive-sa.json
             echo "Used GDRIVE_SA_B64 (base64 decoded)"
+          elif [ -n "${{ secrets.GDRIVE_SA_KEY }}" ]; then
+            # GDRIVE_SA_KEY may be raw JSON or base64 - try both
+            printf '%s' '${{ secrets.GDRIVE_SA_KEY }}' > /tmp/raw-key.txt
+            if base64 -d /tmp/raw-key.txt > /tmp/sa-test.json 2>/dev/null && python3 -c "import json; json.load(open('/tmp/sa-test.json'))" 2>/dev/null; then
+              echo "GDRIVE_SA_KEY was base64 encoded"
+              cp /tmp/sa-test.json /tmp/gdrive-sa.json
+            else
+              echo "GDRIVE_SA_KEY is raw JSON"
+              cp /tmp/raw-key.txt /tmp/gdrive-sa.json
+            fi
           else
             printf '%s' '${{ secrets.GDRIVE_SERVICE_ACCOUNT_JSON }}' > /tmp/gdrive-sa.json
             echo "Used GDRIVE_SERVICE_ACCOUNT_JSON (raw)"
           fi
           chmod 600 /tmp/gdrive-sa.json
-          # Validate the key file
-          python3 -c "import json,sys; d=json.load(open('/tmp/gdrive-sa.json')); print('SA email:', d.get('client_email','MISSING')); pk=d.get('private_key',''); print('Key length:', len(pk)); sys.exit(0 if len(pk) > 100 else 1)"
-
+          # Normalize private_key newlines using Python
+          python3 << 'PYEOF'
+          import json, sys
+          try:
+              with open('/tmp/gdrive-sa.json', 'r') as f:
+                  content = f.read()
+              data = json.loads(content)
+              pk = data.get('private_key', '')
+              # Fix escaped newlines if present
+              if '\\n' in pk and '\n' not in pk.replace('-----BEGIN', '').replace('-----END', ''):
+                  pk = pk.replace('\\n', '\n')
+                  data['private_key'] = pk
+                  with open('/tmp/gdrive-sa.json', 'w') as f:
+                      json.dump(data, f, indent=2)
+                  print('Fixed escaped newlines in private_key')
+              print('SA email:', data.get('client_email', 'MISSING'))
+              print('Key length:', len(pk))
+              if len(pk) < 100:
+                  print('ERROR: private_key too short!')
+                  sys.exit(1)
+              print('Key validation: PASSED')
+          except Exception as e:
+              print('Key parse error:', e)
+              sys.exit(1)
+          PYEOF
       - name: Sync from Google Drive
         continue-on-error: true
         id: drive_sync
@@ -80,12 +105,10 @@ jobs:
           echo "SYNC_SUCCESS=$SYNC_SUCCESS" >> $GITHUB_ENV
           echo "SYNC_FAIL=$SYNC_FAIL" >> $GITHUB_ENV
           printf "SYNC_LOG<<EOF\n$SYNC_LOG\nEOF" >> $GITHUB_ENV
-
       - name: Configure Git
         run: |
           git config user.name "MOTHER-BRAIN Bot"
           git config user.email "ovbslaught@gmail.com"
-
       - name: Commit and push changes
         id: git_push
         run: |
@@ -100,7 +123,6 @@ jobs:
             echo "COMMITTED=true" >> $GITHUB_ENV
             echo "COMMIT_TIME=$TIMESTAMP" >> $GITHUB_ENV
           fi
-
       - name: Log to Notion
         continue-on-error: true
         if: always()
@@ -133,7 +155,6 @@ jobs:
             -H "Notion-Version: 2022-06-28" \
             -H "Content-Type: application/json" \
             -d "$PAYLOAD" | python3 -c "import json,sys; r=json.load(sys.stdin); print('Notion:', r.get('id','ERROR:'+str(r)))"
-
       - name: Log to NOMADZ-0-WIKI
         continue-on-error: true
         if: always()
@@ -145,8 +166,7 @@ jobs:
           STATUS="${{ job.status }}"
           BRANCH="${{ github.ref_name }}"
           SHA="${{ github.sha }}"
-          LOG_ENTRY="## MOTHER-BRAIN Sync Log - $TIMESTAMP\n\n**Status:** $STATUS  \n**Branch:** $BRANCH  \n**Commit:** $SHA  \n**Drive paths synced:** ${{ env.SYNC_SUCCESS || 0 }} OK / ${{ env.SYNC_FAIL || 0 }} WARN  \n**Changes committed:** ${{ env.COMMITTED || 'false' }}\n"
-          # Get current file content
+          LOG_ENTRY="## MOTHER-BRAIN Sync Log - $TIMESTAMP\n\n**Status:** $STATUS \n**Branch:** $BRANCH \n**Commit:** $SHA \n**Drive paths synced:** ${{ env.SYNC_SUCCESS || 0 }} OK / ${{ env.SYNC_FAIL || 0 }} WARN \n**Changes committed:** ${{ env.COMMITTED || 'false' }}\n"
           API_RESP=$(curl -s -H "Authorization: token $GH_PAT" \
             -H "Accept: application/vnd.github.v3+json" \
             "https://api.github.com/repos/ovbslaught/NOMADZ-0-WIKI/contents/MOTHER-BRAIN-sync-log.md")
@@ -155,21 +175,18 @@ jobs:
           NEW_CONTENT=$(printf "# MOTHER-BRAIN Sync Logs\n\n$LOG_ENTRY\n---\n\n$CURRENT_CONTENT")
           ENCODED=$(printf '%s' "$NEW_CONTENT" | base64 -w 0)
           if [ -z "$CURRENT_SHA" ]; then
-            # Create new file
             curl -s -X PUT "https://api.github.com/repos/ovbslaught/NOMADZ-0-WIKI/contents/MOTHER-BRAIN-sync-log.md" \
               -H "Authorization: token $GH_PAT" \
               -H "Content-Type: application/json" \
               -d "{\"message\": \"Auto-log: MOTHER-BRAIN sync $DATE\", \"content\": \"$ENCODED\"}" \
               | python3 -c "import json,sys; r=json.load(sys.stdin); print('Wiki created:', r.get('content',{}).get('sha','ERROR'))"
           else
-            # Update existing file
             curl -s -X PUT "https://api.github.com/repos/ovbslaught/NOMADZ-0-WIKI/contents/MOTHER-BRAIN-sync-log.md" \
               -H "Authorization: token $GH_PAT" \
               -H "Content-Type: application/json" \
               -d "{\"message\": \"Auto-log: MOTHER-BRAIN sync $DATE\", \"content\": \"$ENCODED\", \"sha\": \"$CURRENT_SHA\"}" \
               | python3 -c "import json,sys; r=json.load(sys.stdin); print('Wiki updated:', r.get('content',{}).get('sha','ERROR'))"
           fi
-
       - name: Health check
         if: always()
         run: |
@@ -181,7 +198,6 @@ jobs:
           echo "Sync OK: ${{ env.SYNC_SUCCESS || 0 }}"
           echo "Sync WARN: ${{ env.SYNC_FAIL || 0 }}"
           echo "Changes committed: ${{ env.COMMITTED || 'false' }}"
-
       - name: Cleanup
         if: always()
-        run: rm -f /tmp/gdrive-sa.json
+        run: rm -f /tmp/gdrive-sa.json /tmp/raw-key.txt /tmp/sa-test.json
