@@ -1,0 +1,100 @@
+name: Linear + Notion Logger
+
+on:
+  push:
+    branches: ["*"]
+  schedule:
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+
+jobs:
+  log:
+    runs-on: ubuntu-latest
+    name: Log to Linear and Notion
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Gather Run Info
+        id: info
+        run: |
+          echo "ts=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> $GITHUB_OUTPUT
+          echo "run_url=https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" >> $GITHUB_OUTPUT
+          echo "branch=${{ github.ref_name }}" >> $GITHUB_OUTPUT
+          echo "sha=${{ github.sha }}" >> $GITHUB_OUTPUT
+
+      - name: Log to Linear
+        env:
+          LINEAR_TOKEN: ${{ secrets.LINEAR_API_KEY }}
+        run: |
+          if [ -z "$LINEAR_TOKEN" ]; then
+            echo "LINEAR_API_KEY not set - skipping"
+            exit 0
+          fi
+          TEAMS=$(curl -sf -X POST https://api.linear.app/graphql \
+            -H "Authorization: $LINEAR_TOKEN" \
+            -H "Content-Type: application/json" \
+            -d '{"query":"{ teams { nodes { id name } } }"}') || { echo "Linear API error"; exit 0; }
+          echo "Teams response: $TEAMS"
+          TEAM_ID=$(echo "$TEAMS" | python3 -c "
+import json, sys
+try:
+    d = json.load(sys.stdin)
+    nodes = d['data']['teams']['nodes']
+    print(nodes[0]['id'] if nodes else '')
+except:
+    print('')
+")
+          echo "Team ID: $TEAM_ID"
+          if [ -n "$TEAM_ID" ]; then
+            TITLE="[MOTHER-BRAIN] CI: ${{ github.ref_name }} @ $(echo ${{ github.sha }} | cut -c1-7)"
+            DESC="Repo: ${{ github.repository }}\nActor: ${{ github.actor }}\nRun: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+            curl -sf -X POST https://api.linear.app/graphql \
+              -H "Authorization: $LINEAR_TOKEN" \
+              -H "Content-Type: application/json" \
+              -d "{\"query\":\"mutation { issueCreate(input: { teamId: \\\"$TEAM_ID\\\", title: \\\"$TITLE\\\", description: \\\"$DESC\\\" }) { success issue { id url } } }\"}" \
+              && echo "Linear: Issue created OK" || echo "Linear: Issue creation failed"
+          else
+            echo "No teams found in Linear workspace"
+          fi
+
+      - name: Log to Notion
+        env:
+          NOTION_TOKEN: ${{ secrets.NOTION_API_KEY }}
+          NOTION_DB: ${{ secrets.NOTION_DB_ID }}
+        run: |
+          if [ -z "$NOTION_TOKEN" ] || [ -z "$NOTION_DB" ]; then
+            echo "NOTION_API_KEY or NOTION_DB_ID not configured - skipping"
+            echo "To enable: add NOTION_API_KEY and NOTION_DB_ID to repo secrets"
+            exit 0
+          fi
+          curl -sf -X POST https://api.notion.com/v1/pages \
+            -H "Authorization: Bearer $NOTION_TOKEN" \
+            -H "Content-Type: application/json" \
+            -H "Notion-Version: 2022-06-28" \
+            -d "{
+              \"parent\": {\"database_id\": \"$NOTION_DB\"},
+              \"properties\": {
+                \"Name\": {\"title\": [{\"text\": {\"content\": \"[MOTHER-BRAIN] ${{ github.ref_name }} @ $(echo ${{ github.sha }} | cut -c1-7)\"}}]},
+                \"Status\": {\"select\": {\"name\": \"Logged\"}},
+                \"Timestamp\": {\"date\": {\"start\": \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"}},
+                \"RunURL\": {\"url\": \"https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\"},
+                \"Repo\": {\"rich_text\": [{\"text\": {\"content\": \"${{ github.repository }}\"}}]}
+              }
+            }" \
+            && echo "Notion: Page created OK" || echo "Notion: Page creation failed"
+
+      - name: Workflow Summary
+        if: always()
+        run: |
+          echo "## Linear + Notion Logger" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Field | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Repo | ${{ github.repository }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Branch | ${{ github.ref_name }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Commit | ${{ github.sha }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Actor | ${{ github.actor }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Time | $(date -u) |" >> $GITHUB_STEP_SUMMARY
+          echo "| Linear | $([[ -n '${{ secrets.LINEAR_API_KEY }}' ]] && echo 'Configured' || echo 'Not configured') |" >> $GITHUB_STEP_SUMMARY
+          echo "| Notion | $([[ -n '${{ secrets.NOTION_API_KEY }}' ]] && echo 'Configured' || echo 'Not configured - add NOTION_API_KEY + NOTION_DB_ID') |" >> $GITHUB_STEP_SUMMARY
