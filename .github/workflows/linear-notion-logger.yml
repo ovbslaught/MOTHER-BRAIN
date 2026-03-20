@@ -15,6 +15,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Install jq
+        run: sudo apt-get install -y jq
+
       - name: Gather Run Info
         id: info
         run: |
@@ -35,25 +38,19 @@ jobs:
             -H "Authorization: $LINEAR_TOKEN" \
             -H "Content-Type: application/json" \
             -d '{"query":"{ teams { nodes { id name } } }"}') || { echo "Linear API error"; exit 0; }
-          echo "Teams response: $TEAMS"
-          TEAM_ID=$(echo "$TEAMS" | python3 -c "
-import json, sys
-try:
-    d = json.load(sys.stdin)
-    nodes = d['data']['teams']['nodes']
-    print(nodes[0]['id'] if nodes else '')
-except:
-    print('')
-")
+          echo "Teams: $TEAMS"
+          TEAM_ID=$(echo "$TEAMS" | jq -r ".data.teams.nodes[0].id // empty")
           echo "Team ID: $TEAM_ID"
           if [ -n "$TEAM_ID" ]; then
-            TITLE="[MOTHER-BRAIN] CI: ${{ github.ref_name }} @ $(echo ${{ github.sha }} | cut -c1-7)"
-            DESC="Repo: ${{ github.repository }}\nActor: ${{ github.actor }}\nRun: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+            SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
+            TITLE="[MOTHER-BRAIN] CI: ${{ github.ref_name }} @ $SHORT_SHA"
+            DESC="Repo: ${{ github.repository }} | Actor: ${{ github.actor }} | Run: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+            PAYLOAD=$(jq -n --arg teamId "$TEAM_ID" --arg title "$TITLE" --arg desc "$DESC" \
+              '{"query": "mutation($teamId:String!,$title:String!,$desc:String!){issueCreate(input:{teamId:$teamId,title:$title,description:$desc}){success issue{id url}}}", "variables": {"teamId": $teamId, "title": $title, "desc": $desc}}')
             curl -sf -X POST https://api.linear.app/graphql \
               -H "Authorization: $LINEAR_TOKEN" \
               -H "Content-Type: application/json" \
-              -d "{\"query\":\"mutation { issueCreate(input: { teamId: \\\"$TEAM_ID\\\", title: \\\"$TITLE\\\", description: \\\"$DESC\\\" }) { success issue { id url } } }\"}" \
-              && echo "Linear: Issue created OK" || echo "Linear: Issue creation failed"
+              -d "$PAYLOAD" && echo "Linear: Issue created OK" || echo "Linear: failed"
           else
             echo "No teams found in Linear workspace"
           fi
@@ -68,21 +65,30 @@ except:
             echo "To enable: add NOTION_API_KEY and NOTION_DB_ID to repo secrets"
             exit 0
           fi
+          SHORT_SHA=$(echo "${{ github.sha }}" | cut -c1-7)
+          TS=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          RUN_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          PAYLOAD=$(jq -n \
+            --arg db "$NOTION_DB" \
+            --arg name "[MOTHER-BRAIN] ${{ github.ref_name }} @ $SHORT_SHA" \
+            --arg ts "$TS" \
+            --arg url "$RUN_URL" \
+            --arg repo "${{ github.repository }}" \
+            '{
+              "parent": {"database_id": $db},
+              "properties": {
+                "Name": {"title": [{"text": {"content": $name}}]},
+                "Status": {"select": {"name": "Logged"}},
+                "Timestamp": {"date": {"start": $ts}},
+                "RunURL": {"url": $url},
+                "Repo": {"rich_text": [{"text": {"content": $repo}}]}
+              }
+            }')
           curl -sf -X POST https://api.notion.com/v1/pages \
             -H "Authorization: Bearer $NOTION_TOKEN" \
             -H "Content-Type: application/json" \
             -H "Notion-Version: 2022-06-28" \
-            -d "{
-              \"parent\": {\"database_id\": \"$NOTION_DB\"},
-              \"properties\": {
-                \"Name\": {\"title\": [{\"text\": {\"content\": \"[MOTHER-BRAIN] ${{ github.ref_name }} @ $(echo ${{ github.sha }} | cut -c1-7)\"}}]},
-                \"Status\": {\"select\": {\"name\": \"Logged\"}},
-                \"Timestamp\": {\"date\": {\"start\": \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"}},
-                \"RunURL\": {\"url\": \"https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\"},
-                \"Repo\": {\"rich_text\": [{\"text\": {\"content\": \"${{ github.repository }}\"}}]}
-              }
-            }" \
-            && echo "Notion: Page created OK" || echo "Notion: Page creation failed"
+            -d "$PAYLOAD" && echo "Notion: Page created OK" || echo "Notion: failed"
 
       - name: Workflow Summary
         if: always()
@@ -96,5 +102,3 @@ except:
           echo "| Commit | ${{ github.sha }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Actor | ${{ github.actor }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Time | $(date -u) |" >> $GITHUB_STEP_SUMMARY
-          echo "| Linear | $([[ -n '${{ secrets.LINEAR_API_KEY }}' ]] && echo 'Configured' || echo 'Not configured') |" >> $GITHUB_STEP_SUMMARY
-          echo "| Notion | $([[ -n '${{ secrets.NOTION_API_KEY }}' ]] && echo 'Configured' || echo 'Not configured - add NOTION_API_KEY + NOTION_DB_ID') |" >> $GITHUB_STEP_SUMMARY
