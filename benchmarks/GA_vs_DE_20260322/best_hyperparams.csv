@@ -1,0 +1,3 @@
+,C,gamma,class_weight,shrinking
+GA_best,94.717,0.514184,balanced,True
+DE_best,1000.0,0.519225,None,False
