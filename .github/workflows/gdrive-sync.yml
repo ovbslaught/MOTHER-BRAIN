@@ -15,6 +15,9 @@ on:
         type: boolean
         default: false
 
+permissions:
+  contents: write
+
 jobs:
   sync-gdrive:
     runs-on: ubuntu-latest
@@ -52,10 +55,10 @@ jobs:
               print('valid')
               sys.exit(0)
           except json.JSONDecodeError as e:
-              print(f'json_parse_error: {e}')
+              print('json_parse_error')
               sys.exit(2)
           except Exception as e:
-              print(f'error: {e}')
+              print('error')
               sys.exit(2)
           PYEOF
           PYRESULT=$?
@@ -93,19 +96,16 @@ jobs:
         if: steps.validate_creds.outputs.valid == 'true'
         continue-on-error: true
         run: |
-          echo "Starting Wormhole sync..."
           SYNC_TARGET="${{ github.event.inputs.sync_path }}"
           if [ -z "$SYNC_TARGET" ]; then
             SYNC_TARGET="MOTHER-BRAIN"
           fi
-          echo "Syncing ${SYNC_TARGET}..."
           mkdir -p wormhole-sync
           rclone lsf "gdrive:${SYNC_TARGET}" --max-depth 2 > wormhole-sync/directory-listing.txt 2>&1 || echo "rclone listing failed" > wormhole-sync/directory-listing.txt
           rclone sync "gdrive:${SYNC_TARGET}" "./wormhole-sync/" \
             --exclude "*.mp4" --exclude "*.mov" --exclude "*.avi" \
             --max-size 50M --transfers 4 --checkers 8 \
             --stats 60s --log-level INFO 2>&1 || echo "WARNING: rclone sync returned non-zero exit"
-          echo "Sync attempt complete"
           rm -f /tmp/gdrive-sa.json
 
       - name: Create status record (no valid creds)
@@ -114,9 +114,8 @@ jobs:
           mkdir -p wormhole-sync
           TSVAL=$(date -u +%Y-%m-%dT%H:%M:%SZ)
           REASON="${{ steps.validate_creds.outputs.reason }}"
-          echo "{\"status\":\"skipped\",\"reason\":\"${REASON}\",\"timestamp\":\"${TSVAL}\",\"action_required\":\"Update GDRIVE_SERVICE_ACCOUNT secret with valid service account JSON\"}" > wormhole-sync/sync-status.json
+          echo "{\"status\":\"skipped\",\"reason\":\"${REASON}\",\"timestamp\":\"${TSVAL}\"}" > wormhole-sync/sync-status.json
           echo "NOTICE: Sync skipped - $REASON"
-          echo "To fix: Go to repo Settings > Secrets and update GDRIVE_SERVICE_ACCOUNT with a valid service account JSON"
 
       - name: Configure Git
         run: |
@@ -143,11 +142,6 @@ jobs:
           echo "**Credentials Valid:** ${{ steps.validate_creds.outputs.valid }}" >> $GITHUB_STEP_SUMMARY
           echo "**Reason:** ${{ steps.validate_creds.outputs.reason }}" >> $GITHUB_STEP_SUMMARY
           echo "**Trigger:** ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
-          if [ "${{ steps.validate_creds.outputs.valid }}" = "false" ]; then
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "### Action Required" >> $GITHUB_STEP_SUMMARY
-            echo "Update the GDRIVE_SERVICE_ACCOUNT secret with a valid Google Service Account JSON key." >> $GITHUB_STEP_SUMMARY
-          fi
 
       - name: Cleanup
         if: always()
