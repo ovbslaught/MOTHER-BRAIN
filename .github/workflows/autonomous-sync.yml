@@ -11,9 +11,6 @@ permissions:
   contents: write
   actions: read
 
-env:
-  PYTHON_VERSION: '3.11'
-
 jobs:
   autonomous-operations:
     runs-on: ubuntu-latest
@@ -28,7 +25,7 @@ jobs:
       - name: Setup Python environment
         uses: actions/setup-python@v5
         with:
-          python-version: ${{ env.PYTHON_VERSION }}
+          python-version: '3.11'
 
       - name: Install dependencies
         run: |
@@ -40,13 +37,7 @@ jobs:
         run: |
           curl https://rclone.org/install.sh | sudo bash
           mkdir -p ~/.config/rclone
-          cat > ~/.config/rclone/rclone.conf << 'RCLONE_EOF'
-          [gdrive]
-          type = drive
-          scope = drive
-          service_account_file = /tmp/gdrive-sa.json
-          root_folder_id = 1VSH08EzxY0Knni5HKUaHePTliUAKxfWh
-          RCLONE_EOF
+          printf '[gdrive]\ntype = drive\nscope = drive\nservice_account_file = /tmp/gdrive-sa.json\nroot_folder_id = 1VSH08EzxY0Knni5HKUaHePTliUAKxfWh\n' > ~/.config/rclone/rclone.conf
           if [ -n "${{ secrets.GDRIVE_SA_B64 }}" ]; then
             echo '${{ secrets.GDRIVE_SA_B64 }}' | base64 -d > /tmp/gdrive-sa.json
           elif [ -n "${{ secrets.GDRIVE_SA_KEY }}" ]; then
@@ -55,20 +46,7 @@ jobs:
             printf '%s' '${{ secrets.GDRIVE_SERVICE_ACCOUNT_JSON }}' > /tmp/gdrive-sa.json
           fi
           chmod 600 /tmp/gdrive-sa.json || true
-          cat > /tmp/validate_key.py << 'PYEOF'
-import json, sys
-try:
-    with open('/tmp/gdrive-sa.json', 'r') as f:
-        data = json.load(f)
-    pk = data.get('private_key', '')
-    if pk and len(pk) > 100 and 'BEGIN' in pk:
-        print('Key validation: PASSED')
-    else:
-        print('Key validation: FAILED - short or missing')
-except Exception as e:
-    print('Parse error:', str(e))
-PYEOF
-          python3 /tmp/validate_key.py || true
+          echo "Credential file size: $(wc -c < /tmp/gdrive-sa.json) bytes"
 
       - name: Sync from Google Drive
         continue-on-error: true
@@ -86,35 +64,6 @@ PYEOF
           done
           echo "SYNC_SUCCESS=$SYNC_SUCCESS" >> $GITHUB_ENV
           echo "SYNC_FAIL=$SYNC_FAIL" >> $GITHUB_ENV
-
-      - name: Log to Sheets
-        continue-on-error: true
-        if: always()
-        run: |
-          cat > /tmp/log_sheets.py << 'PYEOF'
-import os, sys, json
-try:
-    from googleapiclient.discovery import build
-    from google.oauth2.service_account import Credentials
-    with open('/tmp/gdrive-sa.json', 'r') as f:
-        sa_data = json.load(f)
-    creds = Credentials.from_service_account_info(sa_data, scopes=['https://www.googleapis.com/auth/spreadsheets'])
-    service = build('sheets', 'v4', credentials=creds)
-    timestamp = os.environ.get('TIMESTAMP', '')
-    sync_success = os.environ.get('SYNC_SUCCESS', '0')
-    sync_fail = os.environ.get('SYNC_FAIL', '0')
-    committed = os.environ.get('COMMITTED', 'false')
-    branch = os.environ.get('GITHUB_REF_NAME', '')
-    sha = os.environ.get('GITHUB_SHA', '')[:7]
-    row = [f'sync-{timestamp}', 'MOTHER-BRAIN Autonomous Sync', f'OK:{sync_success} WARN:{sync_fail} Committed:{committed}', 'MOTHER-BRAIN', '', timestamp, 'GitHub Actions', f'{branch}@{sha}']
-    body = {'values': [row]}
-    result = service.spreadsheets().values().append(spreadsheetId='1Uw-ybevyQ2J-OEi1TbD3mh5AfUydnOLedhytAGp31qg', range='Table 1!A:H', valueInputOption='RAW', body=body).execute()
-    print('Sheets appended:', result.get('updates', {}).get('updatedCells', 0), 'cells')
-except Exception as e:
-    print('Sheets error:', str(e))
-    sys.exit(0)
-PYEOF
-          TIMESTAMP=$(date -u '+%Y-%m-%d %H:%M:%S') python3 /tmp/log_sheets.py || true
 
       - name: Configure Git
         run: |
@@ -142,7 +91,8 @@ PYEOF
           echo "Branch: ${{ github.ref_name }}"
           echo "Sync OK: ${SYNC_SUCCESS:-0}"
           echo "Sync WARN: ${SYNC_FAIL:-0}"
+          echo "Committed: ${COMMITTED:-false}"
 
       - name: Cleanup
         if: always()
-        run: rm -f /tmp/gdrive-sa.json /tmp/validate_key.py /tmp/log_sheets.py || true
+        run: rm -f /tmp/gdrive-sa.json || true
