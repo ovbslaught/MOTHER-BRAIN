@@ -33,9 +33,9 @@ jobs:
       - name: Install dependencies
         run: |
           pip install --upgrade pip
-          pip install requests beautifulsoup4 google-auth google-auth-httplib2 google-api-python-client 2>/dev/null || true
+          pip install requests google-auth google-auth-httplib2 google-api-python-client 2>/dev/null || true
 
-      - name: Setup rclone for Drive sync
+      - name: Setup rclone credentials
         continue-on-error: true
         run: |
           curl https://rclone.org/install.sh | sudo bash
@@ -49,19 +49,13 @@ jobs:
           RCLONE_EOF
           if [ -n "${{ secrets.GDRIVE_SA_B64 }}" ]; then
             echo '${{ secrets.GDRIVE_SA_B64 }}' | base64 -d > /tmp/gdrive-sa.json
-            echo "Used GDRIVE_SA_B64 (base64 decoded)"
           elif [ -n "${{ secrets.GDRIVE_SA_KEY }}" ]; then
-            printf '%s' '${{ secrets.GDRIVE_SA_KEY }}' > /tmp/raw-key.txt
-            if base64 -d /tmp/raw-key.txt > /tmp/sa-test.json 2>/dev/null && python3 -c "import json; json.load(open('/tmp/sa-test.json'))" 2>/dev/null; then
-              cp /tmp/sa-test.json /tmp/gdrive-sa.json
-            else
-              cp /tmp/raw-key.txt /tmp/gdrive-sa.json
-            fi
+            printf '%s' '${{ secrets.GDRIVE_SA_KEY }}' > /tmp/gdrive-sa.json
           else
             printf '%s' '${{ secrets.GDRIVE_SERVICE_ACCOUNT_JSON }}' > /tmp/gdrive-sa.json
           fi
-          chmod 600 /tmp/gdrive-sa.json
-          python3 -c "
+          chmod 600 /tmp/gdrive-sa.json || true
+          cat > /tmp/validate_key.py << 'PYEOF'
 import json, sys
 try:
     with open('/tmp/gdrive-sa.json', 'r') as f:
@@ -70,10 +64,11 @@ try:
     if pk and len(pk) > 100 and 'BEGIN' in pk:
         print('Key validation: PASSED')
     else:
-        print('Key validation: FAILED - too short or missing BEGIN marker')
+        print('Key validation: FAILED - short or missing')
 except Exception as e:
-    print('Key parse error:', e)
-"
+    print('Parse error:', str(e))
+PYEOF
+          python3 /tmp/validate_key.py || true
 
       - name: Sync from Google Drive
         continue-on-error: true
@@ -96,9 +91,7 @@ except Exception as e:
         continue-on-error: true
         if: always()
         run: |
-          TIMESTAMP=$(date -u '+%Y-%m-%d %H:%M:%S')
-          SPREADSHEET_ID="1Uw-ybevyQ2J-OEi1TbD3mh5AfUydnOLedhytAGp31qg"
-          python3 -c "
+          cat > /tmp/log_sheets.py << 'PYEOF'
 import os, sys, json
 try:
     from googleapiclient.discovery import build
@@ -113,14 +106,15 @@ try:
     committed = os.environ.get('COMMITTED', 'false')
     branch = os.environ.get('GITHUB_REF_NAME', '')
     sha = os.environ.get('GITHUB_SHA', '')[:7]
-    row_data = [f'sync-{timestamp}', 'MOTHER-BRAIN Autonomous Sync', f'Synced {sync_success} OK, {sync_fail} WARN. Committed: {committed}', 'MOTHER-BRAIN', '', timestamp, 'GitHub Actions', f'{branch}@{sha}']
-    body = {'values': [row_data]}
+    row = [f'sync-{timestamp}', 'MOTHER-BRAIN Autonomous Sync', f'OK:{sync_success} WARN:{sync_fail} Committed:{committed}', 'MOTHER-BRAIN', '', timestamp, 'GitHub Actions', f'{branch}@{sha}']
+    body = {'values': [row]}
     result = service.spreadsheets().values().append(spreadsheetId='1Uw-ybevyQ2J-OEi1TbD3mh5AfUydnOLedhytAGp31qg', range='Table 1!A:H', valueInputOption='RAW', body=body).execute()
-    print('Sheets: Appended', result.get('updates', {}).get('updatedCells', 0), 'cells')
+    print('Sheets appended:', result.get('updates', {}).get('updatedCells', 0), 'cells')
 except Exception as e:
-    print('Sheets error:', e)
+    print('Sheets error:', str(e))
     sys.exit(0)
-" || true
+PYEOF
+          TIMESTAMP=$(date -u '+%Y-%m-%d %H:%M:%S') python3 /tmp/log_sheets.py || true
 
       - name: Configure Git
         run: |
@@ -128,7 +122,6 @@ except Exception as e:
           git config user.email "ovbslaught@gmail.com"
 
       - name: Commit and push changes
-        id: git_push
         run: |
           git add -A
           if git diff --staged --quiet; then
@@ -147,11 +140,9 @@ except Exception as e:
           echo "=== MOTHER-BRAIN Health Check ==="
           echo "Repo: ${{ github.repository }}"
           echo "Branch: ${{ github.ref_name }}"
-          echo "Commit: ${{ github.sha }}"
           echo "Sync OK: ${SYNC_SUCCESS:-0}"
           echo "Sync WARN: ${SYNC_FAIL:-0}"
-          echo "Changes committed: ${COMMITTED:-false}"
 
       - name: Cleanup
         if: always()
-        run: rm -f /tmp/gdrive-sa.json /tmp/raw-key.txt /tmp/sa-test.json || true
+        run: rm -f /tmp/gdrive-sa.json /tmp/validate_key.py /tmp/log_sheets.py || true
