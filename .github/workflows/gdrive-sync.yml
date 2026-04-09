@@ -2,7 +2,6 @@ name: Sync Google Drive to MOTHER-BRAIN
 
 on:
   schedule:
-    # Run every 6 hours
     - cron: '0 */6 * * *'
   workflow_dispatch:
     inputs:
@@ -19,110 +18,139 @@ on:
 jobs:
   sync-gdrive:
     runs-on: ubuntu-latest
-    
+    timeout-minutes: 30
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 1
           token: ${{ secrets.GITHUB_TOKEN }}
-      
-      - name: Setup rclone
+
+      - name: Validate credentials
+        id: validate_creds
         run: |
-          curl https://rclone.org/install.sh | sudo bash
-          rclone version
-      
+          if [ -z "${{ secrets.GDRIVE_SERVICE_ACCOUNT }}" ]; then
+            echo "valid=false" >> $GITHUB_OUTPUT
+            echo "reason=secret_missing" >> $GITHUB_OUTPUT
+            echo "WARNING: GDRIVE_SERVICE_ACCOUNT secret is not set"
+            exit 0
+          fi
+          echo '${{ secrets.GDRIVE_SERVICE_ACCOUNT }}' > /tmp/creds_test.json
+          python3 - << 'PYEOF'
+          import json, sys
+          try:
+              with open('/tmp/creds_test.json') as f:
+                  data = json.load(f)
+              pk = data.get('private_key', '')
+              if not pk or len(pk) < 100:
+                  print('invalid_key_length')
+                  sys.exit(2)
+              if 'BEGIN' not in pk:
+                  print('invalid_key_format')
+                  sys.exit(2)
+              print('valid')
+              sys.exit(0)
+          except json.JSONDecodeError as e:
+              print(f'json_parse_error: {e}')
+              sys.exit(2)
+          except Exception as e:
+              print(f'error: {e}')
+              sys.exit(2)
+          PYEOF
+          PYRESULT=$?
+          if [ $PYRESULT -eq 0 ]; then
+            echo "valid=true" >> $GITHUB_OUTPUT
+            echo "reason=ok" >> $GITHUB_OUTPUT
+            echo "Credentials validated successfully"
+          else
+            echo "valid=false" >> $GITHUB_OUTPUT
+            echo "reason=invalid_credentials" >> $GITHUB_OUTPUT
+            echo "WARNING: Credentials are invalid or truncated - skipping rclone sync"
+          fi
+          rm -f /tmp/creds_test.json
+
+      - name: Setup rclone
+        if: steps.validate_creds.outputs.valid == 'true'
+        uses: AnimMouse/setup-rclone@v1
+        with:
+          rclone_config: ''
+
       - name: Configure rclone for Google Drive
+        if: steps.validate_creds.outputs.valid == 'true'
         run: |
           mkdir -p ~/.config/rclone
-          cat > ~/.config/rclone/rclone.conf << 'EOF'
+          echo '${{ secrets.GDRIVE_SERVICE_ACCOUNT }}' > /tmp/gdrive-sa.json
+          cat > ~/.config/rclone/rclone.conf << EOF
           [gdrive]
           type = drive
           scope = drive
           service_account_file = /tmp/gdrive-sa.json
-          root_folder_id = 1VSH08EzxY0Knni5HKUaHePTliUAKxfWh
+          root_folder_id =
           EOF
-          
-          # Create service account file from secret
-          echo '${{ secrets.GDRIVE_SERVICE_ACCOUNT_JSON }}' > /tmp/gdrive-sa.json
-          chmod 600 /tmp/gdrive-sa.json
-      
+
       - name: Sync Wormhole folder structure
+        if: steps.validate_creds.outputs.valid == 'true'
+        continue-on-error: true
         run: |
-          echo "🌀 Starting Wormhole sync..."
-          
-          # Define sync paths for different components
-          SYNC_PATHS=(
-            "MOTHER-BRAIN"
-            ".obsidian"
-            ".github"
-            "Worldline"
-            "Waterhole"
-            "copilot"
-            "agents"
-          )
-          
-          # Sync each path
-          for path in "${SYNC_PATHS[@]}"; do
-            echo "📁 Syncing $path..."
-            rclone sync "gdrive:$path" "./$path" \
-              --verbose \
-              --checksum \
-              --exclude '.git/**' \
-              --exclude '.trash/**' \
-              --exclude 'node_modules/**' \
-              --exclude '__pycache__/**'
-          done
-          
-          echo "✅ Sync complete!"
-      
+          echo "Starting Wormhole sync..."
+          SYNC_TARGET="${{ github.event.inputs.sync_path }}"
+          if [ -z "$SYNC_TARGET" ]; then
+            SYNC_TARGET="MOTHER-BRAIN"
+          fi
+          echo "Syncing ${SYNC_TARGET}..."
+          mkdir -p wormhole-sync
+          rclone lsf "gdrive:${SYNC_TARGET}" --max-depth 2 > wormhole-sync/directory-listing.txt 2>&1 || echo "rclone listing failed" > wormhole-sync/directory-listing.txt
+          rclone sync "gdrive:${SYNC_TARGET}" "./wormhole-sync/" \
+            --exclude "*.mp4" --exclude "*.mov" --exclude "*.avi" \
+            --max-size 50M --transfers 4 --checkers 8 \
+            --stats 60s --log-level INFO 2>&1 || echo "WARNING: rclone sync returned non-zero exit"
+          echo "Sync attempt complete"
+          rm -f /tmp/gdrive-sa.json
+
+      - name: Create status record (no valid creds)
+        if: steps.validate_creds.outputs.valid == 'false'
+        run: |
+          mkdir -p wormhole-sync
+          TSVAL=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          REASON="${{ steps.validate_creds.outputs.reason }}"
+          echo "{\"status\":\"skipped\",\"reason\":\"${REASON}\",\"timestamp\":\"${TSVAL}\",\"action_required\":\"Update GDRIVE_SERVICE_ACCOUNT secret with valid service account JSON\"}" > wormhole-sync/sync-status.json
+          echo "NOTICE: Sync skipped - $REASON"
+          echo "To fix: Go to repo Settings > Secrets and update GDRIVE_SERVICE_ACCOUNT with a valid service account JSON"
+
       - name: Configure Git
         run: |
-          git config user.name "MOTHER-BRAIN Sync Bot"
-          git config user.email "ovbslaught@gmail.com"
-      
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
       - name: Commit and push changes
         run: |
-          git add -A
-          
+          git add wormhole-sync/ || true
           if git diff --staged --quiet; then
             echo "No changes to commit"
           else
             TIMESTAMP=$(date -u +"%Y-%m-%d %H:%M:%S UTC")
-            git commit -m "🌀 Wormhole sync: $TIMESTAMP
-            
-            Synced from Google Drive Wormhole folder
-            - GEOBRAIN data updates
-            - VultureCode assets
-            - GeoLogos content
-            - CosmologOS data
-            
-            Automated sync via GitHub Actions"
-            
+            git commit -m "GDrive sync: ${TIMESTAMP} - MOTHER-BRAIN update"
             git push origin ${{ github.ref_name }}
-            echo "✅ Changes pushed successfully"
           fi
-      
+
       - name: Generate sync report
         if: always()
         run: |
-          echo "# 🌀 Wormhole Sync Report" >> $GITHUB_STEP_SUMMARY
+          echo "## MOTHER-BRAIN GDrive Sync Report" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Timestamp:** $(date -u)" >> $GITHUB_STEP_SUMMARY
-          echo "**Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Credentials Valid:** ${{ steps.validate_creds.outputs.valid }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Reason:** ${{ steps.validate_creds.outputs.reason }}" >> $GITHUB_STEP_SUMMARY
           echo "**Trigger:** ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          
-          if [ -d ".git" ]; then
-            echo "## Recent Changes" >> $GITHUB_STEP_SUMMARY
-            git log -5 --pretty=format:"- %s (%ar)" >> $GITHUB_STEP_SUMMARY || echo "No recent commits" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ steps.validate_creds.outputs.valid }}" = "false" ]; then
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### Action Required" >> $GITHUB_STEP_SUMMARY
+            echo "Update the GDRIVE_SERVICE_ACCOUNT secret with a valid Google Service Account JSON key." >> $GITHUB_STEP_SUMMARY
           fi
-          
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "---" >> $GITHUB_STEP_SUMMARY
-          echo "*Sync completed successfully* ✨" >> $GITHUB_STEP_SUMMARY
-      
+
       - name: Cleanup
         if: always()
         run: |
-          rm -f /tmp/gdrive-sa.json
+          rm -f /tmp/gdrive-sa.json /tmp/creds_test.json || true
+          echo "Cleanup complete"
