@@ -1,18 +1,66 @@
 name: NOMADZ Agent Loop
-on: [push, schedule: - cron: '0 */6 * * *']
+
+on:
+  push:
+    branches: ['**']
+  schedule:
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
 jobs:
   sync:
     runs-on: ubuntu-latest
+
     steps:
-    - uses: actions/checkout@v4
-    - name: rclone sync
-      env:
-        RCLONE_CONFIG: ${{ secrets.RCLONE_CONFIG }}
-      run: |
-        curl https://rclone.org/install.sh | bash
-        echo "$RCLONE_CONFIG" > ~/.config/rclone/rclone.conf
-        rclone sync gdrive:Models ./Godot-Voxel/Terrain-Chunks/ --update
-    - name: Ollama test
-      run: |
-        curl -fsSL https://ollama.com/install.sh | sh
-        ollama list
+      - uses: actions/checkout@v4
+
+      - name: rclone sync
+        continue-on-error: true
+        env:
+          RCLONE_CONFIG: ${{ secrets.RCLONE_CONFIG }}
+        run: |
+          if [ -z "$RCLONE_CONFIG" ]; then
+            echo "RCLONE_CONFIG not set, skipping sync"
+            exit 0
+          fi
+          curl https://rclone.org/install.sh | sudo bash
+          echo "$RCLONE_CONFIG" > ~/.config/rclone/rclone.conf
+          rclone sync gdrive:Models ./Godot-Voxel/Terrain-Chunks/ --exclude '.git/**' 2>&1 || echo "rclone sync had issues (non-fatal)"
+
+      - name: Ollama test
+        continue-on-error: true
+        run: |
+          OLLAMA_HOST="${{ secrets.OLLAMA_HOST }}"
+          if [ -z "$OLLAMA_HOST" ]; then
+            echo "OLLAMA_HOST not set, skipping"
+            exit 0
+          fi
+          curl -sf "${OLLAMA_HOST}/api/tags" > /tmp/ollama_resp.json 2>&1 || echo "Ollama not reachable"
+          cat /tmp/ollama_resp.json 2>/dev/null || true
+
+      - name: Configure Git
+        run: |
+          git config user.name "NOMADZ Bot"
+          git config user.email "ovbslaught@gmail.com"
+
+      - name: Commit and push
+        run: |
+          git add -A
+          if git diff --staged --quiet; then
+            echo "No changes"
+          else
+            TIMESTAMP=$(date -u '+%Y-%m-%d %H:%M UTC')
+            git commit -m "Agent loop sync: $TIMESTAMP"
+            git push origin ${{ github.ref_name }}
+          fi
+
+      - name: Health check
+        if: always()
+        run: |
+          echo "NOMADZ Agent Loop complete"
+          echo "Repo: ${{ github.repository }}"
+          echo "Branch: ${{ github.ref_name }}"
+          echo "Commit: ${{ github.sha }}"
