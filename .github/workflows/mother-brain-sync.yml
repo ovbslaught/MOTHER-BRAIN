@@ -1,0 +1,59 @@
+name: "MOTHER-BRAIN MASTER SYNC — GitHub -> Google Drive Wormhole"
+
+on:
+  push:
+    branches:
+      - Cosmic-key
+      - main
+  schedule:
+    # Sync every 6 hours to keep Wormhole fresh
+    - cron: '0 */6 * * *'
+  workflow_dispatch:
+    inputs:
+      trigger_source:
+        description: 'System that triggered this sync'
+        required: false
+        type: string
+
+jobs:
+  sync-to-wormhole:
+    runs-on: ubuntu-latest
+    name: Mirror MOTHER-BRAIN to Google Drive Wormhole
+    steps:
+      - name: Checkout MOTHER-BRAIN
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Sync to Wormhole (Google Drive)
+        uses: adityak74/google-drive-upload-git-action@main
+        with:
+          credentials: ${{ secrets.GDRIVE_SERVICE_ACCOUNT_JSON }}
+          filename: "./*"
+          folderId: ${{ secrets.GDRIVE_FOLDER_ID }}
+          overwrite: "true"
+          mirrorDirectoryStructure: "true"
+          exclude: ".git/**, .godot/**, .tmp/**, __pycache__/**, *.pyc"
+
+      - name: Write sync manifest
+        run: |
+          TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          echo "[${TIMESTAMP}] MOTHER-BRAIN synced by: ${{ github.actor }}" >> MASTER_RECORD_INDEX.txt
+          echo "Branch: ${{ github.ref_name }} | Event: ${{ github.event_name }} | Source: ${{ github.event.inputs.trigger_source }}" >> MASTER_RECORD_INDEX.txt
+          echo "Commit: ${{ github.sha }}" >> MASTER_RECORD_INDEX.txt
+          echo "---" >> MASTER_RECORD_INDEX.txt
+
+      - name: Commit sync manifest update
+        run: |
+          git config user.name "MOTHER-BRAIN Sync"
+          git config user.email "ovbslaught@gmail.com"
+          git add MASTER_RECORD_INDEX.txt
+          git diff --staged --quiet || git commit -m "[AUTO] Sync manifest update ${GITHUB_SHA:0:7}"
+          git push || true
+
+# SETUP REQUIRED:
+# Add these GitHub Secrets to MOTHER-BRAIN repo:
+#   GDRIVE_SERVICE_ACCOUNT_JSON  = Google Service Account JSON key file contents
+#   GDRIVE_FOLDER_ID             = Google Drive folder ID
+# Drive Path: ROOT/Wormhole/MOTHER-BRAIN/MOTHER-BRAIN-MASTER-RECORD
+# Ref: NOMADZ-0 Issue #2 (BRAIN-DUMP) | VULTURE:INC ecosystem
