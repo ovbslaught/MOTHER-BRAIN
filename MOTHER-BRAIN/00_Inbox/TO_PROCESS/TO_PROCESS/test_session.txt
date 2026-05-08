@@ -1,0 +1,9 @@
+This is a test chat line.
+
+```python
+print("hello OMEGA")---JSON---
+{
+"version": "1.0.0",
+"defaults": {},
+"agents": []
+}

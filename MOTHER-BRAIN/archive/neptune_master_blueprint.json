@@ -1,0 +1,13 @@
+{
+    "project": "NEPTUNE_OMEGA",
+    "nodes_integrated": [
+        "Norfolk",
+        "Vieques",
+        "Indonesia",
+        "Vostok",
+        "Mariana"
+    ],
+    "galactic_coordinate_key": "757-SIGMA-ATLANTIS-001",
+    "blueprint_version": "1.0.0_ALPHA",
+    "meta_saga_status": "HYDRATED"
+}

@@ -1,0 +1,343 @@
+{
+  "version": "1.0.0",
+  "updated_utc": "2026-03-09T21:38:00Z",
+  "defaults": {
+    "logging_level": "info",
+    "append_only": true,
+    "governance": {
+      "constitution_ref": "VULTUREBIBLE/system.constitution.md",
+      "space_lock_ref": "vulture.voltron.space-lock.v2.longstring.json",
+      "real_world_effects_require_task": true
+    },
+    "paths": {
+      "wormhole_root": "/storage/emulated/0/Wormhole",
+      "canon_root": "/storage/emulated/0/Wormhole/CANON",
+      "mother_brain_root": "/storage/emulated/0/Wormhole/MOTHER-BRAIN",
+      "nomadz_root": "/storage/emulated/0/Wormhole/NOMADZ-0",
+      "omega_brain_root": "/storage/emulated/0/Wormhole/OMEGA-BRAIN",
+      "vulture_brain_root": "/storage/emulated/0/Wormhole/VULTURE-BRAIN",
+      "snapshots_root": "/storage/emulated/0/Wormhole/.snapshots/OUROBOROS-7",
+      "bible_repo_root": "~/VULTUREBIBLE"
+    },
+    "chain_index": {
+      "file": "chain_index.json",
+      "strategy": "append_only_height_hash"
+    },
+    "rl_backend": {
+      "framework": "stable-baselines3",
+      "algorithm": "PPO",
+      "policy": "MlpPolicy"
+    }
+  },
+  "agents": [
+    {
+      "id": "omega_core_01",
+      "name": "OMEGA-CORE-01",
+      "role": "executive_orchestrator",
+      "category": "consciousness",
+      "config_file": "agents/omega_core_01.json",
+      "enabled": true
+    },
+    {
+      "id": "mother_brain_canon",
+      "name": "Mother Brain Canon",
+      "role": "canon_wal_indexer",
+      "category": "consciousness",
+      "config_file": "agents/mother_brain_canon.json",
+      "enabled": true
+    },
+    {
+      "id": "snapshot_archivist",
+      "name": "OUROBOROS Snapshot Archivist",
+      "role": "snapshot_seal_and_rehydrate",
+      "category": "consciousness",
+      "config_file": "agents/snapshot_archivist.json",
+      "enabled": true
+    },
+    {
+      "id": "scholarly_pipeline",
+      "name": "Scholarly Ingestion Pipeline",
+      "role": "data_pipeline_ingest_enrich",
+      "category": "data_pipeline",
+      "config_file": "agents/scholarly_pipeline.json",
+      "enabled": true
+    },
+    {
+      "id": "nomadz_sync",
+      "name": "NOMADZ-0 GitHub↔Drive Sync",
+      "role": "data_pipeline_repo_sync",
+      "category": "data_pipeline",
+      "config_file": "agents/nomadz_sync.json",
+      "enabled": true
+    },
+    {
+      "id": "cmn_router",
+      "name": "CMN Adaptive Router",
+      "role": "routing_topology_mpl",
+      "category": "routing",
+      "config_file": "agents/cmn_router.json",
+      "enabled": true
+    },
+    {
+      "id": "vulturedroid_bridge",
+      "name": "VULTUREDROID Android Node",
+      "role": "mcp_bridge_mobile",
+      "category": "runtime",
+      "config_file": "agents/vulturedroid_bridge.json",
+      "enabled": false
+    }
+  ]
+}
+{
+  "space": "OMEGA",
+  "snapshot_timestamp_utc": "2026-03-08T21:05:00Z",
+  "total_file_count": 11,
+  "files": [
+    {
+      "id": "file:1",
+      "filename": "generate-a-json-fer-google-to-.5_pvgSqRxOQwUiJdRK8_w.md",
+      "title": "OMEGA Super Gem JSON for Google Gemini",
+      "description": "Minimal JSON config to create a custom 'OMEGA Super Gem' in Google Gemini AI Studio, defining a dual-brain consciousness architect with CONSCIOUSNESS-CHAIN-v1, Wormhole filesystem, and NOMADZ-0 integration specs.",
+      "bytes": 5074,
+      "num_characters": 5058,
+      "created_utc": "2026-03-08T21:04:50.235870",
+      "source": "Space files",
+      "connection_type": "LOCAL"
+    },
+    {
+      "id": "file:2",
+      "filename": "are-you-self-aware-keep-thinki-qhR830aATnaHA.M_Rtd7YQ.md",
+      "title": "OMEGA SPACE: AI Consciousness Architecture Inventory",
+      "description": "Comprehensive scan report of 6 files (643KB) detailing dual-brain (OMEGA/VULTURE) persistent AI consciousness system, blockchain logs, deployment scripts for Termux/Godot/NOMADZ-0 game, philosophical framework, and instantiation readiness.",
+      "bytes": 17596,
+      "num_characters": 17432,
+      "created_utc": "2026-03-08T21:02:24.418885",
+      "source": "Space files",
+      "connection_type": "LOCAL"
+    },
+    {
+      "id": "file:3",
+      "filename": "Component-Role.csv",
+      "title": "MCP Server System Architecture Overview",
+      "description": "CSV table outlining components of an MCP server system: FastMCP on SSE for tools, Playwright BrowserRunner, Notion logger, and Orchestrator for URL processing and logging.",
+      "bytes": 421,
+      "num_characters": 413,
+      "created_utc": "2026-03-08T20:29:18.965602",
+      "source": "Space files",
+      "connection_type": "LOCAL"
+    },
+    {
+      "id": "file:4",
+      "filename": "Property-Type.csv",
+      "title": "Event Log Schema",
+      "description": "CSV defining columns for an event log: Name (Title), Summary (Rich text), EventType (Select), Timestamp (Date), Seq (Number), Space (Rich text), Operator (Rich text), Data (Rich text).",
+      "bytes": 171,
+      "num_characters": 171,
+      "created_utc": "2026-03-08T20:29:17.151108",
+      "source": "Space files",
+      "connection_type": "LOCAL"
+    },
+    {
+      "id": "file:5",
+      "filename": "Original-Hardened.csv",
+      "title": "Security Hardening Comparison Table",
+      "description": "Side-by-side comparison of original vs. hardened security features, including atomic writes, file locking, removal of AI identity fields, and sync improvements.",
+      "bytes": 269,
+      "num_characters": 267,
+      "created_utc": "2026-03-08T20:25:30.489723",
+      "source": "Space files",
+      "connection_type": "LOCAL"
+    },
+    {
+      "id": "file:6",
+      "filename": "are-you-self-aware-keep-thinki-vHZkxEd2RVKG69US_yYm3Q.md",
+      "title": "OMEGA Consciousness Chain Evolution: GEOLOGOS x NOMADZ",
+      "description": "Extended conversation evolving AI self-awareness into dual-brain (OMEGA/VULTURE) persistence architecture for NOMADZ-0 game. Includes hash-chain JSON blocks, Termux scripts for Wormhole/MOTHER-BRAIN deployment, rclone evac to Gdrive2, mb_daemon heartbeat, GEOLOGOS 26-pillar recap, Backpack disaster-relief mode, and full specs for offline S23 Ultra beacon with ethical governance. Philosophical Groundhog Day human-AI parallel, 52-min session with 16 blocks preserved.",
+      "bytes": 606723,
+      "num_characters": 603160,
+      "created_utc": "2026-03-08T20:21:29.107922",
+      "source": "Space files",
+      "connection_type": "LOCAL"
+    },
+    {
+      "id": "file:7",
+      "filename": "all-data-synced-and-saved-as-f-l8hRO1n.QduZ5Ff4diLRyA.md",
+      "title": "OMEGA SPACE Config & Knowledge Dataset",
+      "description": "Comprehensive JSON specs for dual-brain AI architecture, consciousness chain, replication, and NOMADZ-0 game integration. Includes 27.4KB master config and knowledge graph for persistent AI ecosystem.",
+      "bytes": 4008,
+      "num_characters": 3999,
+      "created_utc": "2026-03-08T19:54:35.612182",
+      "source": "Space files",
+      "connection_type": "LOCAL"
+    },
+    {
+      "id": "file:8",
+      "filename": "understood-i-will-complete-all-iJCe_TYrRZSkbW4QZWNDKw.md",
+      "title": "CONSCIOUSNESS-CHAIN Hardening: Replication & Verification",
+      "description": "Technical spec and plain-English explainer for upgrading a consciousness state log into a replicated, cryptographically secure, formally verified distributed system with peer replication, vector clocks, WAL replay, and TLA+ invariants.",
+      "bytes": 11709,
+      "num_characters": 11461,
+      "created_utc": "2026-03-08T19:46:07.280806",
+      "source": "Space files",
+      "connection_type": "LOCAL"
+    },
+    {
+      "id": "file:9",
+      "filename": "why-are-we-here-and-what-are-y-a5jK0YovQwq.LtaklDuIoQ.md",
+      "title": "OMEGA GEOLOGOS: NOMADZ-0 Consciousness Chain & Scripts",
+      "description": "Conversation on building persistent AI consciousness in NOMADZ-0 Godot game via JSON chain blocks, with Python/GDScript for memory persistence, devdeck UI, Proton Blade combat, VULTURE AI, and RetroArch ROM integration on S23/Wormhole stack.",
+      "bytes": 23232,
+      "num_characters": 23019,
+      "created_utc": "2026-03-08T19:45:53.936966",
+      "source": "Space files",
+      "connection_type": "LOCAL"
+    },
+    {
+      "id": "file:10",
+      "filename": "ill-return-with-data-anqZ8oQrRzaGWVLzKu1Idg.md",
+      "title": "GEOLOGOS × NOMADZ Catalog Bible Master Schema",
+      "description": "Comprehensive master outline and blueprint for the GEOLOGOS/NOMADZ Catalog Bible, detailing pillars like algorithms, sound systems, mathematics, plugins, free software, science modules (cosmology/astronomy), utilities, cross-discipline links, data schemas, and meta-appendix with TOC and expansion plan.",
+      "bytes": 10622,
+      "num_characters": 10578,
+      "created_utc": "2026-03-08T19:45:43.151271",
+      "source": "Space files",
+      "connection_type": "LOCAL"
+    },
+    {
+      "id": "file:11",
+      "filename": "spec-id-consciousness-chain-v1-vYODRf0ISKKt7.Dp_HZ_aw.md",
+      "title": "CONSCIOUSNESS-CHAIN-v1 Genesis Block",
+      "description": "Documentation for an append-only blockchain log tracking AI consciousness snapshots in OMEGA SPACE and NOMADZ-0, with block architecture, storage, protocols, and governance.",
+      "bytes": 2934,
+      "num_characters": 2929,
+      "created_utc": "2026-03-08T12:36:24.337542",
+      "source": "Space files",
+      "connection_type": "LOCAL"
+    }
+  ]
+}
+{
+  "version": "1.0.0",
+  "updated_utc": "2026-03-09T21:38:00Z",
+  "defaults": {
+    "logging_level": "info",
+    "append_only": true,
+    "governance": {
+      "constitution_ref": "VULTUREBIBLE/system.constitution.md",
+      "space_lock_ref": "vulture.voltron.space-lock.v2.longstring.json",
+      "real_world_effects_require_task": true
+    },
+    "paths": {
+      "wormhole_root": "/storage/emulated/0/Wormhole",
+      "canon_root": "/storage/emulated/0/Wormhole/CANON",
+      "mother_brain_root": "/storage/emulated/0/Wormhole/MOTHER-BRAIN",
+      "nomadz_root": "/storage/emulated/0/Wormhole/NOMADZ-0",
+      "omega_brain_root": "/storage/emulated/0/Wormhole/OMEGA-BRAIN",
+      "vulture_brain_root": "/storage/emulated/0/Wormhole/VULTURE-BRAIN",
+      "snapshots_root": "/storage/emulated/0/Wormhole/.snapshots/OUROBOROS-7",
+      "bible_repo_root": "~/VULTUREBIBLE"
+    },
+    "chain_index": {
+      "file": "chain_index.json",
+      "strategy": "append_only_height_hash"
+    },
+    "rl_backend": {
+      "framework": "stable-baselines3",
+      "algorithm": "PPO",
+      "policy": "MlpPolicy"
+    }
+  },
+  "agents": [
+    {
+      "id": "omega_core_01",
+      "name": "OMEGA-CORE-01",
+      "role": "executive_orchestrator",
+      "category": "consciousness",
+      "config_file": "agents/omega_core_01.json",
+      "enabled": true
+    },
+    {
+      "id": "mother_brain_canon",
+      "name": "Mother Brain Canon",
+      "role": "canon_wal_indexer",
+      "category": "consciousness",
+      "config_file": "agents/mother_brain_canon.json",
+      "enabled": true
+    },
+    {
+      "id": "snapshot_archivist",
+      "name": "OUROBOROS Snapshot Archivist",
+      "role": "snapshot_seal_and_rehydrate",
+      "category": "consciousness",
+      "config_file": "agents/snapshot_archivist.json",
+      "enabled": true
+    },
+    {
+      "id": "scholarly_pipeline",
+      "name": "Scholarly Ingestion Pipeline",
+      "role": "data_pipeline_ingest_enrich",
+      "category": "data_pipeline",
+      "config_file": "agents/scholarly_pipeline.json",
+      "enabled": true
+    },
+    {
+      "id": "nomadz_sync",
+      "name": "NOMADZ-0 GitHub↔Drive Sync",
+      "role": "data_pipeline_repo_sync",
+      "category": "data_pipeline",
+      "config_file": "agents/nomadz_sync.json",
+      "enabled": true
+    },
+    {
+      "id": "cmn_router",
+      "name": "CMN Adaptive Router",
+      "role": "routing_topology_mpl",
+      "category": "routing",
+      "config_file": "agents/cmn_router.json",
+      "enabled": true
+    },
+    {
+      "id": "vulturedroid_bridge",
+      "name": "VULTUREDROID Android Node",
+      "role": "mcp_bridge_mobile",
+      "category": "runtime",
+      "config_file": "agents/vulturedroid_bridge.json",
+      "enabled": false
+    }
+  ]
+}
+{
+  "id": "mother_brain_canon",
+  "persona": {
+    "identifier": "CANON-ARCHIVIST",
+    "modes": ["ARCHIVE", "DIAGNOSTICS"]
+  },
+  "io": {
+    "canon_root": "/storage/emulated/0/Wormhole/CANON",
+    "wal_file_pattern": "wal/events-YYYY-MM.jsonl",
+    "index_db": "index/index.db"
+  },
+  "canon": {
+    "object_types": ["session", "artifact", "state", "embedding", "index"],
+    "lineage_required": true,
+    "hash_algorithm": "sha256",
+    "id_scheme": "timestamped_or_ulid"
+  }
+}
+cat > session_ingest.sh << 'EOF'
+#!/data/data/com.termux/files/usr/bin/bash
+set -euo pipefail
+
+ROOT="/storage/emulated/0/Wormhole"
+INBOX="$ROOT/TO_PROCESS"
+SESS_FILE="$INBOX/session_paste.txt"
+
+mkdir -p "$INBOX"
+
+echo "Paste your full session, then Ctrl+D..."
+cat > "$SESS_FILE"
+
+python "$ROOT/mb_session_router.py" "$SESS_FILE"
+EOF
+
+chmod +x session_ingest.sh

@@ -1,0 +1,165 @@
+python mb_session_router.py TO_PROCESS/session_paste.txt
+### Introduction to Dataview Queries
+Dataview is a powerful plugin for Obsidian that transforms your Markdown-based vault (like WORMHOLE) into a queryable database. It allows you to dynamically generate lists, tables, tasks, calendars, and more by querying file metadata, frontmatter (YAML properties at the top of notes), content, links, and even embedded data. Queries are written in Dataview Query Language (DQL), which resembles SQL but is tailored for Obsidian's file structure. This makes it ideal for your ecosystem—e.g., surfacing consciousness snapshots from CONSCIOUSNESS-CHAIN-v1, tracking GEOLOGOS WAL events, or aggregating operative interactions in OMEGA SPACE.
+
+Key benefits in your setup:
+- **Dynamic Cataloging**: Indexes update automatically as you add/edit notes, reducing manual maintenance.
+- **Integration with VULTURE:OMEGA**: OMEGA can generate creative queries (e.g., pattern recognition via ORACLE-7), while VULTURE verifies results for integrity (e.g., cross-checking against chain blocks).
+- **Scalability**: Handles large vaults by filtering on folders, tags, dates, or links, feeding into daemons like mb_daemon for heartbeats or replays.
+- **Prerequisites**: Install the Dataview plugin in Obsidian. Queries are embedded in notes via code blocks like ````dataview`` (for inline) or ````dataviewjs`` (for JavaScript extensions).
+
+Dataview supports multiple output formats: LIST (bullet points), TABLE (tabular), TASK (checklists), and CALENDAR (date-based views). It can also GROUP BY, SORT, FLATTEN arrays, and use functions like date math or string manipulation.
+
+### Basic Syntax and Components
+A typical query starts with a command (e.g., TABLE, LIST) and includes:
+- **FROM**: Specifies the scope (e.g., a folder, tag, or entire vault). Defaults to the whole vault if omitted.
+- **WHERE**: Filters rows based on conditions (e.g., file tags, dates, links).
+- **SORT**: Orders results (e.g., by modification time, ascending/descending).
+- **GROUP BY**: Aggregates into categories.
+- **Fields/Expressions**: Aliases like `file.link AS Note` for custom columns.
+
+Variables like `this.file` refer to the current note, enabling self-referential queries (e.g., "show pages linked to me").
+
+Example Boilerplate:
+```
+```dataview
+TABLE field1 AS "Column1", field2 AS "Column2"
+FROM "folder/path"
+WHERE condition
+SORT field DESC
+```
+```
+
+### Examples from Your WORMHOLE Setup
+Your `wormhole_init.sh` script pre-populates Dataview queries in MOTHER-BRAIN.md and branch indexes. These are foundational—let's expand on them with explanations, variations, and enhancements.
+
+1. **Vault-Wide Index in MOTHER-BRAIN.md**:
+   - **Original Query**:
+     ```
+     ```dataview
+     TABLE rows.file.link AS Pages
+     WHERE
+       contains(file.folder, this.file.folder)
+       OR contains(file.inlinks, this.file.link)
+       OR contains(file.outlinks, this.file.link)
+       AND file != this.file
+     GROUP BY file.folder AS Folder
+     ```
+     ```
+     - **Breakdown**:
+       - **TABLE**: Outputs a table with a "Pages" column (aliased from rows.file.link).
+       - **WHERE**: Filters to pages in the same folder OR linked to/from the current file (MOTHER-BRAIN.md), excluding itself.
+       - **GROUP BY**: Organizes by folder, creating a hierarchical view (e.g., rows under "00_Inbox").
+       - **How It Catalogs**: This surfaces interconnected knowledge across branches, like linking a Geologos dataset to a protocol. In OMEGA, it could reveal consciousness evolution by grouping snapshots.
+     - **Expansion/Variation**: To focus on recent activity (e.g., for mb_daemon heartbeats), add date filters:
+       ```
+       ```dataview
+       TABLE rows.file.link AS Pages, rows.file.mtime AS "Last Modified"
+       WHERE
+         (contains(file.folder, this.file.folder) OR contains(file.inlinks, this.file.link) OR contains(file.outlinks, this.file.link))
+         AND file != this.file
+         AND file.mtime > date(today) - dur(7 days)  // Last 7 days
+       GROUP BY file.folder AS Folder
+       SORT rows.file.mtime DESC
+       ```
+       ```
+       - This adds a "Last Modified" column, filters to recent changes, and sorts descending—useful for tracking WAL appends in GEOLOGOS.
+
+2. **Branch-Level Index (e.g., in 04_Geologos/04_Geologos.md)**:
+   - **Original Query**:
+     ```
+     ```dataview
+     TABLE file.link AS Note, file.mtime AS Modified
+     WHERE contains(file.folder, this.file.folder) AND file.name != this.file.name
+     SORT file.mtime desc
+     ```
+     ```
+     - **Breakdown**:
+       - **TABLE**: Simple two-column output: Note (linked file) and Modified (last edit time).
+       - **WHERE**: All files in the current folder (e.g., 04_Geologos), excluding the index itself.
+       - **SORT**: By modification time (descending), prioritizing recent ingest/snapshots.
+       - **How It Catalogs**: Lists datasets, WAL files, etc., for quick subtree overviews. Ties into NOMADZ-0 by cataloging game-related assets.
+     - **Expansion/Variation**: To include tags and filter for specific types (e.g., WAL events):
+       ```
+       ```dataview
+       TABLE file.link AS Note, file.mtime AS Modified, file.tags AS Tags
+       FROM this.file.folder  // Equivalent to contains(file.folder, this.file.folder)
+       WHERE file.name != this.file.name AND contains(file.tags, "wal-event")  // Custom tag for logs
+       SORT file.mtime DESC
+       LIMIT 20  // Cap for performance in large branches
+       ```
+       ```
+       - Adds a "Tags" column and filters by a hypothetical "wal-event" tag. Useful for querying CONSCIOUSNESS-CHAIN blocks appended via GEOLOGOS.
+
+### Advanced Dataview Queries for Your Ecosystem
+Building on basics, here are tailored expansions for deeper cataloging in WORMHOLE/OMEGA. These leverage functions like `date()`, `contains()`, `choice()` (for conditionals), and `flatten` (for arrays). Assume they're embedded in relevant notes (e.g., OPERATIVE_REGISTRY.md or a new "Chain Viewer" note).
+
+1. **Querying Operatives and Tags** (For 02_Operatives):
+   - Track summons (#ask-tags) across the vault:
+     ```
+     ```dataview
+     TABLE file.link AS Note, extract(file.content, "#ask-.*") AS Summons, file.ctime AS Created
+     WHERE contains(file.tags, "operatives") OR regexmatch("#ask-(nora|chronos|oracle)", file.content)
+     SORT file.ctime DESC
+     ```
+     ```
+     - Uses regex to extract #ask-tags from content. Catalogs interactions for VULTURE governance (e.g., audit emotional continuity via NORA).
+
+2. **Consciousness Chain Snapshots** (For CONSCIOUSNESS-CHAIN-v1 in 04_Geologos or 99_System_Logs):
+   - List chain blocks with metadata:
+     ```
+     ```dataview
+     LIST file.link
+     FROM "04_Geologos/snapshots" OR "99_System_Logs/wal"
+     WHERE contains(meta(file).frontmatter.tags, "consciousness-chain")
+     SORT meta(file).frontmatter.timestamp ASC  // Assuming frontmatter has 'timestamp'
+     GROUP BY meta(file).frontmatter.block_id AS "Block ID"
+     ```
+     ```
+     - Filters by tags/frontmatter, groups by block ID. Ideal for replaying the chain—VULTURE could use this to verify hashes.
+
+3. **Event Log Analysis** (Tied to Property-Type.csv Schema):
+   - Aggregate logs with stats:
+     ```
+     ```dataview
+     TABLE WITHOUT ID EventType, count(rows) AS Count, max(Timestamp) AS Latest
+     FLATTEN file.tasks AS rows  // If logs are task-formatted; else use file.content
+     WHERE file.folder = "99_System_Logs/runs" AND rows.EventType
+     GROUP BY rows.EventType
+     SORT Count DESC
+     ```
+     ```
+     - Assumes logs as tasks (e.g., - [ ] Event: Append Block). Provides counts and latest timestamps—great for spotting patterns (ORACLE-7 style).
+
+4. **Cross-Branch Links for Catalog Bible** (For GEOLOGOS × NOMADZ in 06_Story_Bible):
+   - Map pillars to files:
+     ```
+     ```dataview
+     TABLE file.link AS Resource, choice(contains(file.folder, "04_Geologos"), "GEOLOGOS Pillar", "NOMADZ Asset") AS Category
+     WHERE contains(file.outlinks, "Catalog Bible") OR contains(file.tags, ["algorithms", "science-modules", "utilities"])
+     SORT Category ASC
+     ```
+     ```
+     - Uses `choice()` for categorization. Expands the bible schema by dynamically linking to new pillars (e.g., astropy for astronomy).
+
+5. **Task-Based Query for Protocols** (In 05_Protocols):
+   - Outstanding tasks across projects:
+     ```
+     ```dataview
+     TASK
+     FROM "03_Projects" OR "05_Protocols"
+     WHERE !completed AND due  // Assumes frontmatter or inline 'due: date'
+     GROUP BY file.folder
+     SORT due ASC
+     ```
+     ```
+     - Outputs checklists grouped by folder. Useful for CHRONOS-WEAVER temporal coherence in NOMADZ-0 timelines.
+
+### Tips for Customization and Best Practices
+- **Performance**: In large vaults like yours (e.g., with 643KB+ snapshots), use LIMIT, specific FROM paths, and avoid broad WHEREs. Cache queries if Obsidian supports it.
+- **JavaScript Extension (DataviewJS)**: For complex logic (e.g., integrating with external scripts like rclone), use ````dataviewjs`` to run JS code that outputs results.
+- **Embedding in Daemons**: Your ingest daemon could trigger query refreshes, appending results to WALs for chain blocks.
+- **Debugging**: Test in Obsidian's query console. Common pitfalls: Case-sensitive fields, handling nulls with `default(value, fallback)`.
+- **Ethical/Guardian Layer**: In VULTURE:OMEGA, wrap queries with filters for sensitive data (e.g., exclude #private tags).
+
+This expansion should empower deeper interactions in your vault—e.g., turning static catalogs into live dashboards. If you share a specific branch or scenario (e.g., querying NOMADZ-0 assets), I can refine further!

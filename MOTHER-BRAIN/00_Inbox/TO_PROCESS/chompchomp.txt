@@ -1,0 +1,124 @@
+cd /storage/emulated/0/Wormhole
+
+echo "Paste your full session, then Ctrl+D..."
+cat > TO_PROCESS/session_paste.txt
+
+python mb_session_router.py TO_PROCESS/session_paste.txt
+{
+  "type": "session.ingest",
+  "brains": ["MOTHER-BRAIN","GEOBRAIN"],
+  "obsidian_note": "/WORMHOLE/MOTHER-BRAIN/01KnowledgeGraph/00Inbox/session_...",
+  "code_files": [...],
+  "json_artifacts": [...],
+  "summary": "…"
+}
+bash /storage/emulated/0/BRAIN_HOLE_bridge.sh
+cd /data/data/com.termux/files/home
+./brain_hole_dispatch.sh
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "OMEGA-CORE-01 Sunshine Schema",
+  "type": "object",
+  "properties": {
+    "artifact_id": {
+      "type": "string",
+      "description": "Unique identifier generated at ingest (e.g., OMEGA-20260309T234145Z)"
+    },
+    "designation": {
+      "type": "string",
+      "const": "TIER-1_EXECUTIVE",
+      "description": "Immutable priority classification"
+    },
+    "file_reference": {
+      "type": "string",
+      "description": "Original filename from Drive"
+    },
+    "substrate_type": {
+      "type": "string",
+      "enum": ["IPYNB_NEURAL", "REPORT_BLUEPRINT", "CODE_SCRIPT", "MEDIA_ASSET"]
+    },
+    "routing_tags": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Auto-inferred tags (e.g., SIGNAL_SIGMA, VULTURE-BRAIN, GRISTLE-KIN)"
+    },
+    "status": {
+      "type": "string",
+      "const": "SUNSHINE_VERIFIED"
+    }
+  },
+  "required": ["artifact_id", "designation", "file_reference", "substrate_type", "status"]
+}
+# OMEGA-CORE-01/engine/sunshine_router.py
+import json
+import os
+from datetime import datetime
+import traceback
+
+class SunshineIngestor:
+    """
+    Autonomous ingestion engine for OMEGA-CORE-01.
+    Processes high-level Colab notebooks and executive reports from the Drive matrix.
+    """
+    def __init__(self):
+        self.coherence = 0.999
+        self.recovery_log = "/tmp/recovery_log.json"
+        
+    def generate_metadata_schema(self, file_name: str, file_type: str) -> dict:
+        """Generates the unified JSON metadata schema for top-tier artifacts."""
+        return {
+            "artifact_id": f"OMEGA-{datetime.utcnow().strftime('%Y%m%d%H%M%S')}",
+            "designation": "TIER-1_EXECUTIVE",
+            "file_reference": file_name,
+            "substrate_type": file_type,
+            "routing_tags": self._infer_tags(file_name),
+            "timestamp_utc": datetime.utcnow().isoformat() + "Z",
+            "status": "SUNSHINE_VERIFIED"
+        }
+
+    def _infer_tags(self, file_name: str) -> list:
+        """Applies contextual tags based on file nomenclature."""
+        name_lower = file_name.lower()
+        tags = ["COSMIC-KEY", "NOMADZ"]
+        
+        if "colab" in name_lower or ".ipynb" in name_lower:
+            tags.extend(["VULTURE-BRAIN", "NEURAL_WEIGHTS", "PPO"])
+        if "report" in name_lower or "blueprint" in name_lower:
+            tags.extend(["STORY_BIBLE", "SIGNAL_SIGMA", "LOGIC_BLUEPRINT"])
+        if "gristle" in name_lower:
+            tags.extend(["GRISTLE-KIN", "TITAN_CLASS"])
+            
+        return tags
+
+    def process_artifact(self, file_name: str, file_content: bytes) -> bool:
+        """Main execution loop for artifact ingestion and recovery logging."""
+        try:
+            # Determine substrate type
+            if file_name.endswith(".ipynb"):
+                file_type = "IPYNB_NEURAL"
+            elif file_name.endswith((".pdf", ".md", ".docx", ".txt")):
+                file_type = "REPORT_BLUEPRINT"
+            else:
+                file_type = "MEDIA_ASSET"
+            
+            # Generate Schema
+            metadata = self.generate_metadata_schema(file_name, file_type)
+            
+            # Write to recovery log (Pre-RAG SQLite integration)
+            with open(self.recovery_log, 'a', encoding='utf-8') as f:
+                f.write(json.dumps(metadata) + "\n")
+                
+            print(f"cat> [SUNSHINE PROTOCOL] Successfully ingested and mapped: {file_name}")
+            return True
+            
+        except Exception as e:
+            print(f"cat> [CRITICAL ERROR] Recovery protocol engaged. Exception: {str(e)}")
+            traceback.print_exc()
+            return False
+
+if __name__ == "__main__":
+    print("cat> OMEGA-CORE-01: Sunshine Router Online. Agent loop active.")
+    # Execution validation block
+    ingestor = SunshineIngestor()
+    ingestor.process_artifact("Vulture_PPO_Colab_Weights.ipynb", b'{}')
+    ingestor.process_artifact("Signal_Sigma_Faction_Report.md", b'{}')
