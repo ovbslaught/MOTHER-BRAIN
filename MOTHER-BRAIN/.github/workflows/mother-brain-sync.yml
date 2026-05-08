@@ -1,0 +1,18 @@
+name: MOTHER-BRAIN MASTER SYNC
+on:
+  schedule:
+    - cron: '0 * * * *'
+  workflow_dispatch:
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Sync to Wormhole (Google Drive)
+        uses: adityak74/google-drive-upload-git-action@main
+        with:
+          credentials: ${{ secrets.GDRIVE_CREDENTIALS }}
+          filename: ./*
+          overwrite: true
+          mirrorDirectoryStructure: true
+          folderId: '1VSH08EzxY0Knni5HKUaHePTliUAKxfWh'

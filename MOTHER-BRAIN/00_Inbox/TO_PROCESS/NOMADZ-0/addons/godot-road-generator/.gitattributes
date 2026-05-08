@@ -1,0 +1,23 @@
+
+# LFS attributes
+
+# Export ignores, so that these files are ignored when someone installs the
+# plugin from the Godot Asset Library. You can test the changes by
+# running: `git archive`
+/.gitattributes              export-ignore
+/.github                     export-ignore
+/.gitignore                  export-ignore
+/.gut_editor_config.json     export-ignore
+/.gutconfig.json             export-ignore
+/CONTRIBUTING.md             export-ignore
+/default_env.tres            export-ignore
+/icon.png                    export-ignore
+/icon.png.import             export-ignore
+/LICENSE                     export-ignore
+/project.godot               export-ignore
+/README.md                   export-ignore
+/release.sh                  export-ignore
+/run_tests.sh                export-ignore
+/test/                       export-ignore
+/addons/gut/                 export-ignore
+/addons/road-generator/gizmo-designs.afdesign export-ignore
