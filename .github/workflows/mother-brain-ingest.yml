@@ -1,0 +1,151 @@
+# MOTHER-BRAIN Auto-Ingest Workflow
+# Scheduled daily + manual trigger
+# FREE TIER: uses ubuntu-latest, no cost on public repos
+# What this does:
+#   1. Runs on schedule (FATHER-TIME cron)
+#   2. Ingests repo metadata from all NOMADZ stack repos
+#   3. Generates a knowledge snapshot JSON
+#   4. Commits snapshot to data/snapshots/
+#   5. Creates summary report as artifact
+
+name: MOTHER-BRAIN Auto-Ingest
+
+on:
+  schedule:
+    - cron: '0 7 * * *'   # Daily 7am UTC (1 hour after VOLTRON health check)
+  push:
+    branches: [ main, Cosmic-key ]
+    paths:
+      - 'scripts/**'
+      - 'config/**'
+  workflow_dispatch:
+    inputs:
+      force_full:
+        description: 'Force full re-ingest'
+        required: false
+        default: 'false'
+
+jobs:
+  ingest:
+    name: Ingest Stack Knowledge
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+
+    steps:
+      - name: Checkout MOTHER-BRAIN
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          pip install requests
+
+      - name: Run MOTHER-BRAIN Ingest
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_OWNER: ovbslaught
+          FORCE_FULL: ${{ github.event.inputs.force_full || 'false' }}
+        run: |
+          mkdir -p data/snapshots data/exports
+          python3 - <<'PYEOF'
+          import os, json, requests
+          from datetime import datetime
+
+          owner = os.environ.get('GITHUB_OWNER', 'ovbslaught')
+          token = os.environ.get('GH_TOKEN', '')
+          headers = {
+            'Authorization': f'Bearer {token}',
+            'Accept': 'application/vnd.github.v3+json'
+          }
+
+          repos = [
+            'VOLTRON', 'MOTHER-BRAIN', 'NOMADZ-0', 'monolith-v.1',
+            'Cosmic-key', 'ocean', 'NOMADZ-', 'nomadz-swarm-rl-agents',
+            'omega-space-indexer', 'watchdog', 'NOMADZ_ARCHIVE',
+            'NOMADZ-0-WIKI', 'power-cosmic'
+          ]
+
+          snapshot = {
+            'generated': datetime.utcnow().isoformat(),
+            'source': 'github-actions-ingest',
+            'owner': owner,
+            'repos': {}
+          }
+
+          for repo in repos:
+            try:
+              r = requests.get(
+                f'https://api.github.com/repos/{owner}/{repo}',
+                headers=headers, timeout=10
+              )
+              if r.status_code == 200:
+                data = r.json()
+                snapshot['repos'][repo] = {
+                  'description': data.get('description', ''),
+                  'default_branch': data.get('default_branch', ''),
+                  'pushed_at': data.get('pushed_at', ''),
+                  'open_issues': data.get('open_issues_count', 0),
+                  'stars': data.get('stargazers_count', 0),
+                  'topics': data.get('topics', []),
+                  'language': data.get('language', ''),
+                  'private': data.get('private', False),
+                  'url': data.get('html_url', '')
+                }
+              else:
+                snapshot['repos'][repo] = {'error': r.status_code}
+            except Exception as e:
+              snapshot['repos'][repo] = {'error': str(e)}
+
+          # Save snapshot
+          ts = datetime.utcnow().strftime('%Y%m%d_%H%M')
+          snap_path = f'data/snapshots/snapshot_{ts}.json'
+          with open(snap_path, 'w') as f:
+            json.dump(snapshot, f, indent=2)
+
+          # Save latest
+          with open('data/snapshots/latest.json', 'w') as f:
+            json.dump(snapshot, f, indent=2)
+
+          print(f'Snapshot saved: {snap_path}')
+          print(f'Repos ingested: {len([r for r in snapshot["repos"].values() if "error" not in r])}/{len(repos)}')
+
+          # Generate text summary
+          summary = ['# MOTHER-BRAIN Ingest Summary', f'**Time:** {snapshot["generated"]}', '']
+          for rname, rdata in snapshot['repos'].items():
+            if 'error' not in rdata:
+              desc = rdata.get('description', 'no description')
+              pushed = rdata.get('pushed_at', 'unknown')[:10]
+              issues = rdata.get('open_issues', 0)
+              summary.append(f'- **{rname}**: {desc[:60]} | pushed {pushed} | issues: {issues}')
+            else:
+              summary.append(f'- **{rname}**: ERROR {rdata["error"]}')
+
+          with open('data/exports/summary_latest.md', 'w') as f:
+            f.write('\n'.join(summary))
+          PYEOF
+
+      - name: Commit Snapshot
+        run: |
+          git config user.name 'MOTHER-BRAIN'
+          git config user.email 'actions@github.com'
+          git add data/snapshots/ data/exports/
+          git diff --cached --quiet || git commit -m "MOTHER-BRAIN: auto-ingest snapshot $(date -u +%Y-%m-%d)"
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Summary Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ingest-summary-${{ github.run_number }}
+          path: data/exports/summary_latest.md
+          retention-days: 30
