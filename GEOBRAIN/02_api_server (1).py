@@ -73,7 +73,7 @@ logger = logging.getLogger(__name__)
 # ============================================================================
 
 try:
-    engine = create_engine(DATABASE_URL, pool_pre_ping=True, pool_timeout=30, max_retries=3)
+    engine = create_engine(DATABASE_URL, pool_pre_ping=True, pool_timeout=30)
     SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
     Base = declarative_base()
     
