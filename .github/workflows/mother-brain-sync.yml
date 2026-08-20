@@ -1,59 +1,61 @@
-name: "MOTHER-BRAIN MASTER SYNC — GitHub -> Google Drive Wormhole"
+name: MOTHER-BRAIN MASTER SYNC — GitHub -> Google Drive Wormhole
 
 on:
-  push:
-    branches:
-      - Cosmic-key
-      - main
   schedule:
-    # Sync every 6 hours to keep Wormhole fresh
     - cron: '0 */6 * * *'
+  push:
+    branches: [ main, Cosmic-key ]
   workflow_dispatch:
-    inputs:
-      trigger_source:
-        description: 'System that triggered this sync'
-        required: false
-        type: string
+
+concurrency:
+  group: wormhole-sync-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  sync-to-wormhole:
+  sync-mother-brain:
     runs-on: ubuntu-latest
-    name: Mirror MOTHER-BRAIN to Google Drive Wormhole
     steps:
       - name: Checkout MOTHER-BRAIN
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Sync to Wormhole (Google Drive)
-        uses: adityak74/google-drive-upload-git-action@main
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
-          credentials: ${{ secrets.GDRIVE_SERVICE_ACCOUNT_JSON }}
-          filename: "./*"
-          folderId: ${{ secrets.GDRIVE_FOLDER_ID }}
-          overwrite: "true"
-          mirrorDirectoryStructure: "true"
-          exclude: ".git/**, .godot/**, .tmp/**, __pycache__/**, *.pyc"
+          python-version: '3.11'
 
-      - name: Write sync manifest
+      - name: Pre-Sync WAL Checkpoint
         run: |
-          TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-          echo "[${TIMESTAMP}] MOTHER-BRAIN synced by: ${{ github.actor }}" >> MASTER_RECORD_INDEX.txt
-          echo "Branch: ${{ github.ref_name }} | Event: ${{ github.event_name }} | Source: ${{ github.event.inputs.trigger_source }}" >> MASTER_RECORD_INDEX.txt
-          echo "Commit: ${{ github.sha }}" >> MASTER_RECORD_INDEX.txt
-          echo "---" >> MASTER_RECORD_INDEX.txt
+          python -c "
+          import sqlite3, glob, os
+          for db_path in glob.glob('**/*.db', recursive=True):
+              try:
+                  conn = sqlite3.connect(db_path)
+                  conn.execute('PRAGMA wal_checkpoint(PASSIVE);')
+                  conn.close()
+                  print(f'Checkpointed: {db_path}')
+              except Exception as e:
+                  print(f'Notice for {db_path}: {e}')
+          "
 
-      - name: Commit sync manifest update
+      - name: Setup rclone
+        uses: animus-oss/setup-rclone@v1
+        with:
+          rclone-config: ${{ secrets.RCLONE_CONFIG }}
+
+      - name: Safe Copy to Google Drive Wormhole Mirror
         run: |
-          git config user.name "MOTHER-BRAIN Sync"
-          git config user.email "ovbslaught@gmail.com"
-          git add MASTER_RECORD_INDEX.txt
-          git diff --staged --quiet || git commit -m "[AUTO] Sync manifest update ${GITHUB_SHA:0:7}"
-          git push || true
-
-# SETUP REQUIRED:
-# Add these GitHub Secrets to MOTHER-BRAIN repo:
-#   GDRIVE_SERVICE_ACCOUNT_JSON  = Google Service Account JSON key file contents
-#   GDRIVE_FOLDER_ID             = Google Drive folder ID
-# Drive Path: ROOT/Wormhole/MOTHER-BRAIN/MOTHER-BRAIN-MASTER-RECORD
-# Ref: NOMADZ-0 Issue #2 (BRAIN-DUMP) | VULTURE:INC ecosystem
+          rclone copy . "gdrive:WORMHOLE/MOTHER-BRAIN" \
+            --checksum \
+            --fast-list \
+            --track-renames \
+            --exclude "*.db-wal" \
+            --exclude "*.db-shm" \
+            --exclude ".git/**" \
+            --exclude ".github/**" \
+            --exclude "__pycache__/**" \
+            --exclude "*.tmp" \
+            --exclude "-VAULT-/**" \
+            --exclude "-VAULT/**" \
+            --verbose
